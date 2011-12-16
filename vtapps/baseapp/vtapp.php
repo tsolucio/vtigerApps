@@ -14,11 +14,22 @@ class vtApp {
 	var $hasedit = true;
 	var $hasrefresh = true;
 	var $hassize = true;
+	var $candelete = true;
 	
 	function __construct($myId) {
-		$this->appid=$myId;		
+		global $currentModule;
+		$this->appid=$myId;
+		$this->apppath="modules/$currentModule/vtapps/app$myId";		
 	}
-	
+
+	public function getAppName($lang)  {
+		return $this->getvtAppTranslatedString('appName',$lang);
+	}
+
+	public function getAppIcon()  {
+		return $this->apppath."/icon.png";
+	}
+
 	public function setHasEdit($value) {
 		$this->hasedit = $value;
 	}
@@ -42,7 +53,11 @@ class vtApp {
 	public function getHasSize()  {
 		return $this->hassize;
 	}
-	
+
+	public function canDelete()  {
+		return $this->candelete;
+	}
+
 	public function getTitle($lang) {
 		return $this->getvtAppTranslatedString('Title',$lang);
 	}
@@ -94,11 +109,11 @@ class vtApp {
 	public function getvtAppTranslatedString($key,$lang) {
 		global $currentModule;
 		$trstr=$key;
-		if (file_exists("modules/$currentModule/vtapps/app".$this->appid."/language/$lang.lang.php")) {
-			include_once "modules/$currentModule/vtapps/app".$this->appid."/language/$lang.lang.php";
+		if (file_exists($this->apppath."/language/$lang.lang.php")) {
+			include_once $this->apppath."/language/$lang.lang.php";
 			if (!empty($vtapps_strings[$key])) $trstr=$vtapps_strings[$key];
-		} else if (file_exists("modules/$currentModule/vtapps/app".$this->appid."/language/en_us.lang.php")) {
-			include_once "modules/$currentModule/vtapps/app".$this->appid."/language/en_us.lang.php";
+		} else if (file_exists($this->apppath."/language/en_us.lang.php")) {
+			include_once $this->apppath."/language/en_us.lang.php";
 			if (!empty($vtapps_strings[$key])) $trstr=$vtapps_strings[$key];
 		}
 		return $trstr;

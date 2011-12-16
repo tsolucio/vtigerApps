@@ -1,5 +1,7 @@
 <?php
+global $current_language;
 $mypath="modules/$currentModule";
+include_once "$mypath/vtapps/baseapp/vtapp.php";
 function getDesc() {
 	return "stub func to return a desc";
 }
@@ -105,26 +107,34 @@ function getDesc() {
             </style>
 <div id="evvtCanvas" class="evvtCanvas">
 <?php
-$rsapps=$adb->query('select * from vtiger_evvtapps');
+$rsapps=$adb->query('select evvtappsid from vtiger_evvtapps');
 $numapps=$adb->num_rows($rsapps);
 for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and we will put it at the end
-	$appname=$adb->query_result($rsapps,$app-1,'appname');
-	echo "<div id='evvtapp$app' class='evvtappbox tooltip'><img src='$mypath/vtapps/app$app/icon.png'><span><b>$appname</b><br>".getDesc()."</span></div>";
-} 
+	$appid=$adb->query_result($rsapps,$app-1,'evvtappsid');
+	$loadedclases=get_declared_classes();
+	include_once "$mypath/vtapps/app$appid/vtapp.php";
+	$newclass=array_diff(get_declared_classes(), $loadedclases);
+	$newclass=array_pop($newclass);
+	$newApp=new $newclass($appid);
+	$divid="evvtapp$appid";
+	echo "<div id='$divid' class='evvtappbox tooltip'><img src='".$newApp->getAppIcon()."'><span><b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."</span></div>";
+	if ($newApp->canDelete()) {
+		echo '<script language="javascript">';
+		echo "var draggable$divid = $('#$divid').kendoDraggable({
+                        hint: function() {
+                        	var imgclone=$('#$divid').clone();
+                        	imgclone.css({margin: -40});
+                            return imgclone;
+                        }});";
+		echo '</script>';
+	}
+}
+// Now we do Trash Can, at the end
+include_once "$mypath/vtapps/app1/vtapp.php";
+$newApp=new vtAppcomTSolucioTrash(1);
 ?>
-<div id='evvtapptrash' class='evvtappbox tooltip'><img title="ooo" src='<?php echo $mypath; ?>/vtapps/app1/icon.png'><span><b>Trash</b><br>This is the crazy little Easy Tooltip Text.</span></div>
-</div> <!-- evvtCanvas -->
+<div id='evvtapptrash' class='evvtappbox tooltip'><img src='<?php echo $newApp->getAppIcon(); ?>'><span><b><?php echo $newApp->getAppName($current_language); ?></b><br><?php echo $newApp->getTooltipDescription($current_language); ?></span></div>
 <script language="javascript">
 var trashTarget = $("#evvtapptrash").kendoDropTarget();
-<?php
-for ($app=2;$app<=$numapps;$app++) {
-	$candelapp=$adb->query_result($rsapps,$app-1,'candelete');
-	if ($candelapp) {
-		echo "var dragablevvtapp$app = $('#evvtapp$app').kendoDraggable({
-                        hint: function() {
-                            return $('#evvtapp$app').clone();
-                        }});";
-	}
-} 
-?>
 </script>
+</div> <!-- evvtCanvas -->
