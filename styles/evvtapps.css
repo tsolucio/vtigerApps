@@ -5,18 +5,17 @@
 */
 
 /* evvtApps base CSS */
-
 .evvtCanvas {
-	margin:0 auto;
-	padding:0;
-	border:0;
-	outline:0; 
+	margin: 0 auto;
+	padding: 0;
+	border: 0;
+	outline: 0;
 	width: 96%;
 	height: 415px;
 	position: relative;
-	text-decoration:none;
-	font-size:100%;
-	list-style:none;
+	text-decoration: none;
+	font-size: 100%;
+	list-style: none;
 }
 
 .evvtToolbar {
@@ -31,4 +30,44 @@
 	left: 50%;
 	margin-top: -27px;
 	margin-left: -73px;
+}
+
+.evvtappbox {
+	height: 74px;
+	width: 74px;
+	border: 0;
+	float: left;
+}
+
+.evvtappbox img {
+	height: 64px;
+	width: 64px;
+	position: relative;
+	top: 50%;
+	left: 50%;
+	margin-top: -32px;
+	margin-left: -32px;
+}
+
+.evvtappbox:hover {
+	background: #ffffff;
+	text-decoration: none;
+} /*BG color is a must for IE6*/
+
+.evvtappbox.tooltip span {
+	display: none;
+	padding: 2px 3px;
+	margin-left: 8px;
+	width: 130px;
+}
+
+.evvtappbox.tooltip:hover span {
+	display: inline;
+	position: absolute;
+	border: 1px solid #cccccc;
+	background: #ffffff;
+	color: #6c6c6c;
+	z-index: 200;
+	margin-top: 10px;
+	margin-left: -10px;
 }

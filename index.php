@@ -1,12 +1,14 @@
 <?php
-$mypath='modules/evvtApps/';
+$mypath="modules/$currentModule";
+function getDesc() {
+	return "stub func to return a desc";
+}
 ?>
-<link href="<?php echo $mypath; ?>styles/evvtapps.css" rel="stylesheet" type="text/css" />
-<link href="<?php echo $mypath; ?>styles/kendo.common.css" rel="stylesheet" type="text/css" />
-<link href="<?php echo $mypath; ?>styles/kendo.default.css" rel="stylesheet" type="text/css" />
-<script src="<?php echo $mypath; ?>js/jquery.min.js" type="text/javascript"></script>
-<script src="<?php echo $mypath; ?>js/kendo.all.js" type="text/javascript"></script>
-<div id="example" class="k-content">
+<link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo $mypath; ?>/styles/kendo.common.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo $mypath; ?>/styles/kendo.default.css" rel="stylesheet" type="text/css" />
+<script src="<?php echo $mypath; ?>/js/jquery.min.js" type="text/javascript"></script>
+<script src="<?php echo $mypath; ?>/js/kendo.all.js" type="text/javascript"></script>
             <div id="window1">
                 <div id="chart1"></div>
             </div>
@@ -101,9 +103,28 @@ $mypath='modules/evvtApps/';
                     cursor: pointer;
                 }
             </style>
-        </div>
 <div id="evvtCanvas" class="evvtCanvas">
- <div id="evvtToolbar" class="evvtToolbar"><img src="<?php echo $mypath; ?>settingsBox.png"></div>
- <div id="evvtBack" class="evvtBack"><img src="<?php echo $mypath; ?>evolutivo.png"></div>
-</div>
-        
+<?php
+$rsapps=$adb->query('select * from vtiger_evvtapps');
+$numapps=$adb->num_rows($rsapps);
+for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and we will put it at the end
+	$appname=$adb->query_result($rsapps,$app-1,'appname');
+	echo "<div id='evvtapp$app' class='evvtappbox tooltip'><img src='$mypath/vtapps/app$app/icon.png'><span><b>$appname</b><br>".getDesc()."</span></div>";
+} 
+?>
+<div id='evvtapptrash' class='evvtappbox tooltip'><img title="ooo" src='<?php echo $mypath; ?>/vtapps/app1/icon.png'><span><b>Trash</b><br>This is the crazy little Easy Tooltip Text.</span></div>
+</div> <!-- evvtCanvas -->
+<script language="javascript">
+var trashTarget = $("#evvtapptrash").kendoDropTarget();
+<?php
+for ($app=2;$app<=$numapps;$app++) {
+	$candelapp=$adb->query_result($rsapps,$app-1,'candelete');
+	if ($candelapp) {
+		echo "var dragablevvtapp$app = $('#evvtapp$app').kendoDraggable({
+                        hint: function() {
+                            return $('#evvtapp$app').clone();
+                        }});";
+	}
+} 
+?>
+</script>
