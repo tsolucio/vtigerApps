@@ -1,16 +1,16 @@
 <?php
 global $current_language;
 $mypath="modules/$currentModule";
+include_once "$mypath/processConfig.php";
 include_once "$mypath/vtapps/baseapp/vtapp.php";
-function getDesc() {
-	return "stub func to return a desc";
-}
 ?>
 <link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/styles/kendo.common.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/styles/kendo.default.css" rel="stylesheet" type="text/css" />
+<link href="<?php echo $mypath; ?>/styles/tipsy.css" rel="stylesheet" type="text/css" />
 <script src="<?php echo $mypath; ?>/js/jquery.min.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/js/kendo.all.js" type="text/javascript"></script>
+<script src="<?php echo $mypath; ?>/js/jquery.tipsy.js" type="text/javascript"></script>
             <div id="window1">
                 <div id="chart1"></div>
             </div>
@@ -117,9 +117,10 @@ for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and w
 	$newclass=array_pop($newclass);
 	$newApp=new $newclass($appid);
 	$divid="evvtapp$appid";
-	echo "<div id='$divid' class='evvtappbox tooltip'><img src='".$newApp->getAppIcon()."'><span><b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."</span></div>";
+	echo "<div id='$divid' class='evvtappbox' title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."'><img src='".$newApp->getAppIcon()."'></div>";
 	if ($newApp->canDelete()) {
 		echo '<script language="javascript">';
+		echo "$('#$divid').tipsy($tipsy_settings);";
 		echo "var draggable$divid = $('#$divid').kendoDraggable({
                         hint: function() {
                         	var imgclone=$('#$divid').clone();
@@ -133,8 +134,9 @@ for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and w
 include_once "$mypath/vtapps/app1/vtapp.php";
 $newApp=new vtAppcomTSolucioTrash(1);
 ?>
-<div id='evvtapptrash' class='evvtappbox tooltip'><img src='<?php echo $newApp->getAppIcon(); ?>'><span><b><?php echo $newApp->getAppName($current_language); ?></b><br><?php echo $newApp->getTooltipDescription($current_language); ?></span></div>
+<div id='evvtapptrash' class='evvtappbox' title='<b><?php echo $newApp->getAppName($current_language); ?></b><br><?php echo $newApp->getTooltipDescription($current_language); ?>'><img src='<?php echo $newApp->getAppIcon(); ?>'></div>
 <script language="javascript">
+$("#evvtapptrash").tipsy(<?php echo $tipsy_settings; ?>);
 var trashTarget = $("#evvtapptrash").kendoDropTarget();
 </script>
 </div> <!-- evvtCanvas -->
