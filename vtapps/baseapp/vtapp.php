@@ -15,6 +15,8 @@ class vtApp {
 	var $hasrefresh = true;
 	var $hassize = true;
 	var $candelete = true;
+	var $wwidth = 0;
+	var $wheight = 0;
 	
 	function __construct($myId) {
 		global $currentModule;
@@ -58,12 +60,22 @@ class vtApp {
 		return $this->candelete;
 	}
 
+	public function getWidth()  {
+		global $window_width;
+		return ($this->wwidth==0 ? $window_width : $this->wwidth);
+	}
+
+	public function getHeight()  {
+		global $window_height;
+		return ($this->wheight==0 ? $window_height : $this->wheight);
+	}
+
 	public function getTitle($lang) {
 		return $this->getvtAppTranslatedString('Title',$lang);
 	}
 	
 	public function getTooltipDescription($lang) {
-		return $this->getvtAppTranslatedString('TooltipDescipriton',$lang);
+		return $this->getvtAppTranslatedString('TooltipDescription',$lang);
 	}
 
 	public function getEdit($lang) {		
@@ -80,6 +92,19 @@ class vtApp {
 
 	public function getAbout($lang) {		
 		return '';
+	}
+
+	public function getAppInfo($lang)  {
+		$info ='{appName: "'.$this->getvtAppTranslatedString('appName',$lang).'", ';
+		$info.='appTitle: "'.$this->getvtAppTranslatedString('Title',$lang).'", ';
+		$info.='className: "'.get_class($this).'", ';
+		$info.='hasEdit: '.(($this->hasedit and $this->getEdit('en_us')!='') ? '1' : '0').', ';
+		$info.='hasRefresh: '.($this->hasrefresh ? '1' : '0').', ';
+		$info.='hasSize: '.($this->hassize ? '1' : '0').', '; 
+		$info.='canDelete: '.($this->candelete ? '1' : '0').', ';
+		$info.='wWidth: '.$this->getWidth().', ';
+		$info.='wHeight: '.$this->getHeight().'}';
+		return $info;
 	}
 
 	public function doEdit($lang) {		
@@ -107,13 +132,14 @@ class vtApp {
 	}
 
 	public function getvtAppTranslatedString($key,$lang) {
-		global $currentModule;
+		global $log;
+		// OPTIMIZE: use cache to save translation array and not load from disk each time
 		$trstr=$key;
 		if (file_exists($this->apppath."/language/$lang.lang.php")) {
-			include_once $this->apppath."/language/$lang.lang.php";
+			include $this->apppath."/language/$lang.lang.php";
 			if (!empty($vtapps_strings[$key])) $trstr=$vtapps_strings[$key];
 		} else if (file_exists($this->apppath."/language/en_us.lang.php")) {
-			include_once $this->apppath."/language/en_us.lang.php";
+			include $this->apppath."/language/en_us.lang.php";
 			if (!empty($vtapps_strings[$key])) $trstr=$vtapps_strings[$key];
 		}
 		return $trstr;

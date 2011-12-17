@@ -1,6 +1,9 @@
 <?php
 /*  Configuration variables  */
 
+// Window
+$window_width = 400;
+$window_height = 400;
 
 // TOOLTIP
 $tooltip_delayIn='3000';   // delay before showing tooltip (ms)

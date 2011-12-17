@@ -11,6 +11,7 @@ include_once "$mypath/vtapps/baseapp/vtapp.php";
 <script src="<?php echo $mypath; ?>/js/jquery.min.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/js/kendo.all.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/js/jquery.tipsy.js" type="text/javascript"></script>
+<script src="<?php echo $mypath; ?>/js/evvtapps.js" type="text/javascript"></script>
             <div id="window1">
                 <div id="chart1"></div>
             </div>
@@ -117,18 +118,21 @@ for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and w
 	$newclass=array_pop($newclass);
 	$newApp=new $newclass($appid);
 	$divid="evvtapp$appid";
-	echo "<div id='$divid' class='evvtappbox' title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."'><img src='".$newApp->getAppIcon()."'></div>";
+	echo "<div id='$divid' class='evvtappbox'
+	       title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."'
+	       onclick='evvtappsOpenWindow($appid,\"$newclass\",".$newApp->getAppInfo($current_language).")'>
+	       <img src='".$newApp->getAppIcon()."'></div>";
+	echo '<script language="javascript">';
+	echo "$('#$divid').tipsy($tipsy_settings);";
 	if ($newApp->canDelete()) {
-		echo '<script language="javascript">';
-		echo "$('#$divid').tipsy($tipsy_settings);";
 		echo "var draggable$divid = $('#$divid').kendoDraggable({
                         hint: function() {
                         	var imgclone=$('#$divid').clone();
                         	imgclone.css({margin: -40});
                             return imgclone;
                         }});";
-		echo '</script>';
 	}
+	echo '</script>';
 }
 // Now we do Trash Can, at the end
 include_once "$mypath/vtapps/app1/vtapp.php";
