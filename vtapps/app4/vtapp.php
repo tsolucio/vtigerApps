@@ -12,7 +12,7 @@ class vtAppcomTSolucioevvtApps extends vtApp {
 	
 	var $hasedit = false;
 	var $hasrefresh = false;
-	var $hassize = false;
+	var $hassize = true;
 	var $candelete = false;
 	var $wwidth = 250;
 	var $wheight = 110;
@@ -24,8 +24,13 @@ class vtAppcomTSolucioevvtApps extends vtApp {
 	public function getAbout($lang) {
 		$about = '<img src="'.$this->getAppIcon().'" style="float:left"><br/>';
 		$about.= '<b>vtEvolutivo::vtApps</b><br/>';
-		$about.= 'Copyright &copy; 2012<br/><br/>';		
+		$about.= 'Copyright &copy; 2012<br/><br/>';
+		$about.= date('H:i:s').'<br/>';
+		//$about.= '<script language="javascript">alert("jsExec");</script>';		
 		return $about;
+	}
+	public function doResize($lang,$nwidth,$nheight) {		
+		return $this->getAbout($lang)."<br>$nwidth"."<br>$nheight";
 	}
 
 }

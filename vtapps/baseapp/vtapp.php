@@ -111,15 +111,15 @@ class vtApp {
 		return '';
 	}
 	
-	public function doRefresh($lang) {		
-		return '';
+	public function doResize($lang,$newWidth=0,$newHeight=0) {		
+		return $this->getContent($lang);
 	}
 
-	public function doShow($lang) {		
+	public function doShow() {		
 		return '';
 	}
 	
-	public function doHide($lang) {		
+	public function doHide() {		
 		return '';
 	}
 

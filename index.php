@@ -144,3 +144,6 @@ $("#evvtapptrash").tipsy(<?php echo $tipsy_settings; ?>);
 var trashTarget = $("#evvtapptrash").kendoDropTarget();
 </script>
 </div> <!-- evvtCanvas -->
+<script language="javascript">
+$(window).unload( unloadCanvas );
+</script>

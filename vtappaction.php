@@ -14,6 +14,22 @@ if (!empty($classname) and !empty($action) and !empty($appid)) {
 		case 'getAbout':
 			$return=$vtapp->getAbout($current_language);
 			break;
+		case 'getContent':
+			$return=$vtapp->getContent($current_language);
+			break;
+		case 'doResize':
+			$vtaWidth = vtlib_purify($_REQUEST['appwidth']);
+			$vtaHeight= vtlib_purify($_REQUEST['appheight']);
+			$return=$vtapp->doResize($current_language,$vtaWidth,$vtaHeight);
+			break;
+		case 'doShow':
+			// FIXME : Save app status for this user
+			$return=$vtapp->doShow();
+			break;
+		case 'doHide':
+			// FIXME : Save app status for this user
+			$return=$vtapp->doHide();
+			break;
 	}
 }
 echo $return;
