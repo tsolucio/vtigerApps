@@ -155,7 +155,9 @@ $newApp=new vtAppcomTSolucioTrash(1);
 <div id='evvtapptrash' class='evvtappbox' title='<b><?php echo $newApp->getAppName($current_language); ?></b><br><?php echo $newApp->getTooltipDescription($current_language); ?>'><img src='<?php echo $newApp->getAppIcon(); ?>'></div>
 <script language="javascript">
 $("#evvtapptrash").tipsy(<?php echo $tipsy_settings; ?>);
-var trashTarget = $("#evvtapptrash").kendoDropTarget();
+$("#evvtapptrash").kendoDropTarget({
+	drop: droptargetTrashApp
+});
 </script>
 <?php } ?>
 </div> <!-- evvtCanvas -->

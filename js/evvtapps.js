@@ -115,6 +115,11 @@ function onEditDeactivate() {
 	$('#vtappedit'+this.options.vtappid).remove();
 }
 
+function droptargetTrashApp() {
+	$("#evvtapptrash").text("dropped.");
+	//alert(e.data("kendoWindow").options.vtappid);
+}
+
 // Leaving vtApps, we have to save this users settings
 function unloadCanvas(eventObject) {
 	$('div[vtappkwin=vtappkwin]').map(function() {
