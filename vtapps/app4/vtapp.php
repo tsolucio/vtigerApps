@@ -10,12 +10,15 @@
 
 class vtAppcomTSolucioevvtApps extends vtApp {
 	
-	var $hasedit = false;
+	var $hasedit = true;
 	var $hasrefresh = false;
 	var $hassize = true;
 	var $candelete = false;
 	var $wwidth = 250;
 	var $wheight = 110;
+	var $haseditsize = true;
+	var $ewidth = 180;
+	var $eheight = 120;
 
 	public function getContent($lang) {		
 		return $this->getAbout($lang);
@@ -31,6 +34,11 @@ class vtAppcomTSolucioevvtApps extends vtApp {
 	}
 	public function doResize($lang,$nwidth,$nheight) {		
 		return $this->getAbout($lang)."<br>$nwidth"."<br>$nheight";
+	}
+	public function getEdit($lang) {		
+		$editwindow='<br><b>Close me to see my main window refresh!</b><br><br>';
+		$editwindow.='<p align=center><input type=button onclick="$(\'#vtappedit'.$this->appid.'\').data(\'kendoWindow\').close()" value="Close"></p>';
+		return $editwindow;
 	}
 
 }

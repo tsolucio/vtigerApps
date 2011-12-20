@@ -5,7 +5,7 @@
 
 var evvtURLp='module=evvtApps&action=evvtAppsAjax&file=vtappaction';
 
-function evvtappsOpenWindow(appid,classname,appinfo) {
+function evvtappsOpenWindow(appid,classname,appinfo,editInfo) {
 	arrAction = new Array();
 	elements=0;
 	if (appinfo.hasEdit) arrAction[elements++]="Edit";
@@ -39,10 +39,18 @@ function evvtappsOpenWindow(appid,classname,appinfo) {
 		appwindow=$('#'+windowname).data("kendoWindow");
 		appwindow.wrapper.css('top',appinfo.wTop+'px');
 		appwindow.wrapper.css('left',appinfo.wLeft+'px');
+		// Bind edit button
+		if (appinfo.hasEdit) {
+			$('#vtapp'+appid+'edit').click(function () { onWindowEdit(appid,editInfo) });
+		}
 	} else {  // we put it on top
 		appwindow=$('#'+windowname).data("kendoWindow");
 		appwindow.toFront();
 	}
+}
+
+function vtAppChangeIcon(appid,icon) {
+	$('#evvtapp'+appid+' img').attr("src",icon);
 }
 
 // Eliminate window div onClose so we can open it again later
@@ -76,6 +84,37 @@ function onWindowClose() {
 	});
 }
 
+//Edit window action
+function onWindowEdit(appid,editInfo) {
+	windowname='vtappedit'+appid;
+	$('#evvtCanvas').append('<div id="'+windowname+'" class="k-content" vtappid="'+appid+'"></div>');
+	$('#'+windowname).kendoWindow({
+		vtappid: appid,
+		vtclassname: editInfo.className,
+		draggable: true,  // all windows are draggable
+		resizable: editInfo.hasSize,
+		visible: true,  // we are opening it!
+		width: editInfo.wWidth,
+		height: editInfo.wHeight,
+		title: editInfo.title,
+		modal: true,
+		content: 'index.php?'+evvtURLp+'&vtappaction=getEdit&class='+editInfo.className+'&appid='+appid,
+		//activate:,
+		deactivate: onEditDeactivate,
+		//open: onWindowOpen,
+		//close: onEditClose,
+		//resize: onWindowResize,
+		//dragend:,
+		actions: [ 'Close' ]
+	 });
+	$('#'+windowname).data("kendoWindow").center();
+}
+
+function onEditDeactivate() {
+	$('#vtapp'+this.options.vtappid).data("kendoWindow").refresh();
+	$('#vtappedit'+this.options.vtappid).remove();
+}
+
 // Leaving vtApps, we have to save this users settings
 function unloadCanvas(eventObject) {
 	$('div[vtappkwin=vtappkwin]').map(function() {
@@ -96,10 +135,6 @@ function unloadCanvas(eventObject) {
 		});
 		}}
 	});
-}
-
-function vtAppChangeIcon(appid,icon) {
-	$('#evvtapp'+appid+' img').attr("src",icon);
 }
 
 function dumpProps(obj, parent) {

@@ -17,6 +17,9 @@ if (!empty($classname) and !empty($action) and !empty($appid)) {
 		case 'getContent':
 			$return=$vtapp->getContent($current_language);
 			break;
+		case 'getEdit':
+			$return=$vtapp->getEdit($current_language);
+			break;
 		case 'doResize':
 			$vtaWidth = vtlib_purify($_REQUEST['appwidth']);
 			$vtaHeight= vtlib_purify($_REQUEST['appheight']);

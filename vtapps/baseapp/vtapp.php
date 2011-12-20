@@ -17,6 +17,9 @@ class vtApp {
 	var $candelete = true;
 	var $wwidth = 0;
 	var $wheight = 0;
+	var $haseditsize = true;
+	var $ewidth = 0;
+	var $eheight = 0;
 	
 	function __construct($myId) {
 		global $currentModule;
@@ -37,7 +40,7 @@ class vtApp {
 	}
 	
 	public function getHasEdit()  {
-		return $this->hasedit and $this->getEdit('en_us')!=''; // at least we have screen in english
+		return ($this->hasedit and $this->getEdit('en_us')!=''); // at least we have screen in english
 	}
 	
 	public function setHasRefresh($value) {
@@ -97,7 +100,17 @@ class vtApp {
 	public function getEdit($lang) {		
 		return '';
 	}
-	
+
+	public function getEditWidth()  {
+		global $edit_window_width;
+		return (empty($this->ewidth) ? $edit_window_width : $this->ewidth);
+	}
+
+	public function getEditHeight()  {
+		global $edit_window_height;
+		return (empty($this->eheight) ? $edit_window_height : $this->eheight);
+	}
+
 	public function getContent($lang) {		
 		return 'This is the default empty widget';
 	}
@@ -125,10 +138,19 @@ class vtApp {
 		return $info;
 	}
 
-	public function doEdit($lang) {		
-		return '';
+	public function getEditInfo($lang)  {
+		if ($this->getHasEdit()) {
+		$info ='{title: "'.$this->getvtAppTranslatedString('Edit',$lang).' '.$this->getvtAppTranslatedString('appName',$lang).'", ';
+		$info.='className: "'.get_class($this).'", ';
+		$info.='hasSize: '.($this->haseditsize ? '1' : '0').', '; 
+		$info.='wWidth: '.$this->getEditWidth().', ';
+		$info.='wHeight: '.$this->getEditHeight().'}';
+		} else {
+		$info = '{}';
+		}
+		return $info;
 	}
-	
+
 	public function doResize($lang,$newWidth=0,$newHeight=0) {		
 		return $this->getContent($lang);
 	}

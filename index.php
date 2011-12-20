@@ -142,7 +142,7 @@ for ($app=0;$app<$numapps;$app++) {
 	// Now we open all the visible widgets for the current user
 	$visible=$adb->getone("select wvisible from vtiger_evvtappsuser where appid=$appid and userid=".$current_user->id);
 	if (is_null($visible) or $visible==1) {
-	echo "evvtappsOpenWindow($appid,'$newclass',".$newApp->getAppInfo($current_language).');';
+	echo "evvtappsOpenWindow($appid,'$newclass',".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).');';
 	}
 	echo '</script>';
 }

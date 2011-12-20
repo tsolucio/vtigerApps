@@ -23443,7 +23443,7 @@
                 "<div class='k-window-actions k-header'>" +
                 "# for (var i = 0; i < actions.length; i++) { #" +
                     "<a href='\\#' class='k-window-action k-link'>" +
-                        "<span class='k-icon k-#= actions[i].toLowerCase() #'>#= actions[i] #</span>" +
+                        "<span id='vtapp# if (typeof vtappid!=='undefined') { ##= vtappid ##}##= actions[i].toLowerCase() #' class='k-icon k-#= actions[i].toLowerCase() #'>#= actions[i] #</span>" +
                     "</a>" +
                 "# } #" +
                 "</div>" +
