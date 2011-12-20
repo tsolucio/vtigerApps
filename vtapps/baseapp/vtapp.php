@@ -61,13 +61,29 @@ class vtApp {
 	}
 
 	public function getWidth()  {
-		global $window_width;
+		global $window_width,$adb,$current_user;
+		$wwidth=$adb->getone('SELECT wwidth FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		if (!empty($wwidth)) $this->wwidth=$wwidth;
 		return ($this->wwidth==0 ? $window_width : $this->wwidth);
 	}
 
 	public function getHeight()  {
-		global $window_height;
+		global $window_height,$adb,$current_user;
+		$wheight=$adb->getone('SELECT wheight FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		if (!empty($wheight)) $this->wheight=$wheight;
 		return ($this->wheight==0 ? $window_height : $this->wheight);
+	}
+
+	public function getTop()  {
+		global $window_top,$adb,$current_user;
+		$wtop=$adb->getone('SELECT wtop FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		return (empty($wtop) ? $window_top : $wtop);
+	}
+
+	public function getLeft()  {
+		global $window_left,$adb,$current_user;
+		$wleft=$adb->getone('SELECT wleft FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		return (empty($wleft) ? $window_left : $wleft);
 	}
 
 	public function getTitle($lang) {
@@ -102,6 +118,8 @@ class vtApp {
 		$info.='hasRefresh: '.($this->hasrefresh ? '1' : '0').', ';
 		$info.='hasSize: '.($this->hassize ? '1' : '0').', '; 
 		$info.='canDelete: '.($this->candelete ? '1' : '0').', ';
+		$info.='wTop: '.$this->getTop().', ';
+		$info.='wLeft: '.$this->getLeft().', ';
 		$info.='wWidth: '.$this->getWidth().', ';
 		$info.='wHeight: '.$this->getHeight().'}';
 		return $info;
@@ -143,6 +161,29 @@ class vtApp {
 			if (!empty($vtapps_strings[$key])) $trstr=$vtapps_strings[$key];
 		}
 		return $trstr;
+	}
+
+	public function evvtSetVisible($value) {
+		global $adb,$current_user;
+		$numrecs=$adb->getone('SELECT count(*) FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		if ($numrecs==0) $this->evvtCreateUserApp();
+		$adb->pquery("update vtiger_evvtappsuser set wvisible=? where appid=? and userid=?",array($value,$this->appid,$current_user->id));
+	}
+
+	public function evvtCreateUserApp() {
+		global $adb,$current_user, $window_left, $window_top;
+		$rs=$adb->pquery('INSERT INTO vtiger_evvtappsuser
+		 (appid,userid,wtop,wleft,wwidth,wheight,wvisible,wenabled,canread,canwrite,candelete,canhide,canshow)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
+		 array($this->appid,$current_user->id,$window_top,$window_left,$this->wwidth,$this->wheight,1,1,1,1,$this->candelete,1,1));
+	}
+
+	public function evvtSaveAppPosition($wtop,$wleft,$wwidth,$wheight) {
+		global $adb,$current_user;
+		$numrecs=$adb->getone('SELECT count(*) FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		if ($numrecs==0) $this->evvtCreateUserApp();
+		$adb->pquery("update vtiger_evvtappsuser set wtop=?,wleft=?,wwidth=?,wheight=? where appid=? and userid=?",
+		array($wtop,$wleft,$wwidth,$wheight,$this->appid,$current_user->id));
 	}
 
 }

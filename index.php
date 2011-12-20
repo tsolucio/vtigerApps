@@ -1,5 +1,5 @@
 <?php
-global $current_language;
+global $current_language,$current_user;
 $mypath="modules/$currentModule";
 include_once "$mypath/processConfig.php";
 include_once "$mypath/vtapps/baseapp/vtapp.php";
@@ -108,14 +108,21 @@ include_once "$mypath/vtapps/baseapp/vtapp.php";
             </style>
 <div id="evvtCanvas" class="evvtCanvas">
 <?php
-$rsapps=$adb->query('select evvtappsid from vtiger_evvtapps');
+if (is_admin($current_user))
+	$rsapps=$adb->query('select evvtappsid from vtiger_evvtapps where evvtappsid!=1 order by evvtappsid');
+else
+	$rsapps=$adb->pquery('select evvtappsid from vtiger_evvtapps
+	 inner join vtiger_evvtappsuser on appid=evvtappsid
+	 where userid=? and wenabled and canread and evvtappsid!=1 order by sortorder',array($current_user->id));
+$classnames=array();
 $numapps=$adb->num_rows($rsapps);
-for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and we will put it at the end
-	$appid=$adb->query_result($rsapps,$app-1,'evvtappsid');
+for ($app=0;$app<$numapps;$app++) {
+	$appid=$adb->query_result($rsapps,$app,'evvtappsid');
 	$loadedclases=get_declared_classes();
 	include_once "$mypath/vtapps/app$appid/vtapp.php";
 	$newclass=array_diff(get_declared_classes(), $loadedclases);
 	$newclass=array_pop($newclass);
+	$classnames[$appid]=$newclass;
 	$newApp=new $newclass($appid);
 	$divid="evvtapp$appid";
 	echo "<div id='$divid' class='evvtappbox'
@@ -132,9 +139,16 @@ for ($app=2;$app<=$numapps;$app++) {  // jump app1 which MUST be Trash Can and w
                             return imgclone;
                         }});";
 	}
+	// Now we open all the visible widgets for the current user
+	$visible=$adb->getone("select wvisible from vtiger_evvtappsuser where appid=$appid and userid=".$current_user->id);
+	if (is_null($visible) or $visible==1) {
+	echo "evvtappsOpenWindow($appid,'$newclass',".$newApp->getAppInfo($current_language).');';
+	}
 	echo '</script>';
 }
 // Now we do Trash Can, at the end
+$numdel=$adb->getone("select count(*) from vtiger_evvtappsuser where wenabled and candelete and userid=".$current_user->id);
+if (is_admin($current_user) or $numdel>0) {
 include_once "$mypath/vtapps/app1/vtapp.php";
 $newApp=new vtAppcomTSolucioTrash(1);
 ?>
@@ -143,6 +157,7 @@ $newApp=new vtAppcomTSolucioTrash(1);
 $("#evvtapptrash").tipsy(<?php echo $tipsy_settings; ?>);
 var trashTarget = $("#evvtapptrash").kendoDropTarget();
 </script>
+<?php } ?>
 </div> <!-- evvtCanvas -->
 <script language="javascript">
 $(window).unload( unloadCanvas );

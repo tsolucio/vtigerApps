@@ -15,7 +15,7 @@ function evvtappsOpenWindow(appid,classname,appinfo) {
 	arrAction[elements++]="Close";
 	windowname='vtapp'+appid;
 	if ($('#'+windowname).length==0) {  // doesn't exist yet, we have to create it
-		$('#evvtCanvas').append('<div id="'+windowname+'"></div>');
+		$('#evvtCanvas').append('<div id="'+windowname+'" class="k-content" vtappkwin="vtappkwin"></div>');
 		$('#'+windowname).kendoWindow({
 			vtappid: appid,
 			vtclassname: appinfo.className,
@@ -35,6 +35,10 @@ function evvtappsOpenWindow(appid,classname,appinfo) {
 			//dragend:,
 			actions: arrAction
 		 });
+		// Position it
+		appwindow=$('#'+windowname).data("kendoWindow");
+		appwindow.wrapper.css('top',appinfo.wTop+'px');
+		appwindow.wrapper.css('left',appinfo.wLeft+'px');
 	} else {  // we put it on top
 		appwindow=$('#'+windowname).data("kendoWindow");
 		appwindow.toFront();
@@ -74,7 +78,28 @@ function onWindowClose() {
 
 // Leaving vtApps, we have to save this users settings
 function unloadCanvas(eventObject) {
-	// FIXME
+	$('div[vtappkwin=vtappkwin]').map(function() {
+		if (this.id!=undefined) {
+		var jskWindow = $('#'+this.id).data("kendoWindow");
+		if (jskWindow!=undefined) {
+		var url = evvtURLp+'&vtappaction=doSaveAppPosition';
+		url = url + '&class='+jskWindow.options.vtclassname;
+		url = url + '&appid='+jskWindow.options.vtappid;
+		url = url + '&wtop='+jskWindow.wrapper.css('top');
+		url = url + '&wleft='+jskWindow.wrapper.css('left');
+		url = url + '&wwidth='+jskWindow.wrapper.css('width');
+		url = url + '&wheight='+jskWindow.wrapper.css('height');
+		$.ajax({
+		  type: 'POST',
+		  url: 'index.php',
+		  data: url 
+		});
+		}}
+	});
+}
+
+function vtAppChangeIcon(appid,icon) {
+	$('#evvtapp'+appid+' img').attr("src",icon);
 }
 
 function dumpProps(obj, parent) {

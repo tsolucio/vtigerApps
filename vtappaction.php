@@ -23,12 +23,19 @@ if (!empty($classname) and !empty($action) and !empty($appid)) {
 			$return=$vtapp->doResize($current_language,$vtaWidth,$vtaHeight);
 			break;
 		case 'doShow':
-			// FIXME : Save app status for this user
+			$vtapp->evvtSetVisible(1);
 			$return=$vtapp->doShow();
 			break;
 		case 'doHide':
-			// FIXME : Save app status for this user
+			$vtapp->evvtSetVisible(0);
 			$return=$vtapp->doHide();
+			break;
+		case 'doSaveAppPosition':
+			$wtop = vtlib_purify($_REQUEST['wtop']);
+			$wleft = vtlib_purify($_REQUEST['wleft']);
+			$wwidth = vtlib_purify($_REQUEST['wwidth']);
+			$wheight = vtlib_purify($_REQUEST['wheight']);
+			$return=$vtapp->evvtSaveAppPosition($wtop,$wleft,$wwidth,$wheight);
 			break;
 	}
 }

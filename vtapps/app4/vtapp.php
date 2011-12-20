@@ -22,7 +22,7 @@ class vtAppcomTSolucioevvtApps extends vtApp {
 	}
 
 	public function getAbout($lang) {
-		$about = '<img src="'.$this->getAppIcon().'" style="float:left"><br/>';
+		$about = '<img src="'.$this->getAppIcon().'" style="float:left" onclick="vtAppChangeIcon('.$this->appid.",'".$this->apppath."/evolutivo.png".'\');"><br/>';
 		$about.= '<b>vtEvolutivo::vtApps</b><br/>';
 		$about.= 'Copyright &copy; 2012<br/><br/>';
 		$about.= date('H:i:s').'<br/>';

@@ -4,6 +4,8 @@
 // Window
 $window_width = 400;
 $window_height = 400;
+$window_top = 100;
+$window_left = 40;
 
 // TOOLTIP
 $tooltip_delayIn='3000';   // delay before showing tooltip (ms)
