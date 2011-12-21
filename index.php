@@ -33,12 +33,12 @@ for ($app=0;$app<$numapps;$app++) {
 	$divid="evvtapp$appid";
 	echo "<div id='$divid' class='evvtappbox'
 	       title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."'
-	       onclick='evvtappsOpenWindow($appid,\"$newclass\",".$newApp->getAppInfo($current_language).")'>
+	       onclick='evvtappsOpenWindow($appid,\"$newclass\",".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).")'>
 	       <img src='".$newApp->getAppIcon()."'></div>";
 	echo '<script language="javascript">';
 	echo "$('#$divid').tipsy($tipsy_settings);";
 	if ($newApp->canDelete()) {
-		echo "var draggable$divid = $('#$divid').kendoDraggable({
+		echo "$('#$divid').kendoDraggable({
                         hint: function() {
                         	var imgclone=$('#$divid').clone();
                         	imgclone.css({margin: -40});
@@ -52,7 +52,7 @@ for ($app=0;$app<$numapps;$app++) {
 	}
 	echo '</script>';
 }
-// Now we do Trash Can, at the end
+// Now we do Trash Can, always at the end
 $numdel=$adb->getone("select count(*) from vtiger_evvtappsuser where wenabled and candelete and userid=".$current_user->id);
 if (is_admin($current_user) or $numdel>0) {
 include_once "$mypath/vtapps/app1/vtapp.php";

@@ -10,6 +10,17 @@
 
 class vtAppcomTSolucioAppStore extends vtApp {
 	
+	var $hasedit = false;
+	var $hasrefresh = false;
+	var $hassize = true;
+	var $candelete = false;
+	var $wwidth = 250;
+	var $wheight = 110;
+
+	public function getContent($lang) {
+		$output = "<br><b>This vtApp will permit the user to connect to the vtApp market place, search for vtApps, buy/pay them and directly download and install them.</b>";		
+		return $output;
+	}
 
 }
 ?>

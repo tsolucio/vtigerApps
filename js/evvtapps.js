@@ -115,7 +115,7 @@ function onEditDeactivate() {
 	$('#vtappedit'+this.options.vtappid).remove();
 }
 
-function droptargetTrashApp() {
+function droptargetTrashApp(e) {
 	$("#evvtapptrash").text("dropped.");
 	//alert(e.data("kendoWindow").options.vtappid);
 }
