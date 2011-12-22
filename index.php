@@ -19,8 +19,7 @@ if (is_admin($current_user))
 else
 	$rsapps=$adb->pquery('select evvtappsid from vtiger_evvtapps
 	 inner join vtiger_evvtappsuser on appid=evvtappsid
-	 where userid=? and wenabled and canread and evvtappsid!=1 order by sortorder',array($current_user->id));
-$classnames=array();
+	 where userid=? and wenabled and evvtappsid!=1 order by sortorder',array($current_user->id));
 $numapps=$adb->num_rows($rsapps);
 for ($app=0;$app<$numapps;$app++) {
 	$appid=$adb->query_result($rsapps,$app,'evvtappsid');
@@ -28,14 +27,24 @@ for ($app=0;$app<$numapps;$app++) {
 	include_once "$mypath/vtapps/app$appid/vtapp.php";
 	$newclass=array_diff(get_declared_classes(), $loadedclases);
 	$newclass=array_pop($newclass);
-	$classnames[$appid]=$newclass;
 	$newApp=new $newclass($appid);
+	$rswincfg=$adb->query("select wvisible,canshow from vtiger_evvtappsuser where appid=$appid and userid=".$current_user->id);
+	if ($adb->num_rows($rswincfg)>0) {
+		$wincfg=$adb->fetch_array($rswincfg);
+		$visible=$wincfg['wvisible'];
+		$canshow=$wincfg['canshow'];
+	} else {
+		$visible=1;
+		$canshow=1;
+	}
 	$divid="evvtapp$appid";
-	echo "<div id='$divid' class='evvtappbox'
-	       title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."'
-	       onclick='evvtappsOpenWindow($appid,\"$newclass\",".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).")'>
-	       <img src='".$newApp->getAppIcon()."'></div>";
-	echo '<script language="javascript">';
+	$windiv="<div id='$divid' class='evvtappbox'
+	       title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."' ";
+	if ($canshow==1) {
+	$windiv.=" onclick='evvtappsOpenWindow($appid,\"$newclass\",".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).")'";
+	}
+	$windiv.="><img src='".$newApp->getAppIcon()."'></div>";
+	echo $windiv.'<script language="javascript">';
 	echo "$('#$divid').tipsy($tipsy_settings);";
 	if ($newApp->canDelete()) {
 		echo "$('#$divid').kendoDraggable({
@@ -45,9 +54,10 @@ for ($app=0;$app<$numapps;$app++) {
                             return imgclone;
                         }});";
 	}
-	// Now we open all the visible widgets for the current user
-	$visible=$adb->getone("select wvisible from vtiger_evvtappsuser where appid=$appid and userid=".$current_user->id);
-	if (is_null($visible) or $visible==1) {
+	if ($canshow==0) {
+		echo $newApp->getNoShowContent($current_language);
+	}
+	if ($visible==1) { // Open the visible widgets for the current user
 	echo "evvtappsOpenWindow($appid,'$newclass',".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).');';
 	}
 	echo '</script>';

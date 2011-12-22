@@ -40,7 +40,10 @@ class vtApp {
 	}
 	
 	public function getHasEdit()  {
-		return ($this->hasedit and $this->getEdit('en_us')!=''); // at least we have screen in english
+		global $adb,$current_user;
+		$canwrite=$adb->getone('SELECT canwrite FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		$canwrite=(is_null($canwrite) ? ($this->hasedit and $this->getEdit('en_us')!='') : $canwrite); // at least we have screen in english
+		return $canwrite;
 	}
 	
 	public function setHasRefresh($value) {
@@ -60,7 +63,15 @@ class vtApp {
 	}
 
 	public function canDelete()  {
-		return $this->candelete;
+		global $adb,$current_user;
+		$candelete=$adb->getone('SELECT candelete FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		return (is_null($candelete) ? $this->candelete : $candelete);
+	}
+
+	public function canClose()  {
+		global $adb,$current_user;
+		$canhide=$adb->getone('SELECT canhide FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
+		return (is_null($canhide) ? true : $canhide);  // by default all windows can be closed
 	}
 
 	public function getWidth()  {
@@ -80,13 +91,13 @@ class vtApp {
 	public function getTop()  {
 		global $window_top,$adb,$current_user;
 		$wtop=$adb->getone('SELECT wtop FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
-		return (empty($wtop) ? $window_top : $wtop);
+		return (is_null($wtop) ? $window_top : $wtop);
 	}
 
 	public function getLeft()  {
 		global $window_left,$adb,$current_user;
 		$wleft=$adb->getone('SELECT wleft FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
-		return (empty($wleft) ? $window_left : $wleft);
+		return (is_null($wleft) ? $window_left : $wleft);
 	}
 
 	public function getTitle($lang) {
@@ -115,6 +126,10 @@ class vtApp {
 		return 'This is the default empty widget';
 	}
 
+	public function getNoShowContent($lang) {		
+		return '';
+	}
+
 	public function getDescription($lang) {		
 		return '';
 	}
@@ -127,10 +142,11 @@ class vtApp {
 		$info ='{appName: "'.$this->getvtAppTranslatedString('appName',$lang).'", ';
 		$info.='appTitle: "'.$this->getvtAppTranslatedString('Title',$lang).'", ';
 		$info.='className: "'.get_class($this).'", ';
-		$info.='hasEdit: '.(($this->hasedit and $this->getEdit('en_us')!='') ? '1' : '0').', ';
+		$info.='hasEdit: '.($this->getHasEdit() ? '1' : '0').', ';
 		$info.='hasRefresh: '.($this->hasrefresh ? '1' : '0').', ';
 		$info.='hasSize: '.($this->hassize ? '1' : '0').', '; 
-		$info.='canDelete: '.($this->candelete ? '1' : '0').', ';
+		$info.='canDelete: '.($this->canDelete() ? '1' : '0').', ';
+		$info.='canClose: '.($this->canClose() ? '1' : '0').', ';
 		$info.='wTop: '.$this->getTop().', ';
 		$info.='wLeft: '.$this->getLeft().', ';
 		$info.='wWidth: '.$this->getWidth().', ';
@@ -192,12 +208,13 @@ class vtApp {
 		$adb->pquery("update vtiger_evvtappsuser set wvisible=? where appid=? and userid=?",array($value,$this->appid,$current_user->id));
 	}
 
-	public function evvtCreateUserApp() {
+	public function evvtCreateUserApp($userid=0) {
 		global $adb,$current_user, $window_left, $window_top;
+		if (empty($userid)) $userid=$current_user->id;
 		$rs=$adb->pquery('INSERT INTO vtiger_evvtappsuser
-		 (appid,userid,wtop,wleft,wwidth,wheight,wvisible,wenabled,canread,canwrite,candelete,canhide,canshow)
-		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)',
-		 array($this->appid,$current_user->id,$window_top,$window_left,$this->wwidth,$this->wheight,1,1,1,1,$this->candelete,1,1));
+		 (appid,userid,wtop,wleft,wwidth,wheight,wvisible,wenabled,canwrite,candelete,canhide,canshow)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+		 array($this->appid,$userid,$window_top,$window_left,$this->wwidth,$this->wheight,1,1,1,$this->candelete,1,1));
 	}
 
 	public function evvtSaveAppPosition($wtop,$wleft,$wwidth,$wheight) {

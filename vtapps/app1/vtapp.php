@@ -10,6 +10,12 @@
 
 class vtAppcomTSolucioTrash extends vtApp {
 	
+	var $hasedit = false;
+	var $hasrefresh = false;
+	var $hassize = false;
+	var $candelete = false;
+	var $wwidth = 100;
+	var $wheight = 100;
 
 }
 ?>

@@ -12,7 +12,7 @@ function evvtappsOpenWindow(appid,classname,appinfo,editInfo) {
 	if (appinfo.hasRefresh) arrAction[elements++]="Refresh";
 	//if (appinfo.hasSize) arrAction[elements++]="Minimize";
 	if (appinfo.hasSize) arrAction[elements++]="Maximize";
-	arrAction[elements++]="Close";
+	if (appinfo.canClose) arrAction[elements++]="Close";
 	windowname='vtapp'+appid;
 	if ($('#'+windowname).length==0) {  // doesn't exist yet, we have to create it
 		$('#evvtCanvas').append('<div id="'+windowname+'" class="k-content" vtappkwin="vtappkwin"></div>');
