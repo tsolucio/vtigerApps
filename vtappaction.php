@@ -43,7 +43,7 @@ if (!empty($classname) and !empty($vtappaction) and !empty($appid) and is_numeri
 		case 'doReorderApps':
 			$dstcl = vtlib_purify($_REQUEST['dstclass']);
 			$dstid = vtlib_purify($_REQUEST['dstappid']);
-			if (!empty($dstcl) and !empty($dstid) and is_numeric($dstid))
+			if (!empty($dstcl) and !empty($dstid) and is_numeric($dstid) and $appid!=$dstid)
 			$return=doReorderApps($appid,$classname,$dstid,$dstcl);
 			break;
 		case 'doUninstallApp':
@@ -65,7 +65,14 @@ function doReorderApps($appid,$classname,$dstid,$dstcl) {
 	global $adb,$current_user;
 	$dstord=$adb->getone("select sortorder from vtiger_evvtappsuser where appid=$dstid and userid=".$current_user->id);
 	$orgord=$adb->getone("select sortorder from vtiger_evvtappsuser where appid=$appid and userid=".$current_user->id);
-	$adb->query("update vtiger_evvtappsuser set sortorder=$orgord where appid=$dstid and userid=".$current_user->id);
+	if ($dstord<$orgord) {
+		$min=$dstord;
+		$max=$orgord;
+	} else {
+		$min=$orgord;
+		$max=$dstord;
+	}
+	$adb->query("update vtiger_evvtappsuser set sortorder=sortorder+1 where sortorder between $min and $max and userid=".$current_user->id);
 	$adb->query("update vtiger_evvtappsuser set sortorder=$dstord where appid=$appid and userid=".$current_user->id);
 	return '';
 }

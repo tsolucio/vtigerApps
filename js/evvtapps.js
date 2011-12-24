@@ -128,9 +128,10 @@ function droptargetTrashApp(e) {
 		  data: evvtURLp+'&vtappaction=doUninstallApp&class='+orgappcl+'&appid='+orgappid,
 		  async: false,
 		  success: function(request){
-			  if (request=='OK')
+			  if (request=='OK') {
+				  $('#evvtapp'+orgappid).remove();
 				  alert(vtapps_strings.vtAppUninstalled+"\n"+orgappcl);
-			  else
+			  } else
 				  alert(vtapps_strings.vtAppNotUninstalled+"\n"+orgappcl);
 		  },
 		  error: function(request,error) {
@@ -167,7 +168,11 @@ function sorttargetOnDrop(e) {
 	$.ajax({
 		  type: 'POST',
 		  url: 'index.php',
-		  data: evvtURLp+'&vtappaction=doReorderApps&class='+orgappcl+'&appid='+orgappid+'&dstclass='+dstappcl+'&dstappid='+dstappid
+		  data: evvtURLp+'&vtappaction=doReorderApps&class='+orgappcl+'&appid='+orgappid+'&dstclass='+dstappcl+'&dstappid='+dstappid,
+		  async: false,
+		  success: function(request){
+			  $('#evvtapp'+orgappid).insertBefore($('#evvtapp'+dstappid));
+		  }
 	});
 }
 function removeDragVisualEffect() {
