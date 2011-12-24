@@ -13,5 +13,9 @@ $mod_strings = Array(
 'SINGLE_evvtDashboard' => 'evVTApps',
 
 );
-
+$vtapps_js = Array(
+'ReallyDelete'=>'Do you really want to uninstall this vtApp?',
+'vtAppUninstalled'=>'vtApp uninstalled correctly.',
+'vtAppNotUninstalled'=>'vtApp could not be uninstalled correctly.',
+);
 ?>

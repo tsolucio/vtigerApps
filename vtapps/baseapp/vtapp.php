@@ -126,7 +126,7 @@ class vtApp {
 		return 'This is the default empty widget';
 	}
 
-	public function getNoShowContent($lang) {		
+	public function getCanvasJavascript($lang) {		
 		return '';
 	}
 
@@ -184,6 +184,10 @@ class vtApp {
 	}
 
 	public function postInstall() {		
+		return '';
+	}
+
+	public function unInstall() {		
 		return '';
 	}
 

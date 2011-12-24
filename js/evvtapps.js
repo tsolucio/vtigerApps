@@ -116,8 +116,68 @@ function onEditDeactivate() {
 }
 
 function droptargetTrashApp(e) {
-	$("#evvtapptrash").text("dropped.");
-	//alert(e.data("kendoWindow").options.vtappid);
+	removeDragVisualEffect();
+	var shooter = $(e.draggable);
+	orgappid=shooter[0].options.vtappid;
+	orgappcl=shooter[0].options.vtappclass;
+	//alert('dropped '+orgappcl+'('+orgappid+') on trash');
+	if (confirm(vtapps_strings.ReallyDelete+"\n"+orgappcl))
+	$.ajax({
+		  type: 'POST',
+		  url: 'index.php',
+		  data: evvtURLp+'&vtappaction=doUninstallApp&class='+orgappcl+'&appid='+orgappid,
+		  async: false,
+		  success: function(request){
+			  if (request=='OK')
+				  alert(vtapps_strings.vtAppUninstalled+"\n"+orgappcl);
+			  else
+				  alert(vtapps_strings.vtAppNotUninstalled+"\n"+orgappcl);
+		  },
+		  error: function(request,error) {
+			  alert(vtapps_strings.vtAppNotUninstalled+"\n"+orgappcl);
+		  }
+	});
+}
+function deltargetOnDragEnter(e) {
+	removeDragVisualEffect();
+	$('#evvtapptrash').css("opacity",1);
+}
+function deltargetOnDragLeave(e) {
+	$('#evvtapptrash').css("opacity",.5);
+}
+function sorttargetOnDragEnter(e) {
+	removeDragVisualEffect();
+	var $target = $(e.target);
+	$target.addClass("sortDrop");
+}
+function sorttargetOnDragLeave(e) {
+	var $target = $(e.target);
+	$target.removeClass("sortDrop");
+}
+function sorttargetOnDrop(e) {
+	removeDragVisualEffect();
+	var target = $(e.currentTarget);
+	var shooter = $(e.draggable);
+	//alert(shooter[0].options.vtappid);
+	orgappid=shooter[0].options.vtappid;
+	orgappcl=shooter[0].options.vtappclass;
+	dstappid=target[0].attributes['vtappid'].nodeValue;  //0.attributes.2.nodeValue
+	dstappcl=target[0].attributes['vtappclass'].nodeValue;
+	// alert('move '+orgappcl+'('+orgappid+') to '+dstappcl+'('+dstappid+')');
+	$.ajax({
+		  type: 'POST',
+		  url: 'index.php',
+		  data: evvtURLp+'&vtappaction=doReorderApps&class='+orgappcl+'&appid='+orgappid+'&dstclass='+dstappcl+'&dstappid='+dstappid
+	});
+}
+function removeDragVisualEffect() {
+	$('.evvtappbox').each(function(index) {
+		$(this).removeClass("sortDrop");
+	});
+	$('.evvtappbox img').each(function(index) {
+		$(this).removeClass("sortDrop");
+	});
+	if ($('#evvtapptrash').css("opacity")!=.5) $('#evvtapptrash').css("opacity",.5);
 }
 
 // Leaving vtApps, we have to save this users settings

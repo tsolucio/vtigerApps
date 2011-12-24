@@ -3,6 +3,7 @@ global $current_language,$current_user;
 $mypath="modules/$currentModule";
 include_once "$mypath/processConfig.php";
 include_once "$mypath/vtapps/baseapp/vtapp.php";
+include "$mypath/language/$current_language.lang.php";
 ?>
 <link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/styles/kendo.common.css" rel="stylesheet" type="text/css" />
@@ -15,7 +16,9 @@ include_once "$mypath/vtapps/baseapp/vtapp.php";
 <div id="evvtCanvas" class="evvtCanvas">
 <?php
 if (is_admin($current_user))
-	$rsapps=$adb->query('select evvtappsid from vtiger_evvtapps where evvtappsid!=1 order by evvtappsid');
+	$rsapps=$adb->pquery('select evvtappsid from vtiger_evvtapps
+	 left join vtiger_evvtappsuser on appid=evvtappsid
+	 where userid=? and evvtappsid!=1 order by sortorder',array($current_user->id));
 else
 	$rsapps=$adb->pquery('select evvtappsid from vtiger_evvtapps
 	 inner join vtiger_evvtappsuser on appid=evvtappsid
@@ -38,7 +41,7 @@ for ($app=0;$app<$numapps;$app++) {
 		$canshow=1;
 	}
 	$divid="evvtapp$appid";
-	$windiv="<div id='$divid' class='evvtappbox'
+	$windiv="<div id='$divid' class='evvtappbox' vtappid='$appid' vtappclass='$newclass'
 	       title='<b>".$newApp->getAppName($current_language)."</b><br>".$newApp->getTooltipDescription($current_language)."' ";
 	if ($canshow==1) {
 	$windiv.=" onclick='evvtappsOpenWindow($appid,\"$newclass\",".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).")'";
@@ -46,17 +49,23 @@ for ($app=0;$app<$numapps;$app++) {
 	$windiv.="><img src='".$newApp->getAppIcon()."'></div>";
 	echo $windiv.'<script language="javascript">';
 	echo "$('#$divid').tipsy($tipsy_settings);";
-	if ($newApp->canDelete()) {
-		echo "$('#$divid').kendoDraggable({
+	echo "$('#$divid').kendoDraggable({
                         hint: function() {
                         	var imgclone=$('#$divid').clone();
-                        	imgclone.css({margin: -40});
+                        	//imgclone.css({marginLeft: '-40px', marginTop: '-40px'});  // This is to center the drag image on the cursor, but if I add this the drag doesn't work
                             return imgclone;
-                        }});";
-	}
-	if ($canshow==0) {
-		echo $newApp->getNoShowContent($current_language);
-	}
+                        },
+                        vtappid:$appid,
+                        vtappclass:'$newclass'
+                        });";
+	echo "$('#$divid').kendoDropTarget({
+							dragenter: sorttargetOnDragEnter,
+						    dragleave: sorttargetOnDragLeave,
+							drop: sorttargetOnDrop,
+	                        vtappid:$appid,
+	                        vtappclass:'$newclass'
+                        });";
+	echo $newApp->getCanvasJavascript($current_language); // for iconic/javascript apps and similar
 	if ($visible==1) { // Open the visible widgets for the current user
 	echo "evvtappsOpenWindow($appid,'$newclass',".$newApp->getAppInfo($current_language).','.$newApp->getEditInfo($current_language).');';
 	}
@@ -72,11 +81,23 @@ $newApp=new vtAppcomTSolucioTrash(1);
 <script language="javascript">
 $("#evvtapptrash").tipsy(<?php echo $tipsy_settings; ?>);
 $("#evvtapptrash").kendoDropTarget({
+	dragenter: deltargetOnDragEnter,
+	dragleave: deltargetOnDragLeave,
 	drop: droptargetTrashApp
 });
+$("#evvtapptrash").css('opacity',0.5);
 </script>
 <?php } ?>
 </div> <!-- evvtCanvas -->
 <script language="javascript">
-$(window).unload( unloadCanvas );
+$(window).unload( unloadCanvas );  // to catch user configuration before leaving
+// vtApps javascript strings
+var vtapps_strings = {
+<?php
+ foreach ($vtapps_js as $key=>$value) {
+ 	echo "$key: '".addslashes($value)."',";
+ }
+?>
+evvtEmptyElementToCloseDefinitionCorrectly: 'void'
+};
 </script>

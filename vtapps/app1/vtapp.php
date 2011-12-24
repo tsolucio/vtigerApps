@@ -17,5 +17,15 @@ class vtAppcomTSolucioTrash extends vtApp {
 	var $wwidth = 100;
 	var $wheight = 100;
 
+	static public function unInstallvtApp($appid,$classname) {
+		global $adb;
+		// delete for all users
+		// $adb->query("delete from vtiger_evvtappsuser where appid=$appid");
+		// delete app definition
+		// $adb->query("delete from vtiger_evvtapps where evvtappsid=$appid");
+		// delete from hard disk
+		// rm -rf vtapp{$appid}
+		return 'OK'; // error';
+	}
 }
 ?>
