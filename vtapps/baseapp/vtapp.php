@@ -11,6 +11,7 @@
 class vtApp {
 	
 	var $appid;
+	var $apppath;
 	var $hasedit = true;
 	var $hasrefresh = true;
 	var $hassize = true;
@@ -42,7 +43,7 @@ class vtApp {
 	public function getHasEdit()  {
 		global $adb,$current_user;
 		$canwrite=$adb->getone('SELECT canwrite FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
-		$canwrite=(is_null($canwrite) ? ($this->hasedit and $this->getEdit('en_us')!='') : $canwrite); // at least we have screen in english
+		$canwrite=(is_null($canwrite) ? ($this->hasedit and $this->getEdit('en_us')!='') : ($canwrite and $this->getEdit('en_us')!='')); // at least we have screen in english
 		return $canwrite;
 	}
 	
@@ -179,7 +180,7 @@ class vtApp {
 		return '';
 	}
 
-	public function preInstall() {		
+	public function postUpdate() {		
 		return '';
 	}
 

@@ -22,7 +22,8 @@ class vtAppcomTSolucioTrash extends vtApp {
 	static public function unInstallvtApp($appid,$classname) {
 		global $adb,$currentModule;
 		$return='OK';
-		if (vtAppcomTSolucioTrash::$deleteActive) {
+		if ($appid<4) $return='NOK'; // We do not uninstall base vtApps: Shop, Settings and TrashCan
+		if (vtAppcomTSolucioTrash::$deleteActive and $appid>3) {
 			// delete for all users
 			$adb->query("delete from vtiger_evvtappsuser where appid=$appid");
 			// delete app definition

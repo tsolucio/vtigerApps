@@ -19,10 +19,20 @@ if (is_admin($current_user))
 	$rsapps=$adb->pquery('select evvtappsid from vtiger_evvtapps
 	 left join vtiger_evvtappsuser on appid=evvtappsid
 	 where userid=? and evvtappsid!=1 order by sortorder',array($current_user->id));
-else
+else {
+	for ($aid=1;$aid<4;$aid++) {  // We have to make sure the user has access to at least the base apps
+		$apcnt=$adb->getone("select count(*) from vtiger_evvtappsuser where appid=$aid and userid=".$current_user->id);
+		if ($apcnt==0) {
+			$rs=$adb->pquery('INSERT INTO vtiger_evvtappsuser
+		 (appid,userid,wtop,wleft,wwidth,wheight,wvisible,wenabled,canwrite,candelete,canhide,canshow)
+		 VALUES (?,?,?,?,?,?,?,?,?,?,?,?)',
+		 array($aid,$current_user->id,$window_top,$window_left,$window_width,$window_height,0,1,1,0,1,1));
+		}
+	}
 	$rsapps=$adb->pquery('select evvtappsid from vtiger_evvtapps
 	 inner join vtiger_evvtappsuser on appid=evvtappsid
 	 where userid=? and wenabled and evvtappsid!=1 order by sortorder',array($current_user->id));
+}
 $numapps=$adb->num_rows($rsapps);
 for ($app=0;$app<$numapps;$app++) {
 	$appid=$adb->query_result($rsapps,$app,'evvtappsid');

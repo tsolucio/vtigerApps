@@ -53,7 +53,6 @@ if (!empty($classname) and !empty($vtappaction) and !empty($appid) and is_numeri
 			break;
 		case 'dovtAppMethod':
 			$vtappMethod=vtlib_purify($_REQUEST['vtappmethod']);
-			$return='';
 			if (method_exists($vtapp, $vtappMethod)) 
 				$return=$vtapp->$vtappMethod();
 			break;
