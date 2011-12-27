@@ -8,9 +8,6 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-require_once('Smarty_setup.php');
-require_once('include/utils/utils.php');
-
 class vtAppcomTSolucioConfiguration extends vtApp {
 
 	var $hasedit = false;
@@ -50,7 +47,7 @@ class vtAppcomTSolucioConfiguration extends vtApp {
 		$smarty->assign('appId',$this->appid);
 		$smarty->assign('LBLappID',$this->getvtAppTranslatedString('LBL_appID', $current_language));
 		$smarty->assign('appName',$this->getvtAppTranslatedString('LBL_appName', $current_language));
-		$smarty->assign('appDescription',$this->getvtAppTranslatedString('LBL_appDesc', $current_language));
+		$smarty->assign('appDescription',$this->getAbout($current_language));
 		$smarty->assign("User",$this->getvtAppTranslatedString('User', $current_language));
 		$smarty->assign("Visible",$this->getvtAppTranslatedString('Visible', $current_language));
 		$smarty->assign("Enabled",$this->getvtAppTranslatedString('Enabled', $current_language));

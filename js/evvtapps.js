@@ -53,6 +53,10 @@ function vtAppChangeIcon(appid,icon) {
 	$('#evvtapp'+appid+' img').attr("src",icon);
 }
 
+function vtAppGetIcon(appid) {
+	return $('#evvtapp'+appid+' img').attr("src");
+}
+
 // Eliminate window div onClose so we can open it again later
 function onWindowDeactivate() {
 	$('#vtapp'+this.options.vtappid).remove();

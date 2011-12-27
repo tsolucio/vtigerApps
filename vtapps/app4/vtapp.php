@@ -25,9 +25,14 @@ class vtAppcomTSolucioevvtApps extends vtApp {
 	}
 
 	public function getAbout($lang) {
-		$about = '<img src="'.$this->getAppIcon().'" style="float:left" onclick="vtAppChangeIcon('.$this->appid.",'".$this->apppath."/evolutivo.png".'\');"><br/>';
+		$about = '<script language="javascript">function vtappdemoChgIcon() { var current_image=vtAppGetIcon('.$this->appid.');';
+		$about.= 'if (current_image=="'.$this->apppath.'/evolutivo.png") next_image="icon.png"; else next_image="evolutivo.png";';
+		$about.= 'vtAppChangeIcon('.$this->appid.",'".$this->apppath."/'+next_image);}";
+		$about.= '</script>';
+		$about.= '<img src="'.$this->getAppIcon().'" style="float:left" onclick="vtappdemoChgIcon()"><br/>';
 		$about.= '<b>vtEvolutivo::vtApps</b><br/>';
 		$about.= 'Copyright &copy; 2012<br/><br/>';
+		$about.= 'Click on the icon to see my Canvas Icon change<br/><br/>';
 		$about.= date('H:i:s').'<br/>';
 		//$about.= '<script language="javascript">alert("jsExec");</script>';		
 		return $about;
@@ -40,6 +45,12 @@ class vtAppcomTSolucioevvtApps extends vtApp {
 		$editwindow.='<p align=center><input type=button onclick="$(\'#vtappedit'.$this->appid.'\').data(\'kendoWindow\').close()" value="Close"></p>';
 		return $editwindow;
 	}
-
+	public function getCanvasJavascript($lang) {
+		$output = 'function vtappdemoCanvasChgIcon() { var current_image=vtAppGetIcon('.$this->appid.');';
+		$output.= 'if (current_image=="'.$this->apppath.'/evolutivo.png") next_image="icon.png"; else next_image="evolutivo.png";';
+		$output.= 'vtAppChangeIcon('.$this->appid.",'".$this->apppath."/'+next_image);setTimeout('vtappdemoCanvasChgIcon()',5000);}";
+		$output.= 'setTimeout("vtappdemoCanvasChgIcon()",5000);';		
+		return $output;
+	}
 }
 ?>

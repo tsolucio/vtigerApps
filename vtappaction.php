@@ -9,6 +9,8 @@ if (!empty($classname) and !empty($vtappaction) and !empty($appid) and is_numeri
 	include_once "$mypath/processConfig.php";
 	include_once "$mypath/vtapps/baseapp/vtapp.php";
 	include "$mypath/vtapps/app$appid/vtapp.php";
+	require_once('Smarty_setup.php');
+	require_once('include/utils/utils.php');
 	$vtapp=new $classname($appid);
 	switch ($vtappaction) {
 		case 'getAbout':

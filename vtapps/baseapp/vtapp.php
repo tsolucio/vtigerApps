@@ -37,6 +37,8 @@ class vtApp {
 	}
 
 	public function setHasEdit($value) {
+		if ($value) $value=1;
+		else $value=0;
 		$this->hasedit = $value;
 	}
 	
@@ -48,6 +50,8 @@ class vtApp {
 	}
 	
 	public function setHasRefresh($value) {
+		if ($value) $value=1;
+		else $value=0;
 		$this->hasrefresh = $value;
 	}
 	
@@ -56,6 +60,8 @@ class vtApp {
 	}
 	
 	public function setHasSize($value) {
+		if ($value) $value=1;
+		else $value=0;
 		$this->hassize = $value;
 	}
 	
@@ -132,11 +138,11 @@ class vtApp {
 	}
 
 	public function getDescription($lang) {		
-		return '';
+		return $this->getvtAppTranslatedString('LBL_appDesc', $current_language);
 	}
 
 	public function getAbout($lang) {		
-		return '';
+		return $this->getvtAppTranslatedString('LBL_appDesc', $current_language);
 	}
 
 	public function getAppInfo($lang)  {
@@ -210,6 +216,8 @@ class vtApp {
 		global $adb,$current_user;
 		$numrecs=$adb->getone('SELECT count(*) FROM vtiger_evvtappsuser WHERE appid='.$this->appid.' and userid='.$current_user->id);
 		if ($numrecs==0) $this->evvtCreateUserApp();
+		if ($value) $value=1;
+		else $value=0;
 		$adb->pquery("update vtiger_evvtappsuser set wvisible=? where appid=? and userid=?",array($value,$this->appid,$current_user->id));
 	}
 
