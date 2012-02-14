@@ -9,8 +9,8 @@
  ************************************************************************************/
 
 $mod_strings = Array(
-'evvtDashboard' => 'evVTApps',
-'SINGLE_evvtDashboard' => 'evVTApps',
+'evvtApps' => 'vtApps',
+'SINGLE_evvtApps' => 'vtApps',
 
 );
 $vtapps_js = Array(
