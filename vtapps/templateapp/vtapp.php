@@ -8,19 +8,9 @@
  * All Rights Reserved.
  ************************************************************************************/
 
-class vtApptldCompanyAppName extends vtApp {
+class VtApp_ComTsolucioTemplate extends vtApp {
 	
-	var $hasedit = true;
-	var $hasrefresh = true;
-	var $hassize = true;
-	var $candelete = true;
-	var $wwidth = 0;
-	var $wheight = 0;
-	var $haseditsize = true;
-	var $ewidth = 0;
-	var $eheight = 0;
-	
-	public function getContent($lang) {		
+	public function getContent() {		
 		return 'This is the default template widget';
 	}
 

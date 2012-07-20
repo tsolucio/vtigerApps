@@ -21,3 +21,6 @@ $tooltip_live='false';     // use live event support?
 $tooltip_opacity='0.8';    // opacity of tooltip
 $tooltip_title='title';    // attribute/callback containing tooltip text
 $tooltip_trigger='hover';  // how tooltip is triggered - hover | focus | manual
+
+// Tipsy settings
+$tipsy_settings="{delayIn: $tooltip_delayIn, delayOut: $tooltip_delayOut, html: true, offset: $tooltip_offset, fade: $tooltip_fade}";

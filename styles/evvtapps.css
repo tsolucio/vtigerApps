@@ -54,3 +54,9 @@
 	border-left-width: 2px;
 	border-left-color: purple;
 }
+
+#launchers {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+}
