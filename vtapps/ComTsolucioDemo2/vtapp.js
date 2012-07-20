@@ -1,6 +1,6 @@
 {
   onLoad: function() {
-    this.addListener('com.tsolucio.vtapp.Demo1.doSomething', this._message);
+    this.addListener('com.tsolucio.Demo1.doSomething', this._message);
   },
   _message: function(key) {
     this.refresh();
