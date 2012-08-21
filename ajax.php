@@ -1,4 +1,10 @@
 <?php
+/*************************************************************************************************
+* The contents of this file is subject to JPL TSolucio, S.L. Copyright License (c)
+* You may not use this extension except in the vtiger CRM install for which it was sold
+*************************************************************************************************
+*  Author       : JPL TSolucio, S. L.
+*************************************************************************************************/
 require_once('Smarty_setup.php');
 require_once('include/utils/utils.php');
 require_once('modules/evvtApps/VtAppManager.php');
