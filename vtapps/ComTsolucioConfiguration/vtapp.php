@@ -10,7 +10,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 
 	public function getContent() {
 	  $vtAppManager = VtAppManager::getInstance();
-	  if (is_admin($this->getUser())) {
+	  //if (is_admin($this->getUser())) {
 	    $launchers = $vtAppManager->getLaunchers();
 	    $appData = array();
 	    foreach($launchers as $launcher) {
@@ -22,10 +22,9 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 	    }
 	    $jsonAppData = json_encode($appData);
 	    $template = 'admin-template.php';
-	  }
-	  else {
-	    $template = 'user-template.php';
-	  }
+	  //} else {
+	  //  $template = 'user-template.php';
+	  //}
 	  ob_start();
 	  require($this->getPath($template));
 	  $output = ob_get_clean();
@@ -45,10 +44,9 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 		return json_encode($data);
 	}
 
-	public function getUserAppConfig() {
+	public function getUserAppConfig($fetch_appid) {
 		global $adb,$current_user,$log;
 		$ret=array();
-		$fetch_appid=vtlib_purify($_REQUEST['userappid']);
 		if (empty($fetch_appid)) {
 			$ret['results'][]='{}';
 			$ret['total'][]=0;
@@ -58,27 +56,17 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 			foreach ($usrs as $uid=>$uname) {
 				$rsapps=$adb->query("select * from vtiger_evvtappsuser where appid=$fetch_appid and userid=$uid");
 				if ($adb->num_rows($rsapps)==0) {  // No record for this app and user > we create it
-					if ($fetch_appid==$this->appid) {
-						$this->evvtCreateUserApp($uid);
-					} else {
-						$loadedclases=get_declared_classes();
-						include_once $this->apppath."/../app$fetch_appid/vtapp.php";
-						$newclass=array_diff(get_declared_classes(), $loadedclases);
-						$newclass=array_pop($newclass);
-						$newApp=new $newclass($fetch_appid);
-						$newApp->evvtCreateUserApp($uid);
-					}
+					$this->evvtCreateUserApp($uid,$fetch_appid);
 					$rsapps=$adb->query("select * from vtiger_evvtappsuser where appid=$fetch_appid and userid=$uid");
 				}
 				$row=$adb->fetch_array($rsapps);
 				$rec=array('evvtappsuserid'=>$row['evvtappsuserid'],
 				  'appUser'=>getUserFullName($uid),
-                  'appVisible'=>$row['wvisible'],
-                  'appEnabled'=>$row['wenabled'],
-                  'appWrite'=>$row['canwrite'],
-                  'appHide'=>$row['canhide'],
-                  'appShow'=>$row['canshow'],
-                  'appDelete'=>$row['candelete']);
+                  'appVisible'=>($row['wvisible'] ? true : false),
+                  'appEnabled'=>($row['wenabled'] ? true : false),
+                  'appWrite'=>($row['canwrite'] ? true : false),
+                  'appHide'=>($row['canhide'] ? true : false),
+                  'appShow'=>($row['canshow'] ? true : false));
 				$ret['results'][]=$rec;
 			}
 			$ret['total'][]=count($usrs);
@@ -86,17 +74,31 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 		return json_encode($ret);
 	}
 
-	public function setUserAppConfig() {
+	public function setUserAppConfig($params) {
 		global $adb,$log;
-		$evvtappsuser=vtlib_purify($_REQUEST['evvtappsuser']);
-		if (!empty($evvtappsuser)) {
-			$ev=json_decode($evvtappsuser,true);
+		$evvtappsuser=$_REQUEST['evvtapps_param_1'];
+		if (!empty($evvtappsuser['data'])) {
+			$ev=$evvtappsuser['data'];
 			$rs=$adb->pquery('UPDATE vtiger_evvtappsuser set
-			 wvisible=?,wenabled=?,canwrite=?,candelete=?,canhide=?,canshow=?
+			 wvisible=?,wenabled=?,canwrite=?,canhide=?,canshow=?
 			 where evvtappsuserid=?',
-		 	array($ev['appVisible'],$ev['appEnabled'],$ev['appWrite'],$ev['appDelete'],$ev['appHide'],$ev['appShow'],$ev['evvtappsuserid']));
+		 	array(($ev['appVisible']=='false' ? 0 : 1),
+		 		($ev['appEnabled']=='false' ? 0 : 1),
+		 		($ev['appWrite']=='false' ? 0 : 1),
+				($ev['appHide']=='false' ? 0 : 1),
+				($ev['appShow']=='false' ? 0 : 1),
+				$ev['evvtappsuserid']));
 		}
 	}
-	
+
+	// Create configuration record for a user
+	protected function evvtCreateUserApp($userid=0,$appid=0) {
+		global $adb,$current_user;
+		if (empty($userid)) $userid=$current_user->id;
+		if (empty($appid)) $appid=$this->getId();
+		$rs=$adb->pquery('INSERT INTO vtiger_evvtappsuser
+				(appid,userid,wvisible,wenabled,canwrite,canhide,canshow)
+				VALUES (?,?,1,1,1,1,1)', array($appid,$userid));
+	}
 }
 ?>
