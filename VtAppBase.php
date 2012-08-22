@@ -99,7 +99,7 @@ class VtAppBase {
 	
 	// Get app title
   public function getTitle() {
-		return $this->translate('appName').' ('.$this->getPath().')';
+		return $this->translate('appName');
 	}
 	
 	// Get app content
