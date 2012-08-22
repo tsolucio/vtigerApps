@@ -66,7 +66,7 @@ class VtAppManager {
 	  return $this->launchersPool[$id];
 	}
 	
-	// Get all launchers
+	// Get enabled launchers
   public function getLaunchers() {
 	  global $adb;
 	  $launchers = array();
@@ -77,7 +77,19 @@ class VtAppManager {
 	  }
 	  return $launchers;
 	}
-	
+
+	// Get all launchers
+	public function getAllLaunchers() {
+		global $adb;
+		$launchers = array();
+		$query = "select evvtappsid from vtiger_evvtapps join vtiger_evvtappsuser on appid=evvtappsid where userid={$this->getUserId()} order by sortorder";
+		$res = $adb->query($query);
+		while ($row=$adb->getNextRow($res, false)) {
+			$launchers[] = $this->getLauncher($row['evvtappsid']);
+		}
+		return $launchers;
+	}
+
 	// Create app instance
   public function createAppInstance($launcherId) {
     global $adb;

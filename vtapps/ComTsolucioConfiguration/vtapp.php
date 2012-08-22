@@ -11,7 +11,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 	public function getContent() {
 	  $vtAppManager = VtAppManager::getInstance();
 	  //if (is_admin($this->getUser())) {
-	    $launchers = $vtAppManager->getLaunchers();
+	    $launchers = $vtAppManager->getAllLaunchers();
 	    $appData = array();
 	    foreach($launchers as $launcher) {
 	      $apps[] = array(
