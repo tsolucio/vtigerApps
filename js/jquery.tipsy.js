@@ -166,17 +166,17 @@
     };
     
     $.fn.tipsy.defaults = {
-        delayIn: 0,
-        delayOut: 0,
-        fade: false,
-        fallback: '',
-        gravity: 'n',
-        html: false,
-        live: false,
-        offset: 0,
-        opacity: 0.8,
-        title: 'title',
-        trigger: 'hover'
+        delayIn: 1400,     // delay before showing tooltip (ms)
+        delayOut: 600,     // delay before hiding tooltip (ms)
+        fade: true,       // fade tooltips in/out?
+        fallback: '',      // fallback text to use when no tooltip text
+        gravity: 'n',      // gravity: nw | n | ne | w | e | sw | s | se
+        html: true,       // is tooltip content HTML?
+        live: false,      // use live event support?
+        offset: -10,       // pixel offset of tooltip from element
+        opacity: 0.8,      // opacity of tooltip
+        title: 'title',    // attribute/callback containing tooltip text
+        trigger: 'hover'   // how tooltip is triggered - hover | focus | manual
     };
     
     // Overwrite this method to provide options on a per-element basis.

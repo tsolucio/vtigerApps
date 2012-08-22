@@ -6,7 +6,6 @@
 *  Author       : JPL TSolucio, S. L.
 *************************************************************************************************/
 $mypath="modules/$currentModule";
-include_once "$mypath/config.php";
 include "$mypath/language/$current_language.lang.php";
 ?>
 <link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />

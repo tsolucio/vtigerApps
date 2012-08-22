@@ -102,13 +102,14 @@ var vtApps =
           $('<li />')
           .attr(
             {
-              id: 'vtapp-launcher-'+this.id,
-              class: 'evvtappbox',
-              title: this.shortDescription
+              'id': 'vtapp-launcher-'+this.id,
+              'class': 'evvtappbox',
+              'original-title': this.shortDescription
             })
           .click($.proxy(this.click, this))
           .appendTo($('#launchers'))
           );
+        $('#vtapp-launcher-'+this.id).tipsy();
       },
       // Handle click on launcher icon
       click: function(e) {
