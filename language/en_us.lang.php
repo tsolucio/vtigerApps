@@ -17,5 +17,6 @@ $vtapps_js = Array(
 'ReallyDelete'=>'Do you really want to uninstall this vtApp?',
 'vtAppUninstalled'=>'vtApp uninstalled correctly.',
 'vtAppNotUninstalled'=>'vtApp could not be uninstalled correctly.',
+'ReallyDestroy'=>'Do you really want to permanently close this window?',
 );
 ?>

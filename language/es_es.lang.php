@@ -14,8 +14,9 @@ $mod_strings = Array(
 
 );
 $vtapps_js = Array(
-'ReallyDelete'=>'¿Realmente quiere desinstalar esta vtApp?',
+'ReallyDelete'=>'¿Realmente quieres desinstalar esta vtApp?',
 'vtAppUninstalled'=>'vtApp desinstalada correctamente.',
 'vtAppNotUninstalled'=>'vtApp no ha podido ser desinstalada correctamente.',
+'ReallyDestroy'=>'¿Realmente quieres cerrar permanentemente esta ventana?',
 );
 ?>

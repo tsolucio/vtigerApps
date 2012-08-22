@@ -144,9 +144,11 @@ var vtApps =
         return appInstance;
       },
       removeInstance: function(instance) {
+    	if (instance.onDestroy()) {
         this.instances.splice(this.instances.indexOf(instance), 1);
         instance.destroy();
         vtApps.ajaxRequest('VTAPP_removeAppInstance', { appid: instance.id }, function() {}, this);
+    	}
       },
       translate: function(str) {
         return this.translations[str];
@@ -369,6 +371,8 @@ var vtApps =
       onLoad: function() {},
       // Called after a window refresh
       onRefresh: function() {},
+      // Called when the close button is clicked
+      onDestroy: function() {return confirm(this.translate('ReallyDestroy'));},
       // Called when the edit button is clicked
       onEdit: function() {},
       // Called when the window is resized

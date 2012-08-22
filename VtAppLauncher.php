@@ -71,11 +71,29 @@ class VtAppLauncher {
 		    array_push($this->cssFiles, $this->getPath('vtapp.css'));
 		}
 		// Translations
+		// First get base module translations
+		global $current_language,$currentModule;
+		include "modules/{$currentModule}/language/{$current_language}.lang.php";
+		if (!empty($mod_strings) and is_array($mod_strings)) {
+			$this->translations = $mod_strings;
+		} else {
+			$this->translations = array();
+		}
+		if (!empty($vtapps_js) and is_array($vtapps_js)) {
+			$this->jsTranslations = $vtapps_js;
+		} else {
+			$this->jsTranslations = array();
+		}
+		// Now mix with the vtApp strings
 		$languageFilename = $this->getLanguageFilename();
 		if (!is_null($languageFilename)) {
 		  include($languageFilename);
-		  $this->translations = $vtapps_strings;
-		  $this->jsTranslations = $vtapps_js_strings;
+		  if (!empty($vtapps_strings) and is_array($vtapps_strings)) {
+		  	$this->translations = array_merge($this->translations,$vtapps_strings);
+		  }
+		  if (!empty($vtapps_js_strings) and is_array($vtapps_js_strings)) {
+		  	$this->jsTranslations = array_merge($this->jsTranslations,$vtapps_js_strings);
+		  }
 		}
 		// Load class
 		require_once($this->getPath('vtapp.php'));
