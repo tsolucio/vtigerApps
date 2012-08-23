@@ -6,7 +6,7 @@
 *  Author       : JPL TSolucio, S. L.
 *************************************************************************************************/
 
-class VtApp_ComTsolucioDemoGraph1 extends vtAppBase {
+class VtApp_ComTsolucioListview extends vtAppBase {
 	
 	var $hasedit = false;
 	var $hasrefresh = true;
