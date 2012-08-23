@@ -4,7 +4,7 @@ $vtapps_strings = Array (
 'Title' => 'Acerca de vtEvolutivo',
 'TooltipDescription' => 'Acerca de vtEvolutivo',
 'Edit' => 'Editar',
-
+'sendmessage'=>'Envia mensaje',
 );
 
 ?>

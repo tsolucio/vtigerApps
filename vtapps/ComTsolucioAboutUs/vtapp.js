@@ -1,10 +1,16 @@
 {
   onLoad: function() {
     setInterval($.proxy(this._changeIcon, this), 5000);
+    this.addListener('com.tsolucio.AboutUs', this._message);
   },
   onRefresh: function() {
-    //this.get('#image-button').click($.proxy(this._changeIcon, this));
-    this.get('#image-button').click($.proxy(function() { this.sendMessage('doSomething'); }, this));
+    this.get('#image-button').click($.proxy(this._changeIcon, this));
+    this.get('#sendmsg').click($.proxy(function() { this.sendMessage(this.get('#msg').val()); }, this));
+  },
+  _message: function(msg) {
+	  msgfrom = msg.slice(0,this.launcher.key.length);
+	  msgtext = msg.slice(this.launcher.key.length+1);
+	  this.get('#msg-content').html('Received message "<b>'+msgtext+'</b>" from '+msgfrom);
   },
   onResize: function() {
     this.get('#content-resize').html('<br>'+this.width+'<br>'+this.height);
