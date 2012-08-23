@@ -22,6 +22,8 @@ class VtAppLauncher {
   private $resizable;
   private $clonable;
   private $visible;
+  private $canhideapp;
+  private $canshowapp;
   private $windowDefaultWidth;
   private $windowDefaultHeight;
   private $jsFiles = array();
@@ -31,6 +33,7 @@ class VtAppLauncher {
   
   // Create launcher
   public function __construct($id, $path) {
+  	global $current_language,$currentModule,$current_user,$adb,$log;
 		$this->id = $id;
 		if (preg_match('/\/$/', $path)) {
 		  $path = substr($path, 0, -1);
@@ -39,20 +42,31 @@ class VtAppLauncher {
 		// Default values
 		$defaults = array(
 		  'icon_file' => 'icon.png',
+		  'editable' => 0,
+		  'resizable' => 1,
+		  'clonable' => 0,
+		  'visible' => 0,
+		  'canhide' => 1,
+		  'canshow' => 1
 		  );
 		// Read info from ini file
 		$data = parse_ini_file($this->getPath('vtapp.ini'));
-		$data = array_merge($data, $defaults);
+		$data = array_merge($defaults, $data);
 		$this->key = $data['key'];
 		$this->name = $data['name'];
 		$this->shortDescription = $data['short_description'];
 		$this->longDescription = $data['long_description'];
 		$this->iconFile = $data['icon_file'];
 		$this->className = $data['class_name'];
-		$this->editable = $data['editable'];
+		$uid = $current_user->id;
+		$rsapp=$adb->query("select * from vtiger_evvtappsuser where appid=$id and userid=$uid");
+		$appinfo = $adb->fetch_array($rsapp);
+		$this->editable = ($data['editable'] and $appinfo['canwrite'] ? 1 : 0);
 		$this->resizable = $data['resizable'];
 		$this->clonable = $data['clonable'];
-		$this->visible = $data['visible'];
+		$this->visible = ($data['visible'] or $appinfo['wvisible'] ? 1 : 0);
+		$this->canhideapp = ($data['canhide'] and $appinfo['canhide'] ? 1 : 0);
+		$this->canshowapp = ($data['canshow'] and $appinfo['canshow'] ? 1 : 0);
 		$this->windowDefaultWidth = $data['window_default_width'];
 		$this->windowDefaultHeight = $data['window_default_height'];
 		if (isset($data['js_files'])) {
@@ -72,7 +86,6 @@ class VtAppLauncher {
 		}
 		// Translations
 		// First get base module translations
-		global $current_language,$currentModule;
 		include "modules/{$currentModule}/language/{$current_language}.lang.php";
 		if (!empty($mod_strings) and is_array($mod_strings)) {
 			$this->translations = $mod_strings;
@@ -124,6 +137,8 @@ class VtAppLauncher {
       'resizable' => $this->isResizable(),
       'clonable' => $this->isClonable(),
       'visible' => $this->isVisible(),
+      'canhide' => $this->canHide(),
+      'canshow' => $this->canShow(),
       'shortDescription' => $this->getShortDescription(),
       'longDescription' => $this->getLongDescription(),
       'jsFiles' => $this->getJSFiles(),
@@ -214,7 +229,17 @@ class VtAppLauncher {
   public function isVisible() {
     return $this->visible;
   }
-  
+
+  // App window can be hidden
+  public function canHide() {
+  	return $this->canhideapp;
+  }
+
+  // App window can be shown
+  public function canShow() {
+  	return $this->canshowapp;
+  }
+
   // Get short description for the app
   public function getShortDescription() {
     return $this->translate($this->shortDescription);

@@ -57,6 +57,8 @@ var vtApps =
       resizable: null,
       clonable: null,
       visible: null,
+      canhide: null,
+      canshow: null,
       background: null,
       translations: null,
       handlers: null,
@@ -74,6 +76,8 @@ var vtApps =
         this.resizable = data.resizable;
         this.clonable = data.clonable;
         this.visible = data.visible;
+        this.canhide = data.canhide;
+        this.canshow = data.canshow;
         this.background = data.background;
         this.translations = data.translations;
         if (data.jsFiles.length>0) {
@@ -113,14 +117,14 @@ var vtApps =
       },
       // Handle click on launcher icon
       click: function(e) {
-        if (this.visible) {
+        if (this.canshow) {
           if ((this.clonable && e.ctrlKey) || this.instances.length==0) {
             this.newInstance();
           }
           else {
             var show = true;
             for(var i=0; i<this.instances.length; i++) {
-              if (this.instances[i].isVisible()) {
+              if (this.instances[i].isOnScreen()) {
                 this.instances[i].hide();
                 show = false;
               }
@@ -170,7 +174,7 @@ var vtApps =
       width: null,
       height: null,
       windowId: null,
-      visible: false,
+      onscreen: false,
       resizeTimeout: false,
       // Init app instance from data provided
       init: function(launcher, data) {
@@ -180,7 +184,7 @@ var vtApps =
         this.left = data.left;
         this.width = data.width;
         this.height = data.height;
-        this.visible = false;
+        this.onscreen = false;
         if (launcher.handlers!=null) {
           $.extend(this, launcher.handlers);
         }
@@ -192,20 +196,20 @@ var vtApps =
         $('#'+this.windowId).data('kendoWindow').open();
         kWin = $('#'+this.windowId).data("kendoWindow");
         kWin.toFront();
-        this.visible = true;
+        this.onscreen = true;
       },
       // Hide app window
       hide: function() {
         $('#'+this.windowId).data('kendoWindow').close();
-        this.visible = false;
+        this.onscreen = false;
       },
       destroy: function() {
         $('#'+this.windowId).data('kendoWindow').destroy();
         $(document).unbind('vta.'+this.id);
       },
-      // Get visible state
-      isVisible: function() {
-        return this.visible;
+      // Get onscreen state
+      isOnScreen: function() {
+        return this.onscreen;
       },
       // Create app window
       createWindow: function() {
@@ -216,11 +220,13 @@ var vtApps =
           actions.push('Edit');
         }
         actions.push('Refresh');
+        if (this.launcher.canhide) {
         actions.push('Minimize');
+        }
         if (this.launcher.resizable) {
           actions.push('Maximize');
         }
-        if (this.launcher.clonable) {
+        if (this.launcher.clonable && this.launcher.canhide) {
           actions.push('Close');
         }
         $('#'+this.windowId).kendoWindow({
@@ -234,7 +240,7 @@ var vtApps =
             dragend: $.proxy(this.moveWindow, this),
             resize: $.proxy(this.resizeWindow, this)
         });
-        if (this.launcher.visible) {
+        if (this.launcher.canshow) {
           // Get kendoWindow object
           var kWin = $('#'+this.windowId).data("kendoWindow");
           // Bind minimize button
@@ -255,6 +261,9 @@ var vtApps =
             kWin.wrapper.css('top', this.top);
             kWin.wrapper.css('left', this.left);
           }
+        }
+        if (this.launcher.visible) {
+        	this.show();
         }
         setTimeout($.proxy(this.onLoad, this), 0);
       },
