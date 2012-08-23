@@ -6,28 +6,20 @@
 *  Author       : JPL TSolucio, S. L.
 *************************************************************************************************/
 
-class VtApp_ComTsolucioDemo2 extends vtAppBase {
+class ComTsolucioPotentialSalesStage extends vtAppBase {
 
 	public function getContent() {
-		global $adb;
+		global $adb,$log;
 		$smarty = new vtigerCRM_Smarty;
 		$smarty->template_dir = $this->getPath();
 		$smarty->assign("Title",$this->translate('Title'));
-		$potstotal=$adb->getone('SELECT count(*) FROM vtiger_potential');
-		$rspotsmax=$adb->query('SELECT sales_stage, count(*) FROM vtiger_potential GROUP BY sales_stage ORDER BY 2 DESC LIMIT 1');
+		$potstotal=$adb->getone('SELECT count(*) FROM vtiger_potential inner join vtiger_crmentity on crmid = potentialid and deleted=0');
+		$rspotsmax=$adb->query('SELECT sales_stage, count(*) FROM vtiger_potential inner join vtiger_crmentity on crmid = potentialid and deleted=0 GROUP BY sales_stage ORDER BY 2 DESC LIMIT 1');
 		$potsmax=$adb->fetch_array($rspotsmax);
-		$rspots=$adb->query('SELECT sales_stage, count(*) as cnt FROM vtiger_potential GROUP BY sales_stage');
+		$rspots=$adb->query('SELECT sales_stage, count(*) as cnt FROM vtiger_potential inner join vtiger_crmentity on crmid = potentialid and deleted=0 GROUP BY sales_stage');
 		$data = array();
 		while ($pt=$adb->fetch_array($rspots)) {
-			if ($potsmax['sales_stage']==$pt['sales_stage']) {
-				$data[] = array(
-				  'name' => $pt['sales_stage'],
-				  'y' => $pt['cnt']*100/$potstotal,
-				  'sliced' => true,
-				  'selected' => true);
-			} else {
-				$data[] = array($pt['sales_stage'], $pt['cnt']*100/$potstotal);
-			}
+			$data[] = array($pt['sales_stage'], $pt['cnt']*100/$potstotal);
 		}
 		$smarty->assign("PotData",json_encode($data));
 		return $smarty->fetch('piechart.tpl');
