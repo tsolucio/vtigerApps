@@ -178,6 +178,7 @@ class VtAppManager {
 	  $row = $adb->getNextRow($res, false);
 	  $appInstance->moveWindow($row['top'], $row['left']);
 	  $appInstance->resizeWindow($row['width'], $row['height']);
+	  $appInstance->windowOnScreen($row['onscreen']);
 	  $data = unserialize($row['data']);
 	  $appInstance->setProperties($data);
 	}
@@ -187,7 +188,7 @@ class VtAppManager {
 	  global $adb;
 	  $data = $appInstance->getProperties();
 	  $dataSerialized = $adb->sql_escape_string(serialize($data));
-	  $query = "update vtiger_evvtappsdata set top='{$appInstance->getTop()}', `left`='{$appInstance->getLeft()}', width='{$appInstance->getWidth()}', height='{$appInstance->getHeight()}', data='{$dataSerialized}' where id={$appInstance->getId()}";
+	  $query = "update vtiger_evvtappsdata set top='{$appInstance->getTop()}', `left`='{$appInstance->getLeft()}', width='{$appInstance->getWidth()}', height='{$appInstance->getHeight()}', onscreen='{$appInstance->getOnScreen()}', data='{$dataSerialized}' where id={$appInstance->getId()}";
 	  $adb->query($query);
 	}
 }

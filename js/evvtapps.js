@@ -184,7 +184,7 @@ var vtApps =
         this.left = data.left;
         this.width = data.width;
         this.height = data.height;
-        this.onscreen = false;
+        this.onscreen = (data.onscreen==1 ? true : false);
         if (launcher.handlers!=null) {
           $.extend(this, launcher.handlers);
         }
@@ -197,11 +197,13 @@ var vtApps =
         kWin = $('#'+this.windowId).data("kendoWindow");
         kWin.toFront();
         this.onscreen = true;
+        this.ajaxRequest('windowOnScreen', [ 1 ]);  // save state change of window
       },
       // Hide app window
       hide: function() {
         $('#'+this.windowId).data('kendoWindow').close();
         this.onscreen = false;
+        this.ajaxRequest('windowOnScreen', [ 0 ]);  // save state change of window
       },
       destroy: function() {
         $('#'+this.windowId).data('kendoWindow').destroy();
@@ -262,7 +264,7 @@ var vtApps =
             kWin.wrapper.css('left', this.left);
           }
         }
-        if (this.launcher.visible) {
+        if (this.launcher.visible || this.onscreen) {
         	this.show();
         }
         setTimeout($.proxy(this.onLoad, this), 0);

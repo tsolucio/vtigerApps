@@ -17,6 +17,7 @@ class VtAppBase {
   private $VTAPP_windowLeft;
   private $VTAPP_windowWidth;
   private $VTAPP_windowHeight;
+  private $VTAPP_onScreen;
   
 	// Creates or loads an app instance for the given launcher
   public function __construct($launcher, $id) {
@@ -32,6 +33,7 @@ class VtAppBase {
 	    'left' => $this->getLeft(),
 	    'width' => $this->getWidth(),
 	    'height' => $this->getHeight(),
+	  	'onscreen' => $this->getOnScreen(),
 	    );
 	  return $data;
   }
@@ -86,7 +88,12 @@ class VtAppBase {
     $this->VTAPP_windowWidth = $width;
     $this->VTAPP_windowHeight = $height;
   }
-  
+
+  // Window on screen status
+  public function windowOnScreen($onscreen) {
+  	$this->VTAPP_onScreen = $onscreen;
+  }
+
   // Get app instance id
   public function getId() {
 	  return $this->VTAPP_id;
@@ -125,7 +132,12 @@ class VtAppBase {
 	public function getHeight() {
 	  return $this->VTAPP_windowHeight;
 	}
-	
+
+	// Get window height
+	public function getOnScreen() {
+		return $this->VTAPP_onScreen;
+	}
+
 	// Get user object
 	public function getUser() {
 	  return VtAppManager::getInstance()->getUser();
