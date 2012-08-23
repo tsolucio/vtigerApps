@@ -6,54 +6,26 @@
 *  Author       : JPL TSolucio, S. L.
 *************************************************************************************************/
 class VtApp_ComTsolucioNotepad extends vtAppBase {
-	
+
+	public $stuffid;
+
+	public function __construct($launcher, $id) {
+		parent::__construct($launcher, $id);
+		$this->postInstantiate();
+	}
+
 	public function getContent() {
 	  global $adb, $current_user, $current_language;
-	  $query = "select * from vtiger_notebook_contents where userid={$current_user->id} order by notebookid asc limit 1";
+	  $query = "select * from vtiger_notebook_contents where userid={$current_user->id} and notebookid = {$this->stuffid} limit 1";
 	  $res = $adb->query($query);
 	  $notebookId = $adb->query_result($res, 0, 'notebookid');
 	  $contents = $adb->query_result($res, 0, 'contents');
-	  $modstr = return_module_language($current_language, $module);
-	  $className = get_class();
+	  $modstr = return_module_language($current_language, 'Home');
 	  return "
-	  <script type=\"text/javascript\">
-	  function vtappAjax(vtappClass, vtappId, method, params) {
-      var data = {
-        module: 'evvtApps',
-        action: 'evvtAppsAjax',
-        file: 'vtappaction',
-        class: vtappClass,
-        appid: vtappId,
-        vtappaction: 'dovtAppMethod',
-        vtappmethod: method
-      };
-      for (attr in params) {
-        data[attr] = params[attr];
-      }
-      $.ajax({
-        url: 'index.php',
-        data: data,
-        success: function() {
-          $('#vtapp'+vtappId).data('kendoWindow').refresh();
-        }
-      });
-    }
-	  function editContents(node, notebookid) {
-      var notebook = $('#notebook_textarea_'+notebookid);
-      var contents = $('#notebook_contents_'+notebookid);
-      var notebook_dbl_click_message = $('#notebook_dbl_click_message');
-      var notebook_save_message = $('#notebook_save_message');
-      $(node).css('display', 'none');
-      notebook.css('display', 'block');
-      notebook_dbl_click_message.css('display', 'none');
-      notebook_save_message.css('display', 'block');
-      notebook.focus();
-	  }
-	  </script>
-		<div style=\"height:100%;\" id=\"notebook_{$notebookId}\" ondblclick=\"editContents(this, {$notebookId});\" title=\"{$modstr['LBL_NOTEBOOK_TITLE']}\">
-		<span id=\"notebook_contents_{$notebookId}\" style=\"width: 100%; white-space: pre;\"><pre>{$contents}</pre></span>
+		<div style=\"height:90%;margin:both;\" id=\"notebook_div\" title=\"{$modstr['LBL_NOTEBOOK_TITLE']}\">
+		<span id=\"notebook_contents\" style=\"width: 96%; white-space: pre;\"><pre>{$contents}</pre></span>
 		</div>
-		<textarea id=\"notebook_textarea_{$notebookId}\" onfocus=\"this.className='detailedViewTextBoxOn'\" rows=\"18\" onblur=\"vtappAjax('{$className}', {$this->appid}, 'saveData', { contents: this.value })\" style=\"display:none; width:100%; height:100%;\" title=\"{$modstr['LBL_NOTEBOOK_SAVE_TITLE']}\">{$contents}</textarea>
+		<textarea id=\"notebook_textarea\" onfocus=\"this.className='detailedViewTextBoxOn'\" rows=\"18\" style=\"display:none; width:96%; height:90%;margin:both;\" title=\"{$modstr['LBL_NOTEBOOK_SAVE_TITLE']}\">{$contents}</textarea>
 		<span class=\"small\" style=\"padding-left: 10px;display: block;\" id=\"notebook_dbl_click_message\">
 		<font color=\"grey\">
 		{$modstr['LBL_NOTEBOOK_TITLE']}
@@ -66,22 +38,39 @@ class VtApp_ComTsolucioNotepad extends vtAppBase {
 		</span>";
 	}
 	
-	public function postInstall() {
-	  global $adb, $current_user;
-	  $stuffid=$adb->getUniqueId('vtiger_homestuff');
-	  $query = "select max(stuffsequence)+1 as seq from vtiger_homestuff";
-	  $res = $adb->query($query);
+	public function postInstantiate() {
+	  global $adb, $current_user, $log;
+	  $stuffid = $adb->getone("select stuffid from vtiger_homestuff where stufftitle='vtAppNB:".$this->getId()."'");
+	  if (empty($stuffid)) {
+	  	$this->createNewNotePad();
+	  } else {
+	  	$this->stuffid = $stuffid;
+	  }
+	}
+	  
+	public function createNewNotePad() {
+		global $adb, $current_user, $log;
+		$stuffid=$adb->getUniqueId('vtiger_homestuff');
+		$query = "select max(stuffsequence)+1 as seq from vtiger_homestuff";
+		$res = $adb->query($query);
 		$sequence = $adb->query_result($res, 0, 'seq');
-		$query = "insert into vtiger_homestuff (stuffid, stuffsequence, stufftype, userid, visible, stufftitle) values ($stuffid, $sequence, 'Notebook', $current_user->id, 0, 'Notebook')";
+		$query = "insert into vtiger_homestuff (stuffid, stuffsequence, stufftype, userid, visible, stufftitle) values ($stuffid, $sequence, 'Notebook', ".$current_user->id.", 0, 'vtAppNB:".$this->getId()."')";
 		$res = $adb->query($query);
 		$query = "insert into vtiger_notebook_contents values ($current_user->id, $stuffid, '')";
 		$adb->query($query);
+		$this->stuffid = $stuffid;
 	}
 
-	public function saveData() {
-	  global $adb, $current_user;
-	  $query = "update vtiger_notebook_contents set contents='{$_REQUEST['contents']}' where userid={$current_user->id} order by notebookid asc limit 1";
+	public function saveData($content) {
+	  global $adb, $current_user, $log;
+	  $query = "update vtiger_notebook_contents set contents='{$content}' where userid={$current_user->id} and notebookid = {$this->stuffid} limit 1";
 	  $adb->query($query);
+	}
+
+	public function preDestroy() {
+		global $adb, $current_user, $log;
+		$adb->query('delete from vtiger_homestuff where stuffid='.$this->stuffid);
+		$adb->query('delete from vtiger_notebook_contents where userid='.$current_user->id.' and notebookid='.$this->stuffid);
 	}
 }
 ?>
