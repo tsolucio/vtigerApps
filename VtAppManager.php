@@ -82,7 +82,7 @@ class VtAppManager {
 	public function getAllLaunchers() {
 		global $adb;
 		$launchers = array();
-		$query = "select evvtappsid from vtiger_evvtapps join vtiger_evvtappsuser on appid=evvtappsid where userid={$this->getUserId()} order by sortorder";
+		$query = "select evvtappsid from vtiger_evvtapps order by path";
 		$res = $adb->query($query);
 		while ($row=$adb->getNextRow($res, false)) {
 			$launchers[] = $this->getLauncher($row['evvtappsid']);
