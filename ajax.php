@@ -28,6 +28,10 @@ switch ($operation) {
     $appId = $_REQUEST['appid'];
     $vtAppManager->removeAppInstance($appId);
     break;
+  case 'VTAPP_doReorderApps':
+	$neworder = $_REQUEST['vtapp_order'];
+	$vtAppManager->doReorderApps($neworder);
+	break;
   case 'VTAPP_getContent':
     $appInstance = $vtAppManager->getAppInstance($appId);
     $data = array(

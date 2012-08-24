@@ -17,9 +17,14 @@ var vtApps =
       __init: function(data) {
         $(document).ready($.proxy(function() {
             this.canvas = $('#evvtCanvas');
-            /*$("#launchers").sortable({
-              update: function() { alert('sorted'); }
-            });*/
+            $("#launchers").sortable({
+              helper : 'clone',
+              update: function(e, ui) {
+            	  serial = $('#launchers').sortable('toArray');
+            	  VtApps.prototype.ajaxRequest('VTAPP_doReorderApps', {'vtapp_order':serial});
+              },
+              placeholder: "evvtappbox evvtappbox-highlight"
+            });
             $("#launchers").disableSelection();
             for(var i=0; i<data.length; i++) {
               var appLauncher = new this.VtAppLauncher(data[i]);

@@ -49,10 +49,13 @@
 	margin-left: -32px;
 }
 
-.sortDrop {
-	border-left-style: dotted;
-	border-left-width: 2px;
-	border-left-color: purple;
+.evvtappbox-highlight {
+	background-image:url('target.png');
+	background-repeat:no-repeat;
+	background-position:8px 12px;
+	height: 54px;
+	width: 54px;
+	opacity:0.6;
 }
 
 #launchers {

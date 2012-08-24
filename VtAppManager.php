@@ -191,5 +191,19 @@ class VtAppManager {
 	  $query = "update vtiger_evvtappsdata set top='{$appInstance->getTop()}', `left`='{$appInstance->getLeft()}', width='{$appInstance->getWidth()}', height='{$appInstance->getHeight()}', onscreen='{$appInstance->getOnScreen()}', data='{$dataSerialized}' where id={$appInstance->getId()}";
 	  $adb->query($query);
 	}
+
+	public function doReorderApps($neworder) {
+		global $adb,$current_user,$log;
+		if (empty($neworder) or !is_array($neworder)) return false;
+		$order = 1;
+		foreach ($neworder as $vtapp) {
+			$vtappid=str_replace('vtapp-launcher-','',$vtapp);
+			$updq="update vtiger_evvtappsuser set sortorder=$order where appid=$vtappid and userid=".$current_user->id;
+			$adb->query($updq);
+			$order++;
+		}
+		return true;
+	}
+
 }
 ?>
