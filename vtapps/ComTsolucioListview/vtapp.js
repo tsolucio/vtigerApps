@@ -1,41 +1,51 @@
 {
   onRefresh: function() {
-    var localData = [
-      {ID: "1010000010", MODULE: "Accounts", FROM: "Offline", TO: "Central", DATE: "2012-02-20", TYPE: "create", ERROR: "ok"},
-      {ID: "134", MODULE: "Contacts", FROM: "Central", TO: "Offline", DATE: "2012-02-20", TYPE: "delete", ERROR: "ok"},
-      {ID: "111", MODULE: "Leads", FROM: "Central", TO: "Offline", DATE: "2012-02-20", TYPE: "conflict", ERROR: "ok"},
-    ];
-    var dataSource = new kendo.data.DataSource( {
-        data: localData,
-        schema: {
-          model: {
-            fields: {
-              ID: { type: "number" },
-              MODULE: { type: "string" },
-              FROM: { type: "string" },
-              TO: { type: "string" },
-              DATE: { type: "date" },
-              TYPE: { type: "string" },
-              ERROR:{type:"string"}
-            }
-          }
+	  this.get('#modulename').change($.proxy(function() { this._changeFilters(); }, this));
+	  this.get('#viewname').change($.proxy(function() { this._saveConfig(); }, this));
+	  this.get('#lvpagesize').blur($.proxy(function() { this._saveConfig(); }, this));
+	  this.get('#editpin').click($.proxy(function() { this._changePin(); }, this));
+	  var colinfo = $.parseJSON(this.get('#gridData').html());
+	  var gridpagesize = this.get('#lvpagesize').val();
+	  this.get("#grid").kendoGrid({
+        dataSource: {
+	        type: "json",
+	        transport: {
+	            read: {
+		            url: 'index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=getListElements&evvtapps_appid='+this.id,
+		            dataType: "json"
+	            }
+	        },
+	        schema: {
+	       	    data: "results",
+	       	    total: "total"
+	        },
+	        pageSize: gridpagesize,
+	        serverPaging: true,
+	        serverFiltering: false,
+	        serverSorting: true
         },
-        pageSize: 12,
-        group: { field: "MODULE" } 
-    });
-    this.get("#grid").kendoGrid({
-        dataSource: dataSource,
-        height: 600,
+        height: '100%',
+        filterable: false,
         sortable: {
-          mode: "multiple",
-          allowUnsort: true
+	        mode: "multiple",
+	        allowUnsort: true
         },
-        rowTemplate:  $.proxy(kendo.template(this.get("#template").html()),dataSource),
-        groupable:true,
-        scrollable: true,
         pageable: true,
-        filterable: true
-        
-    });
+        columns: colinfo
+	  });
+  },
+  onEdit: function() { this.get('#editgrid').toggle(); },
+  _changeFilters: function() {
+	  var module = this.get('#modulename').val();
+	  this.ajaxRequest('changeFilterList', [ module ], function() { this.refresh(); } ); 
+  },
+  _changePin: function() {
+	  this.ajaxRequest('changePin', [ ], function(newimage) { this.get('#editpin').attr('src',newimage); } ); 
+  },
+  _saveConfig: function() {
+	  var module = this.get('#modulename').val();
+	  var filter = this.get('#viewname').val();
+	  var pagesize = this.get('#lvpagesize').val();
+	  this.ajaxRequest('setFilter', [ module, filter, pagesize ], function() { this.refresh(); } ); 
   }
 }
