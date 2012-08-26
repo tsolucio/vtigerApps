@@ -10,7 +10,7 @@ require_once('vtlib/thirdparty/dUnzip2.inc.php');
 class VtApp_ComTsolucioConfiguration extends vtAppBase {
 
 	// ** ACTIVATE UNINSTALL FEATURE
-	var $deleteActive=false;
+	var $deleteActive=true;
 	// **
 
 	public function getContent() {
@@ -105,7 +105,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 	}
 
 	public function vtUploadApp($fromCache='') {
-		global $log,$current_language;
+		global $adb,$log,$current_language;
 		$retrdo = 'NOK';
 		if (is_admin($this->getUser())) {
 			if (!empty($_FILES) or !empty($fromCache)) {
@@ -113,8 +113,8 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 					$vtAppfile=$fromCache;
 					$validFile=true;
 				} else {
-					$vtAppfile='cache/upload/'.$_FILES['vtinstall']["name"];
-					$validFile=@move_uploaded_file($_FILES['vtinstall']["tmp_name"], $vtAppfile);
+					$vtAppfile='cache/upload/'.$_FILES['vtupload']["name"];
+					$validFile=@move_uploaded_file($_FILES['vtupload']["tmp_name"], $vtAppfile);
 				}
 				if ($validFile) {
 					$validZip=$this->checkZip($vtAppfile);
@@ -125,6 +125,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 						if($unzip) $unzip->close();
 						if (!empty($getini)) { 
 							$data = parse_ini_file('cache/vtapp.ini');
+							@unlink('cache/vtapp.ini');
 							if (!empty($data['class_name'])) {
 								$appid=$adb->getone("select evvtappsid from vtiger_evvtapps where path='".$data['class_name']."'");
 								if (empty($appid)) {
@@ -151,7 +152,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 		} else {
 			$retmsg=$this->translate('OnlyAdminUserAllowed');
 		}
-		return json_encode(array('result'=>$retrdo,'msg'=>$retmsg));
+		return json_encode(array('result'=>$retrdo,'msg'=>$retmsg,'id'=>$this->getId()));
 	}
 
 	private function doSetupApp($action,$vtAppfile,$classname) {
@@ -166,6 +167,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 		$targetDir="modules/$currentModule/vtapps/$classname";
 		if (!is_dir($targetDir)) mkdir($targetDir);
 		$unzip = new dUnzip2($vtAppfile);
+		$unzip->debug=false;
 		$unzip->unzipAll($targetDir);
 		unlink($vtAppfile);
 		if($unzip) $unzip->close();
@@ -178,6 +180,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 			echo "<b>".$this->translate('Call')." postUpdate</b><br/>";
 			$newApp->postUpdate();
 		}
+		$newApp->save();  // new class variables should have been set to their default value in postX()
 		$output = ob_get_clean();
 		return $output;
 	}
@@ -188,7 +191,7 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 			if ($appid != $this->getId()) {  // We do not uninstall base vtApp: Configuration
 				if ($this->deleteActive) {
 					// Save physical path before delete
-					$vtapppath = $adb->getone("select path from vtiger_evvtapps where evvtappsid={$appid}";);
+					$vtapppath = $adb->getone("select path from vtiger_evvtapps where evvtappsid={$appid}");
 					$data = parse_ini_file("modules/$currentModule/vtapps/$vtapppath/vtapp.ini");
 					include_once("modules/$currentModule/vtapps/$vtapppath/vtapp.php");
 					$delapp = new $data['class_name']();
@@ -204,8 +207,8 @@ class VtApp_ComTsolucioConfiguration extends vtAppBase {
 					if ($retrdo=='OK') {
 						$retmsg=$this->translate('UninstallOK');
 					} else {
-						$r = explode('::',$retrdo)
-						$retmsg=$this->translate($r[0]).' ('.$[1].')';
+						$r = explode('::',$retrdo);
+						$retmsg=$this->translate($r[0]).' ('.$r[1].')';
 						$retrdo='NOK';
 					}
 				} else {

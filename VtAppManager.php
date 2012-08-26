@@ -184,7 +184,7 @@ class VtAppManager {
 	}
 	
 	// Save app state to persistent storage
-	protected function saveAppInstance($appInstance) {
+	public function saveAppInstance($appInstance) {
 	  global $adb;
 	  $data = $appInstance->getProperties();
 	  $dataSerialized = $adb->sql_escape_string(serialize($data));

@@ -18,10 +18,8 @@
 </form>
 <div id="vtupld" style="display:none;width:96%;margin:4px auto;">
 <h2><?php echo $this->translate('InstallUpgradeMessage'); ?></h2>
-<form method="post">
 <input name="vtupload" id="vtupload" type="file" />
-</form>
-<div id="okResult" class="com-tsolucio-errorSummary" style="display:none;"></div>
-<div id="nokResult" class="com-tsolucio-okSummary" style="display:none;"></div>
+<div id="nokResult" class="com-tsolucio-errorSummary" style="display:none;"></div>
+<div id="okResult" class="com-tsolucio-okSummary" style="display:none;"></div>
 </div>
 <div id="grid" style="clear:both;"></div>

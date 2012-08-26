@@ -64,9 +64,10 @@
   	}, this));
     this.get("#vtupload").kendoUpload({
         async: {
-          saveUrl: this.ajaxRequest('vtUploadApp', [ ], $.proxy(configActionReceived, this)),
+          saveUrl: "index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=vtUploadApp&evvtapps_appid="+this.id,
           autoUpload: true
-        }
+        },
+        success: processFileUploadResult
     });
     if (this.get('#app-id')) {
       this.get('#app-id').change($.proxy(onChange, this));
@@ -75,13 +76,23 @@
       this.get('#vtupld').hide();this.get('#grid').show();
       this.ajaxRequest('getAppUserData', [ this.get('#app-id').val() ], $.proxy(dataReceived, this));
     }
+    function processFileUploadResult(e) {
+    	showConfigResults(e.response);
+    }
     function configActionReceived(data) {
+    	data.id = this.id;
+    	showConfigResults(data);
+    }
+    function showConfigResults(data) {
         if (data.result == 'OK') {
-        	var div2use = '#okResult';
+        	div2use = '#vtapp-id-'+data.id+'-'+'okResult';
         } else {
-        	var div2use = '#nokResult';
+        	div2use = '#vtapp-id-'+data.id+'-'+'nokResult';
         }
-        this.get(div2use).html(data.description);
+        $(div2use).html(data.msg);
+        $(div2use).show();
+        $('#vtapp-id-'+data.id+'-'+'vtupld').show();
+        $('#vtapp-id-'+data.id+'-'+'grid').hide();
     }
     function dataReceived(data) {
       this.get('#app-icon').attr('src', data.icon);
