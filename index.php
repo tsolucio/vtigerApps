@@ -7,6 +7,7 @@
 *************************************************************************************************/
 $mypath="modules/$currentModule";
 include "$mypath/language/$current_language.lang.php";
+$skipFooters=true;
 ?>
 <link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/kendoui/styles/kendo.common.min.css" rel="stylesheet" type="text/css" />

@@ -56,15 +56,41 @@
             { field: "appShow", title: this.translate('Show') }
           ]
       });
+  	this.get('#addvtapp').click($.proxy(function() { this.get('#vtupld').toggle();this.get('#grid').toggle(); }, this));
+  	this.get('#delvtapp').click($.proxy(function() { 
+  		if (this.get('#app-id').val() != '' && confirm(this.translate('DeleteApp'))) {
+  			this.ajaxRequest('unInstallvtApp', [ this.get('#app-id').val() ], $.proxy(configActionReceived, this));
+  		}
+  	}, this));
+    this.get("#vtupload").kendoUpload({
+        async: {
+          saveUrl: this.ajaxRequest('vtUploadApp', [ ], $.proxy(configActionReceived, this)),
+          autoUpload: true
+        }
+    });
     if (this.get('#app-id')) {
       this.get('#app-id').change($.proxy(onChange, this));
     }
     function onChange() {
+      this.get('#vtupld').hide();this.get('#grid').show();
       this.ajaxRequest('getAppUserData', [ this.get('#app-id').val() ], $.proxy(dataReceived, this));
+    }
+    function configActionReceived(data) {
+        if (data.result == 'OK') {
+        	var div2use = '#okResult';
+        } else {
+        	var div2use = '#nokResult';
+        }
+        this.get(div2use).html(data.description);
     }
     function dataReceived(data) {
       this.get('#app-icon').attr('src', data.icon);
       this.get('#app-description').html(data.description);
+      if (data.classname == 'VtApp_ComTsolucioConfiguration') {  // configuration cannot be deleted => uninstall vtApps
+    	  this.get('#delvtapp').hide();
+      } else {
+    	  this.get('#delvtapp').show();
+      }
       dsvtappusers.read();
     }
   }

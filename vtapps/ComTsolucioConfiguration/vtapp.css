@@ -12,3 +12,36 @@
   float: right;
   margin-bottom: 1em;
 }
+
+div.com-tsolucio-errorSummary,
+div.com-tsolucio-okSummary
+{
+	border: 2px solid #C00;
+	padding: 7px 7px 12px 7px;
+	margin: 6px 0 20px 0;
+	background: #FEE;
+	font-size: 0.9em;
+}
+
+div.com-tsolucio-okSummary
+{
+	border-color: #0C0;
+	background: #EFE;
+}
+
+div.com-tsolucio-errorSummary p
+{
+	margin: 0;
+	padding: 5px;
+}
+
+div.com-tsolucio-errorSummary ul
+{
+	margin: 0;
+	padding: 0 0 0 20px;
+}
+
+div.com-tsolucio-errorSummary ul li
+{
+	list-style: square;
+}
