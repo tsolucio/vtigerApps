@@ -136,7 +136,9 @@ var vtApps =
             }
             if (show) {
               for(var i=0; i<this.instances.length; i++) {
+            	if (this.instances[i].onLaunch()) {
                 this.instances[i].show();
+            	}
               }
             }
           }
@@ -144,7 +146,7 @@ var vtApps =
       },
       // Request new app instance
       newInstance: function() {
-        vtApps.ajaxRequest('VTAPP_createAppInstance', { launcherid: this.id }, function (data) { this.createInstance(data).show(); }, this);
+        vtApps.ajaxRequest('VTAPP_createAppInstance', { launcherid: this.id }, function (data) { var inst = this.createInstance(data); this.newInstanceLaunch(inst); }, this);
       },
       // Create new app instance
       createInstance: function(data) {
@@ -158,6 +160,15 @@ var vtApps =
         instance.destroy();
         vtApps.ajaxRequest('VTAPP_removeAppInstance', { appid: instance.id }, function() {}, this);
     	}
+      },
+      newInstanceLaunch: function(instance) {
+    	  if (instance.onLaunch()) {
+    		  instance.show();
+    	  } else {
+   	        this.instances.splice(this.instances.indexOf(instance), 1);
+   	        instance.destroy();
+   	        vtApps.ajaxRequest('VTAPP_removeAppInstance', { appid: instance.id }, function() {}, this);
+    	  }
       },
       translate: function(str) {
         return this.translations[str];
@@ -383,6 +394,8 @@ var vtApps =
         }
         return this.launcher.path+path;
       },
+      // Called when the canvas icon is clicked on, if false is returned, the default action will not be taken
+      onLaunch: function() { return true; },
       // Called when the launcher is shown
       onLoad: function() {},
       // Called after a window refresh
