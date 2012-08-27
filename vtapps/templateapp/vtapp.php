@@ -6,7 +6,7 @@
 *  Author       : JPL TSolucio, S. L.
 *************************************************************************************************/
 
-class VtApp_ComTsolucioTemplate extends vtApp {
+class VtApp_ComTsolucioTemplate extends vtAppBase {
 	
 	public function getContent() {		
 		return 'This is the default template widget';
