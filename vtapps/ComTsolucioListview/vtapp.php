@@ -13,7 +13,7 @@ class VtApp_ComTsolucioListview extends vtAppBase {
 	var $lv_pagesize=25;
 	var $lv_editpinned=true;
 
-	public function getContent($lang) {
+	public function getContent() {
 		global $adb,$app_strings,$current_language,$current_user,$log;
 		$smarty = new vtigerCRM_Smarty;
 		$smarty->template_dir = $this->getPath();
