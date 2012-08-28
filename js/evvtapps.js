@@ -1,5 +1,7 @@
-var vtApps =
-(function($) {
+
+var evvtCurrentAppOnScreen = 0;
+
+var vtApps = (function($) {
     
     // This is the main object that handles everything
     function VtApps() {
@@ -29,7 +31,9 @@ var vtApps =
             for(var i=0; i<data.length; i++) {
               var appLauncher = new this.VtAppLauncher(data[i]);
               this.launchers.push(appLauncher);
+              if (evvtcanvas == 'windows') {
               appLauncher.show();
+              }
             }
         }, this));
       },
@@ -204,16 +208,55 @@ var vtApps =
         if (launcher.handlers!=null) {
           $.extend(this, launcher.handlers);
         }
-        this.createWindow();
+    	  switch (evvtcanvas) {
+    	  case 'allapps':
+    		  setTimeout($.proxy(this.onLoad, this), 0);
+    		  break;
+    	  case 'windows':
+    		  this.createWindow();
+    		  break
+    	  case 'dashboard':
+    		  break
+    	  }
       },
       // Show app window
       show: function() {
         this.refresh();
+  	  switch (evvtcanvas) {
+	  case 'allapps':
+		  toolbar = '';
+          if (this.launcher.clonable && this.launcher.canhide) {
+        	  toolbar += '<span id="evvtappTitleBarToolsDestroy"></span>';
+          }
+          if (this.launcher.clonable) {
+	       	toolbar += '<span id="evvtappTitleBarToolsClone"></span>';
+	      }
+          toolbar += '<span id="evvtappTitleBarToolsRefresh"></span>';
+	      if (this.launcher.editable) {
+	       	toolbar += '<span id="evvtappTitleBarToolsEdit"></span>';
+	      }
+		  $('#evvtappTitleBarTools').html(toolbar);
+          if (this.launcher.clonable && this.launcher.canhide) {
+        	  $('#evvtappTitleBarToolsDestroy').click($.proxy(function() { this.launcher.removeInstance(this); return false; }, this));
+          }
+          if (this.launcher.clonable) {
+          	  $('#evvtappTitleBarToolsClone').click($.proxy(function() { this.launcher.newInstance(); return false; }, this));
+	      }
+          $('#evvtappTitleBarToolsRefresh').click($.proxy(function() { this.refresh(); return false; }, this));
+	      if (this.launcher.editable) {
+	       	$('#evvtappTitleBarToolsEdit').click($.proxy(this.onEdit, this));
+	      }
+		  break;
+	  case 'windows':
         $('#'+this.windowId).data('kendoWindow').open();
         kWin = $('#'+this.windowId).data("kendoWindow");
         kWin.toFront();
         this.onscreen = true;
         this.ajaxRequest('windowOnScreen', [ 1 ]);  // save state change of window
+		  break
+	  case 'dashboard':
+		  break
+	  }
       },
       // Hide app window
       hide: function() {
@@ -222,8 +265,17 @@ var vtApps =
         this.ajaxRequest('windowOnScreen', [ 0 ]);  // save state change of window
       },
       destroy: function() {
+       switch (evvtcanvas) {
+       case 'allapps':
+    	   move2NextApp(0);
+  		  break;
+  	   case 'windows':
         $('#'+this.windowId).data('kendoWindow').destroy();
         $(document).unbind('vta.'+this.id);
+		  break
+	   case 'dashboard':
+		  break
+	   }
       },
       // Get onscreen state
       isOnScreen: function() {
@@ -287,19 +339,42 @@ var vtApps =
       },
       // Set window title
       setTitle: function(title) {
+    	  switch (evvtcanvas) {
+    	  case 'allapps':
+    		  $('#evvtappTitleBarTitle').html(title);
+    		  break;
+    	  case 'windows':
         var kWin = $('#'+this.windowId).data("kendoWindow");
         kWin.title(title);
+		  break
+    	  case 'dashboard':
+    		  break
+    	  }
       },
       // Set window content
       setContent: function(content) {
+    	  var id = this.id;
+    	  switch (evvtcanvas) {
+    	  case 'allapps':
+    		  $('#evvtappContentDiv').html(content);
+    		  $('#evvtappContentDiv *').each(function(index) {
+    	            if ($(this).attr('id')) {
+    	                $(this).attr('id', 'vtapp-id-'+id+'-'+$(this).attr('id'));
+    	              }
+    	          });
+    		  break;
+    	  case 'windows':
         var kWin = $('#'+this.windowId).data("kendoWindow");
         kWin.content(content);
-        var id = this.id;
         $('#'+this.windowId+' *').each(function(index) {
             if ($(this).attr('id')) {
               $(this).attr('id', 'vtapp-id-'+id+'-'+$(this).attr('id'));
             }
         });
+		  break
+    	  case 'dashboard':
+    		  break
+    	  }
       },
       safeId: function(id) {
         return 'vtapp-id-'+this.id+'-'+id;
@@ -382,7 +457,10 @@ var vtApps =
           var domId = 'vtapp-id-'+this.id+'-'+selector.substr(1);
           selector = '#'+domId;
         }
+        if (evvtcanvas == 'windows')
         return $(selector, $('#'+this.windowId));
+        else
+        return $(selector);
       },
       // Get translation
       translate: function(str) {
@@ -410,3 +488,207 @@ var vtApps =
     
     return new VtApps();
 })(jQuery);
+
+/** Other auxiliar functions */
+
+function setCanvas2Window() {
+	if (evvtcanvas == 'windows') {
+		jQuery("#evvtCanvas").html('<ul id="launchers"></ul>');
+        for(var launch=0; launch<vtApps.launchers.length; launch++) {
+           	vtApps.launchers[launch].show();
+           	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+           		if (vtApps.launchers[launch].instances[inst].isOnScreen()) {
+           			$('#'+vtApps.launchers[launch].instances[inst].windowId).data('kendoWindow').open();
+           		}
+           	}
+        }
+	}
+	return false;
+}
+
+function evvtFindConfigApp() {
+	found = false;
+	i = 0;
+    while (i<vtApps.launchers.length && !found) {
+       	found = (vtApps.launchers[i].key == 'com.tsolucio.Configuration');
+       	if (found) return i;
+       	i++;
+    }
+    return -1;
+}
+
+function evvtShowAboutUs() {
+	$('#evvtAppsAboutUs').kendoWindow({
+		modal: true,
+		visible: true,
+		width: '420px',
+		actions: ["Close"],
+		height: '130px',
+		draggable: true,
+		resizable: false
+	});
+	var kendoWindow = $("#evvtAppsAboutUs").data("kendoWindow");
+	kendoWindow.content('<table style="width: 100%;"><tbody><tr><td><b>vtEvolutivo::vtApps</b><br/>Copyright &copy; 2012<br/><br/>'+
+			'<b>vtApps</b> is an <b><a href="http://www.evolutivo.it">Evolutivo Initiative</a></b><br/></td><td><img src="modules/evvtApps/images/vtApps.png"></td></tr>'+
+			'<tr><td colspan="2">Which means it is a joint venture project of the companies:</td></tr>'+
+			'<tr><td colspan="2"><b>OpenCubed. JPL TSolucio, S.L. and StudioSynthesis, S.R.L.</b></td></tr></tbody></table>');
+	kendoWindow.title('About us');
+	kendoWindow.center();
+}
+
+function evvtHeaderToggle() {
+	$('#evvtheader').toggle();
+	if ($('#evvtheader').css('display')=='none') {
+		$('#evvtheaderhideimage').attr('src','modules/evvtApps/images/showpanel.png');
+	} else {
+		$('#evvtheaderhideimage').attr('src','modules/evvtApps/images/hidepanel.png');
+	}
+}
+
+function hideAllInstances() {
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		if (vtApps.launchers[launch].instances[inst].isOnScreen()) {
+       			$('#'+vtApps.launchers[launch].instances[inst].windowId).data('kendoWindow').close();
+       		}
+       	}
+	}
+}
+
+function makeContent(contentName){
+	jQuery('#evvtheaderCenter a').removeClass('evvtheaderCenterActive');
+	evvtcanvas = contentName;
+	switch (contentName) {
+	  case 'windows':
+		evvtAllAppsDataReceived({'icon':'modules/evvtApps/images/blank.png', 'description':''});
+		jQuery("#evvtHeaderJumpTo").hide();
+        jQuery("#evvtleftButton").hide();
+        jQuery("#evvtrightButton").hide();
+        jQuery("#evvtCanvas").css('width','96%');
+        jQuery("#evvthcwin").addClass('evvtheaderCenterActive');
+		setCanvas2Window();
+		break;
+	  case 'dashboard':
+		evvtAllAppsDataReceived({'icon':'modules/evvtApps/images/blank.png', 'description':''});
+		jQuery("#evvtHeaderJumpTo").hide();
+		hideAllInstances();
+        jQuery("#evvtleftButton").hide();
+        jQuery("#evvtrightButton").hide();
+        jQuery("#evvtCanvas").css('width','96%');
+        jQuery("#evvthcdsh").addClass('evvtheaderCenterActive');
+        jQuery("#evvtCanvas").html("dashboard");
+		break;
+	  case 'allapps':
+		hideAllInstances();
+		jQuery("#evvtHeaderJumpTo").show();
+        jQuery("#evvtleftButton").show();
+        jQuery("#evvtrightButton").show();
+        jQuery("#evvtCanvas").css('width','90%');
+        jQuery("#evvthcapp").addClass('evvtheaderCenterActive');
+        move2App(evvtCurrentAppOnScreen);
+		break;
+	}
+    return false;
+};
+
+function move2NextApp(offset){
+	if (evvtcanvas == 'allapps') {
+        numinstances=0;
+        instancesid = [];
+		for(var launch=0; launch<vtApps.launchers.length; launch++) {
+           	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+           		instancesid.push(vtApps.launchers[launch].instances[inst]);
+           		numinstances++;
+           	}
+        }
+		newpos = evvtCurrentAppOnScreen + offset;
+		evvtCurrentAppOnScreen = Math.abs(newpos % numinstances);
+		if (newpos < 0) {
+			evvtCurrentAppOnScreen = numinstances - evvtCurrentAppOnScreen;
+		}
+		//configapp = evvtFindConfigApp();
+		//vtApps.launchers[configapp].instances[0].ajaxRequest('getAppUserData', [ instancesid[evvtCurrentAppOnScreen].launcher.id ], $.proxy(evvtAllAppsDataReceived));
+		evvtAllAppsDataReceived({'icon': instancesid[evvtCurrentAppOnScreen].launcher.iconPath, 'description':instancesid[evvtCurrentAppOnScreen].launcher.shortDescription});
+		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar"><div id="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv"></div>');
+		instancesid[evvtCurrentAppOnScreen].show();
+	}	
+    return false;
+};
+
+function move2App(posicion){
+	if (evvtcanvas == 'allapps') {
+        numinstances=0;
+        instancesid = [];
+		for(var launch=0; launch<vtApps.launchers.length; launch++) {
+           	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+           		instancesid.push(vtApps.launchers[launch].instances[inst]);
+           		numinstances++;
+           	}
+        }
+		if (posicion < 0 || posicion > numinstances) {
+			posicion = 0;  // invalid position, we set on the first one
+		}
+		evvtCurrentAppOnScreen = posicion;
+		//configapp = evvtFindConfigApp();
+		//vtApps.launchers[configapp].instances[0].ajaxRequest('getAppUserData', [ instancesid[evvtCurrentAppOnScreen].launcher.id ], $.proxy(evvtAllAppsDataReceived));
+		evvtAllAppsDataReceived({'icon': instancesid[evvtCurrentAppOnScreen].launcher.iconPath, 'description':instancesid[evvtCurrentAppOnScreen].launcher.shortDescription});
+		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar"><div id="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv"></div>');
+		instancesid[evvtCurrentAppOnScreen].show();
+	}	
+    return false;
+};
+
+function jumpToMenu() {
+	$("#vtappStatus").show();
+	var DDapplistTimer; 
+	var datastr = '';
+	var numinst = 0;
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		datastr = datastr + '{"listid": ' + numinst + ', "icon":"' + vtApps.launchers[launch].iconPath + '", "title": "';
+       		ajaxurl = vtApps.launchers[launch].instances[inst].getServerMethodURL('getTitle', {
+                evvtapps_appid: vtApps.launchers[launch].instances[inst].id
+            });
+       		$.ajax({
+       		  url: 'index.php?' + ajaxurl,
+       		  async:false
+       		}).done(function(apptitle) { 
+       			datastr = datastr + apptitle + '"}';
+       		});
+       		if (inst+1<vtApps.launchers[launch].instances.length) datastr = datastr + ',';
+       		numinst++;
+       	}
+       	if (launch+1<vtApps.launchers.length) datastr = datastr + ',';
+    }
+	dataobj = jQuery.parseJSON('[' + datastr + ']');
+	$("#vtappDDListDiv").show();
+	$("#vtappDDListInput").show();
+    $("#vtappDDListInput").kendoDropDownList({
+        dataTextField: "title",
+        dataValueField: "listid",
+        template: '<span style="vertical-align:middle;"><img src="${ data.icon }" height="16px"/>' +'&nbsp;${ data.title }</span>',
+        dataSource: dataobj,
+        change: function(e) {
+            move2App(e.sender.selectedIndex);
+            var ddl = $("#vtappDDListInput").data("kendoDropDownList");
+            ddl.close();
+            $("#vtappDDListDiv").hide();
+        },
+        open: function(e) {
+        	clearTimeout(DDapplistTimer);
+        },
+        close: function(e) {
+        	DDapplistTimer = setTimeout(function () { $("#vtappDDListDiv").hide(); }, 1200);
+        }
+    });
+    var dropdownlist = $("#vtappDDListInput").data("kendoDropDownList");
+    dropdownlist.list.width(400);
+    $("#vtappStatus").hide();
+    DDapplistTimer = setTimeout(function () { $("#vtappDDListDiv").hide(); }, 4000);
+}
+
+function evvtAllAppsDataReceived(data) {
+    jQuery('#evvtHeaderImage').attr('src', data.icon);
+    jQuery('#evvtHeaderDesc').html(data.description);
+}
+

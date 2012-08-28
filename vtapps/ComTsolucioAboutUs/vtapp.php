@@ -20,7 +20,7 @@ class VtApp_ComTsolucioAboutUs extends vtAppBase {
 		$about.= '<div id="msg-content"></div>';
 		$about.= '</div>';
 		$about.= '<div id="aboutus" style="width:48%;float:right">
-		<table class="list" style="width: 100%%; float: right;">
+		<table class="list" style="width: 100%; float: right;">
 		<thead>
 		<tr>
 		<th colspan="2">Maintainer</th>

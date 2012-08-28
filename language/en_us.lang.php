@@ -11,6 +11,9 @@
 $mod_strings = Array(
 'evvtApps' => 'vtApps',
 'SINGLE_evvtApps' => 'vtApps',
+'Windows' => 'Windows',
+'Dashboard' => 'Dashboard',
+'Applications' => 'Applications',
 
 );
 $vtapps_js = Array(

@@ -6,16 +6,16 @@
 
 /* evvtApps base CSS */
 .evvtCanvas {
-	margin: 0 auto;
+	margin: 0;
 	padding: 0;
 	border: 0;
 	outline: 0;
 	width: 96%;
-	height: 415px;
-	position: relative;
+	height: 100%;
 	text-decoration: none;
 	font-size: 100%;
 	list-style: none;
+	float: left;
 }
 
 .evvtToolbar {
@@ -62,4 +62,179 @@
   list-style-type: none;
   margin: 0;
   padding: 0;
+}
+
+/***************************************************************************/
+
+#evvtrightButton{
+    width: 5%;
+    height: 640px;
+    float: right;
+    background-color: #fff;
+    /* border: 1px solid blue; */
+}
+#evvtleftButton{
+    width: 5%;
+    height: 640px;
+    float: left;
+    background-color: #fff;
+    /* border: 1px solid blue; */
+}
+#evvtrightButton input,#evvtleftButton input{
+    width: 100%;
+    height: 100%;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    background-color: #fefefe;
+    color: #999 !important;
+}
+#evvtrightButton input:hover{
+   /*background-color: #f1f1f1; */
+   border-left: 1px solid #f1f1f1;
+}
+#evvtleftButton input:hover{
+   /*background-color: #f1f1f1; */
+   border-right: 1px solid #f1f1f1;
+}
+#evvtheader, #evvtheaderhide{
+	/*
+    position: fixed;
+    top: auto;
+    */
+    width: 100%;
+    height: 45px;
+    /*
+    bottom: 0 !important;
+    bottom: -1px;
+    */
+    background-color: #f1f1f1; 
+    background-image: -webkit-linear-gradient( rgba(242, 242, 242, 0.9), rgba(222, 222, 222, 0.9));
+}
+
+#evvtheaderhide{
+	height: 4px;
+	text-align: center;
+	border-bottom: 1px solid #b1b1b1;	
+}
+
+#evvtheaderCenter{
+    /*border: 1px solid red !important;*/
+    height: 40px;
+    margin-right: 30%;
+    margin-left: 30%;
+    text-align: center;
+}
+#evvtheaderCenter a{
+    background-image: url('../images/bgLink.png');
+    background-repeat: no-repeat;
+    width: 80px;
+    height: 9px;
+    /*border: 1px solid red;*/
+    display: inline-block;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    margin-top: 10px;
+    color: #7F7F7F;
+    font-size: 0.9em;
+    font-weight: bold;
+    text-decoration: none;
+}
+#evvtheaderCenter a:hover{
+    background-image: url('../images/bgLinkHover.png');
+}
+.evvtheaderCenterActive{
+    background-image: url('../images/bgLinkActive.png') !important;
+}
+#evvtheaderRight{
+    /* border: 1px solid red !important; */
+    width: 30%;
+    height: 40px;
+    float: right;
+    text-align: right;
+}
+#evvtHeaderImage {
+    height: 45px;
+    margin-top: 2px;
+    margin-right: 4px;
+}
+#evvtHeaderJumpTo {
+    margin-top: 22px;
+    margin-right: 4px;
+}
+#evvtHeaderDesc {
+    color: #7F7F7F;
+    font-size: 1.2em;
+    font-weight: bold;
+    text-decoration: none;
+    padding-right: 0;
+    text-align: right;
+    word-wrap: break-word;
+    border: 0;
+    height: 40px;
+    width: 85%;
+    float:left;
+}
+#evvtheaderLeft{
+    /*border: 1px solid red !important;*/
+    width: 30%;
+    height: 40px;
+    float: left;
+    margin-left: 20px;
+    margin-top: 5px;
+}
+
+#evvtheaderLeft img{
+    height: 30px;
+}
+
+#evvtappTitleBar, #evvtappTitleBarTitle, #evvtappTitleBarTools {
+    width: 100%;
+    height: 16px;
+    background-color: #f1f1f1; 
+    background-image: -webkit-linear-gradient( rgba(242, 242, 242, 0.9), rgba(222, 222, 222, 0.9));
+}
+#evvtappTitleBarTitle {
+    width: 60%;
+    float: left;
+    padding-left: 6px;
+}
+#evvtappTitleBarTools {
+    width: 39%;
+    float: right;
+    padding-right: 6px;
+    text-align: right;
+}
+#evvtappTitleBarToolsDestroy, #evvtappTitleBarToolsRefresh, #evvtappTitleBarToolsClone, #evvtappTitleBarToolsEdit {
+	background-image: url('../kendoui/styles/Default/sprite.png');
+	padding-left: 2px;
+	float: right;
+	height: 16px;
+	width: 16px;
+}
+#evvtappTitleBarToolsDestroy {
+	background-position: -32px -16px;
+}
+#evvtappTitleBarToolsRefresh {
+	background-position: -32px -112px;
+}
+#evvtappTitleBarToolsClone {
+	background-position: -32px -128px;
+}
+#evvtappTitleBarToolsEdit {
+	background-position: -32px 0;
+}
+
+/*  Quick Jump To DropDown List */
+#vtappDDList-list .k-item {
+    overflow: hidden; /* clear floated images */
+    vertical-align: middle;
+    font-weight: bold;
+}
+
+#vtappDDList-list img {
+    box-shadow: 0 0 4px rgba(255,255,255,.7);
+    float: left;
+    margin: 5px;
+    vertical-align: middle;
 }

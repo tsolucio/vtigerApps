@@ -1,6 +1,6 @@
 <form id="app-selector" class="com-tsolucio-Admin-app-selector">
   <div class="com-tsolucio-Admin-app-icon-div">
-    <img id="app-icon" width="64" height="64" />
+    <img id="app-icon" width="64" height="64" src="modules/evvtApps/images/blank.png"/>
   </div>
   <div id="app-description" class="com-tsolucio-Admin-app-description"></div>
   <div>
