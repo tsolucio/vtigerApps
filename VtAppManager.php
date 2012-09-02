@@ -205,5 +205,52 @@ class VtAppManager {
 		return true;
 	}
 
+	public function getDashboardLayout() {
+		global $current_user,$adb;
+		$query = "select dashboarddata from vtiger_evvtappscanvas where userid={$current_user->id}";
+		$ret = $adb->getone($query);
+		if (empty($ret)) {
+			$ret = '{}';
+		}
+		return $ret;
+	}
+
+	public function setDashboardLayout($dblayout) {
+		global $current_user,$adb,$log;
+		$query = "select count(*) from vtiger_evvtappscanvas where userid={$current_user->id}";
+		$log->fatal($query);
+		$ret = $adb->getone($query);
+		$log->fatal($ret);
+		if ($ret==0) {
+			$query = "insert into vtiger_evvtappscanvas (defaultcanvas,windowsdata,dashboarddata,allappsdata,userid) values ('windows','',?,'',?)";
+		} else {
+			$query = "update vtiger_evvtappscanvas set dashboarddata = ? where userid=?";
+		}
+		$log->fatal($query);
+		$adb->pquery($query,array($dblayout,$current_user->id));
+	}
+
+	public function getCanvasDefault() {
+		global $current_user,$adb;
+		$query = "select defaultcanvas from vtiger_evvtappscanvas where userid={$current_user->id}";
+		$ret = $adb->getone($query);
+		if (empty($ret)) {
+			$ret = 'windows';
+		}
+		return $ret;
+	}
+	
+	public function setCanvasDefault($canvas) {
+		global $current_user,$adb;
+		$query = "select count(*) from vtiger_evvtappscanvas where userid={$current_user->id}";
+		$ret = $adb->getone($query);
+		if ($ret==0) {
+			$query = "insert into vtiger_evvtappscanvas (defaultcanvas,windowsdata,dashboarddata,allappsdata,userid) values (?,'','','',?)";
+		} else {
+			$query = "update vtiger_evvtappscanvas set defaultcanvas = ? where userid=?";
+		}
+		$adb->pquery($query,array($canvas,$current_user->id));
+	}
+
 }
 ?>

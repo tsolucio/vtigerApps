@@ -14,6 +14,15 @@ $mod_strings = Array(
 'Windows' => 'Ventanas',
 'Dashboard' => 'Cuadro Mando',
 'Applications' => 'Aplicaciones',
+'MenuAppProps' => 'Properties',
+'splitCollapsed' => 'Cerrado',
+'splitCollapsable' => 'Cerrable',
+'splitvtAppid' => 'vtApp',
+'splitMax' => 'Tamaño Máx',
+'splitMin' => 'Tamaño Mín',
+'splitResize' => 'Cambiar Tamaño',
+'splitScroll' => 'Desplazar',
+'splitSize' => 'Tamaño',
 
 );
 $vtapps_js = Array(
@@ -21,5 +30,10 @@ $vtapps_js = Array(
 'vtAppUninstalled'=>'vtApp desinstalada correctamente.',
 'vtAppNotUninstalled'=>'vtApp no ha podido ser desinstalada correctamente.',
 'ReallyDestroy'=>'¿Realmente quieres cerrar permanentemente esta ventana?',
+'ReallyDestroyGroup'=>"Esta acción eliminará TODOS los elementos contenidos en el grupo!\n ¿Estás seguro que quieres ejecutar esta acción?",
+'NotAssigned' => 'No Asignado',
+'My Dashboard Layout' => 'Disposición Cuadro Mando',
+'Row Layout' => 'Fila',
+'vtApp Container' => 'Contenedor vtApp',
 );
 ?>

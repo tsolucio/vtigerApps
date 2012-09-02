@@ -32,6 +32,20 @@ switch ($operation) {
 	$neworder = $_REQUEST['vtapp_order'];
 	$vtAppManager->doReorderApps($neworder);
 	break;
+  case 'VTAPP_getDashboardLayout':
+  	echo $vtAppManager->getDashboardLayout();
+  	break;
+  case 'VTAPP_setDashboardLayout':
+  	$evvtdblayout = $_REQUEST['evvtdblayout'];
+	$vtAppManager->setDashboardLayout($evvtdblayout);
+	break;
+  case 'VTAPP_getCanvasDefault':
+	echo $vtAppManager->getCanvasDefault();
+	break;
+  case 'VTAPP_setCanvasDefault':
+  	$canvas = $_REQUEST['evvtcanvas'];
+	$vtAppManager->setCanvasDefault($canvas);
+	break;
   case 'VTAPP_getContent':
     $appInstance = $vtAppManager->getAppInstance($appId);
     $data = array(

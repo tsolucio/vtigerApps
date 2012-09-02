@@ -14,6 +14,15 @@ $mod_strings = Array(
 'Windows' => 'Windows',
 'Dashboard' => 'Dashboard',
 'Applications' => 'Applications',
+'MenuAppProps' => 'Propiedades',
+'splitCollapsed' => 'Collapsed',
+'splitCollapsable' => 'Collapsable',
+'splitvtAppid' => 'vtApp',
+'splitMax' => 'Max Size',
+'splitMin' => 'Min Size',
+'splitResize' => 'Resize',
+'splitScroll' => 'Scroll',
+'splitSize' => 'Size',
 
 );
 $vtapps_js = Array(
@@ -21,5 +30,10 @@ $vtapps_js = Array(
 'vtAppUninstalled'=>'vtApp uninstalled correctly.',
 'vtAppNotUninstalled'=>'vtApp could not be uninstalled correctly.',
 'ReallyDestroy'=>'Do you really want to permanently close this window?',
+'ReallyDestroyGroup'=>"This action will eliminate ALL elements below this group!\n Are you really sure you want to do this?",
+'NotAssigned' => 'Not Assigned',
+'My Dashboard Layout' => 'My Dashboard Layout',
+'Row Layout' => 'Row Layout',
+'vtApp Container' => 'vtApp Container',
 );
 ?>

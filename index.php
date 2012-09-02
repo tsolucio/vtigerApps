@@ -22,7 +22,6 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
 <script src="<?php echo $mypath; ?>/js/jquery.tipsy.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/js/evvtapps.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/jquery-ui/js/jquery-ui-1.8.21.custom.min.js" type="text/javascript"></script>
-<!-- input id="vtappDDListInput" type="hidden" style="float:right;position:absolute;top:120px;right:10px"/  -->
 <div id="vtappDDListDiv" style="float:right;position:absolute;top:120px;right:10px;z-index:10000;">
 <input id="vtappDDListInput" type="hidden" size=1/>
 </div>
@@ -42,5 +41,65 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
 </div>
 <div id="evvtleftButton"<?php if ($evvtcanvas!='allapps') echo ' style="display:none;"'; ?>><input type="button" value="<" onClick="move2NextApp(-1)"></div>
 <div id="evvtCanvas" class="evvtCanvas"><ul id="launchers"></ul></div>
+<div id="evvtDashboardCanvas" style='display:none;width:100%;height:610px;margin:auto'>
+  <div id="evvtDashboardDesigner" style="height: 100%;">
+    <div id="evvtDashboardLayout" style="height: 100%; width: 80%;"></div>
+    <div id="evvtDashboardEditor" style="height: 800px; width: 40%;">
+      <div class="evvtDashboardEditorpane-content">
+       <span class="evvtDashboardEditorMenuTop"><div style="float:left">&nbsp;</div>
+        <div id="evvtDBETAddRowLayout" class="evvtDashboardEditorTool evvtDashboardEditorToolAddRowLayout evvtDashboardEditorToolUnactive"/></div>
+        <div id="evvtDBETAddvtAppCell" class="evvtDashboardEditorTool evvtDashboardEditorToolAddvtAppCell evvtDashboardEditorToolUnactive"/></div>
+        <div id="evvtDBETRefresh" class="evvtDashboardEditorTool evvtDashboardEditorToolRefresh evvtDashboardEditorToolUnactive"/></div>
+        <div id="evvtDBETCollapseExpand" class="evvtDashboardEditorTool evvtDashboardEditorToolCollapseExpand evvtDashboardEditorToolActive"/></div>
+        <div id="evvtDBETSave" class="evvtDashboardEditorTool evvtDashboardEditorToolSave evvtDashboardEditorToolUnactive"/></div>
+       </span>
+       <div id="evvtDashboardEditorTreeview"></div>
+       <script id="evvtDashboardEditorTreeview-template" type="text/kendo-ui-template">
+            #= item.text #
+			<span id="evvtdbappdata-#= item.id #" atributos="evvtinfo" splitprops='#= item.splitprops #'>&nbsp;&nbsp;</span>
+            <a href='javascript:void(0);'></a>
+       </script>
+      </div>
+      <div class="evvtDashboardEditorpane-content">
+       <span  class="evvtDashboardEditorMenuTop"><?php echo getTranslatedString('MenuAppProps',$currentModule); ?><input type="hidden" id="evvteditingdiv"/></span>
+       <div id="evvtDashboardEditorPropview">
+       <div id="evvtDashboardEditorProps">
+       	<div id="evvtSplitvtAppidDiv" class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitvtAppid',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitvtAppid" type="hidden" /></div>
+		</div>
+       	<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitSize',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitSize" type="number" size=4 value="" onblur="javascript:doResizeChange(this.value,true)" /></div>
+		</div>
+       	<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitMax',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitMax" type="number" size=4 value="" onblur="javascript:setdbpropertyToTreeSelected('splitMax',this.value);" /></div>
+		</div>
+       	<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitMin',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitMin" type="number" size=4 value="" onblur="javascript:setdbpropertyToTreeSelected('splitMin',this.value);" /></div>
+		</div>
+       	<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitResize',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitResize" type="checkbox" onblur="javascript:setdbpropertyToTreeSelected('splitResize',this.checked);" /></div>
+		</div>
+       	<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitScroll',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitScroll" type="checkbox" onblur="javascript:setdbpropertyToTreeSelected('splitScroll',this.checked);" /></div>
+		</div>
+		<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsed',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitCollapsed" type="checkbox" onchange="javascript:doCollapsedChange(this.checked,true);" /></div>
+		</div>
+       	<div class="evvtPropertyItem">
+			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsable',$currentModule); ?></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitCollapsable" type="checkbox" onchange="javascript:doCollapsibleChange(this.checked,true);" /></div>
+		</div>
+       </div>
+      </div>
+    </div>
+  </div>
+</div>
 <div id="evvtrightButton"<?php if ($evvtcanvas!='allapps') echo ' style="display:none;"'; ?>><input type="button" value=">" onClick="move2NextApp(1)"></div>
 <div style="clear:both"></div>

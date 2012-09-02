@@ -1,5 +1,7 @@
 
 var evvtCurrentAppOnScreen = 0;
+var evvtMaxDashboardElementID = 0;
+var evvtDoingDashboardPaint = 0;
 
 var vtApps = (function($) {
     
@@ -34,7 +36,8 @@ var vtApps = (function($) {
               if (evvtcanvas == 'windows') {
               appLauncher.show();
               }
-            }
+            };
+            //makeContent(evvtcanvas);
         }, this));
       },
       // Function to do ajax requests with callback function and context
@@ -185,7 +188,7 @@ var vtApps = (function($) {
     // Class for app instances
     VtAppWindow = VtApps.prototype.VtAppWindow = function(launcher, data) {
       this.init(launcher, data);
-    }
+    };
     VtAppWindow.prototype = {
       launcher: null,
       id: null,
@@ -214,9 +217,9 @@ var vtApps = (function($) {
     		  break;
     	  case 'windows':
     		  this.createWindow();
-    		  break
+    		  break;
     	  case 'dashboard':
-    		  break
+    		  break;
     	  }
       },
       // Show app window
@@ -226,14 +229,14 @@ var vtApps = (function($) {
 	  case 'allapps':
 		  toolbar = '';
           if (this.launcher.clonable && this.launcher.canhide) {
-        	  toolbar += '<span id="evvtappTitleBarToolsDestroy"></span>';
+        	  toolbar += '<span id="evvtappTitleBarToolsDestroy" class="evvtappTitleBarToolsDestroy"></span>';
           }
           if (this.launcher.clonable) {
-	       	toolbar += '<span id="evvtappTitleBarToolsClone"></span>';
+	       	toolbar += '<span id="evvtappTitleBarToolsClone" class="evvtappTitleBarToolsClone"></span>';
 	      }
-          toolbar += '<span id="evvtappTitleBarToolsRefresh"></span>';
+          toolbar += '<span id="evvtappTitleBarToolsRefresh" class="evvtappTitleBarToolsRefresh"></span>';
 	      if (this.launcher.editable) {
-	       	toolbar += '<span id="evvtappTitleBarToolsEdit"></span>';
+	       	toolbar += '<span id="evvtappTitleBarToolsEdit" class="evvtappTitleBarToolsEdit"></span>';
 	      }
 		  $('#evvtappTitleBarTools').html(toolbar);
           if (this.launcher.clonable && this.launcher.canhide) {
@@ -253,9 +256,9 @@ var vtApps = (function($) {
         kWin.toFront();
         this.onscreen = true;
         this.ajaxRequest('windowOnScreen', [ 1 ]);  // save state change of window
-		  break
+		  break;
 	  case 'dashboard':
-		  break
+		  break;
 	  }
       },
       // Hide app window
@@ -272,9 +275,9 @@ var vtApps = (function($) {
   	   case 'windows':
         $('#'+this.windowId).data('kendoWindow').destroy();
         $(document).unbind('vta.'+this.id);
-		  break
+		  break;
 	   case 'dashboard':
-		  break
+		  break;
 	   }
       },
       // Get onscreen state
@@ -346,9 +349,9 @@ var vtApps = (function($) {
     	  case 'windows':
         var kWin = $('#'+this.windowId).data("kendoWindow");
         kWin.title(title);
-		  break
+		  break;
     	  case 'dashboard':
-    		  break
+    		  break;
     	  }
       },
       // Set window content
@@ -371,9 +374,9 @@ var vtApps = (function($) {
               $(this).attr('id', 'vtapp-id-'+id+'-'+$(this).attr('id'));
             }
         });
-		  break
+		  break;
     	  case 'dashboard':
-    		  break
+    		  break;
     	  }
       },
       safeId: function(id) {
@@ -484,7 +487,7 @@ var vtApps = (function($) {
       onEdit: function() {},
       // Called when the window is resized
       onResize: function() {}
-    }
+    };
     
     return new VtApps();
 })(jQuery);
@@ -493,7 +496,8 @@ var vtApps = (function($) {
 
 function setCanvas2Window() {
 	if (evvtcanvas == 'windows') {
-		jQuery("#evvtCanvas").html('<ul id="launchers"></ul>');
+		jQuery("#evvtDashboardCanvas").hide();
+		jQuery("#evvtCanvas").html('<ul id="launchers"></ul>').show();
         for(var launch=0; launch<vtApps.launchers.length; launch++) {
            	vtApps.launchers[launch].show();
            	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
@@ -504,6 +508,314 @@ function setCanvas2Window() {
         }
 	}
 	return false;
+}
+
+function setCanvas2Dashboard() {
+	if (evvtcanvas == 'dashboard') {
+   		ajaxurl = 'index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=VTAPP_getDashboardLayout';
+   		$.ajax({
+     		  url: ajaxurl
+     		}).done(function(dblayout) { 
+     			setCanvas2DashboardWithData(jQuery.parseJSON(dblayout));
+     		});
+	}
+}
+
+function setCanvas2DashboardWithData(dblayout) {
+		if (jQuery.isPlainObject(dblayout)) {
+			dblayout = [{
+				id: 1,
+				splitprops: '{"vtappid":0, "evvttype": "group", "status":0, "splitCollapsed":false, "splitCollapsable":false, "splitMax":"100%", "splitMin":300, "splitResize":true, "splitSize":"80%", "splitScroll":true}',
+				text: vtApps.launchers[0].translate('Row Layout'),
+				expanded: true,
+				spriteCssClass: "evvtdbrow",
+				items : []
+			}];
+		}
+	    $("#evvtDashboardEditorTreeview").kendoTreeView({
+        template: kendo.template($("#evvtDashboardEditorTreeview-template").html()),
+        dragAndDrop: false,
+        dataSource: dblayout,
+        select: function (e) {
+        	selectTreeElement(e.node);
+        },
+        dragend: function (e) {
+        	activateSaveRereshButton();
+        },
+        collapse: function (e) {
+        	$('#evvtDBETCollapseExpand').removeClass('evvtDashboardEditorToolActive').addClass('evvtDashboardEditorToolUnactive');
+        	$('#evvtDashboardEditorPropview').hide();
+        },
+        expand: function (e) {
+        	$('#evvtDBETCollapseExpand').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
+        	$('#evvtDashboardEditorPropview').hide();
+        }
+	    });
+	    var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+	    evvtMaxDashboardElementID = getMaxElementsIDFromTree();
+        // Delete button behavior
+        $(document).on("click", ".delete-link", function() {
+        	var selectedNode = treeview.select();
+        	if (getdbproperty(selectedNode,'evvttype')=='group') {
+        		msg = 'ReallyDestroyGroup';
+        	} else {
+        		msg = 'ReallyDestroy';
+        	}
+            vrfy_delt = confirm(vtApps.launchers[0].translate(msg));
+            if(vrfy_delt) {
+            	$('#evvtdbhighlightpane').remove();
+            	recursiveDeleteNode(treeview, selectedNode);
+	            activateSaveRereshButton();
+            }
+        });
+        $(document).on("click", "#evvtDBETAddRowLayout", function() {
+            var selectedNode = treeview.select();
+            if (selectedNode.length == 1) {
+            	evvtMaxDashboardElementID++;
+            	if (getdbproperty(selectedNode,'evvttype')=='group') {
+            		newelem = getNewGroupElement();
+            	} else {
+            		newelem = getNewItemElement();
+            	}
+	            treeview.insertAfter(newelem, selectedNode);
+	            activateSaveRereshButton();
+            }
+        });
+        $(document).on("click", "#evvtDBETAddvtAppCell", function() {
+            var selectedNode = treeview.select();
+            if (selectedNode.length == 1) {
+            	evvtMaxDashboardElementID++;
+            	if (getdbproperty(selectedNode,'evvttype')=='group') {
+            		newelem = getNewItemElement();
+            	} else {
+            		newelem = getNewGroupElement();
+            	}
+            	treeview.append(newelem, selectedNode);
+            	activateSaveRereshButton();
+            }
+        });
+        $(document).on("click", "#evvtDBETCollapseExpand", function() {
+            if ($('#evvtDBETCollapseExpand').hasClass('evvtDashboardEditorToolActive')) {
+            	$('#evvtDBETCollapseExpand').removeClass('evvtDashboardEditorToolActive').addClass('evvtDashboardEditorToolUnactive');
+            	treeview.collapse(".k-item");
+            } else {
+            	$('#evvtDBETCollapseExpand').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
+            	treeview.expand(".k-item");
+            }
+        });
+        $(document).on("click", "#evvtDBETRefresh", function() {
+        	$("#vtappStatus").show();
+        	paintLayoutOnCanvas();
+        	$('#evvtDBETRefresh').removeClass('evvtDashboardEditorToolActive').addClass('evvtDashboardEditorToolUnactive');
+        	$("#vtappStatus").hide();
+        });
+        $(document).on("click", "#evvtDBETSave", function() {
+        	$("#vtappStatus").show();
+        	evvtjsontree = treeToJson(treeview);
+       		ajaxurl = 'index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=VTAPP_setDashboardLayout';
+       		$.ajax({
+         		  url: ajaxurl,
+         		  type: "POST",
+         		  data: 'evvtdblayout=' + JSON.stringify(evvtjsontree)
+         		}).done(function() {
+                    $('#evvtDBETSave').removeClass('evvtDashboardEditorToolActive').addClass('evvtDashboardEditorToolUnactive');
+                    $("#vtappStatus").hide();
+         		});
+       		paintLayoutOnCanvas();
+        });
+        numfldops = {
+        		   format: "0",
+        		   min: 300,
+        		   max: 2000,
+        		   step: 10
+        		};
+        $("#evvtSplitSize").width('60px').kendoNumericTextBox(numfldops);
+        $("#evvtSplitMax").width('60px').kendoNumericTextBox($.extend(numfldops, {
+        	change: function() {
+        		var numeric = $("#evvtSplitSize").data("kendoNumericTextBox");
+        		numeric.max(this.value());
+        		if (numeric.value()>this.value()) numeric.value(this.value());
+        	}
+        }));
+        $("#evvtSplitMin").width('60px').kendoNumericTextBox($.extend(numfldops, {
+        	change: function() {
+        		var numeric = $("#evvtSplitSize").data("kendoNumericTextBox");
+        		numeric.min(this.value());
+        		if (numeric.value()<this.value()) numeric.value(this.value());
+        	}
+        }));
+        assignAppDropdown();
+        $('#evvtDashboardEditorPropview').hide();
+        // now the content panes
+        $("#evvtDashboardEditor").kendoSplitter({
+            orientation: "vertical",
+            panes: [
+                { collapsible: false, resizable: true },
+                { collapsible: false, resizable: true }
+            ]
+        });
+        $("#evvtDashboardDesigner").kendoSplitter({
+        	orientation: "horizontal",
+        	collapse: function(p) {$('#evvtdbhighlightpane').remove();},
+            panes: [
+                { collapsible: false, size: "80%" },
+                { collapsible: true, size: "20%" }
+            ]
+        });
+        // now the layout
+        paintLayoutOnCanvas();
+}
+
+function paintLayoutOnCanvas() {
+	evvtDoingDashboardPaint = true;
+	var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+	evvtdblayout = treeToLayout(treeview);
+	layout = '';
+	for ( var it = 0; it < evvtdblayout.length; it++) {
+		layout = layout + evvtdblayout[it].toString();
+	}
+	$('#evvtDashboardLayout').html(layout);
+	treeview.element.find('.k-group').each(function() {
+		var ulthis = $(this);
+		var istoplevel = ulthis.children('li').first().hasClass('k-first');
+		var evvttype = getdbproperty(ulthis.children('li').first(),'evvttype');
+		var ksplit = { orientation: (evvttype=='group' ? 'vertical' : 'horizontal') };
+		var panes = [];
+		ulthis.children('li').each(function() {
+			atributos = getAlldbproperty($(this));
+			panes.push({
+				collapsible: atributos.splitCollapsable,
+				collapsed: atributos.splitCollapsed,
+				size: atributos.splitSize,
+				max: atributos.splitMax,
+				min: atributos.splitMin,
+				resize: atributos.splitResize,
+				scroll: atributos.splitScroll,
+				myvalue: $(this).find("> div span span[atributos]").attr('id').substring(14)
+			});
+		});
+		ksplit.panes = panes;
+		ksplit.resize = function(p){
+			if (!evvtDoingDashboardPaint) doResizeChange(p);
+		};
+		ksplit.collapse = function(p){
+			doCollapsedChange(true,false);
+		};
+		ksplit.expand = function(p){
+			doCollapsedChange(false,false);
+		};
+		var ksplitdiv =''; 
+		if (istoplevel) {
+			ksplitdiv = '#evvtDashboardLayout';
+		} else {
+			ksplitdiv = '#evvtdbappdiv-' + ulthis.closest('li').find("> div span span[atributos]").attr('id').substring(14);
+		}
+		$(ksplitdiv).kendoSplitter(ksplit);
+	});
+	evvtDoingDashboardPaint = false;
+	return true;
+}
+
+function selectTreeElement(enode,selnode) {
+	if (selnode) {
+		var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+		treeview.select(enode);
+	}
+	$("#evvtDashboardEditorTreeview li a").removeClass("delete-link");
+	if (getNumberOfElementsFromTree()>1 && !($(enode).hasClass('k-first') && $(enode).hasClass('k-last'))) {
+		$(enode).find("> div span a").addClass("delete-link");
+	}
+	$('#evvtDBETAddRowLayout').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
+	$('#evvtDBETAddvtAppCell').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
+	$('#evvtDashboardEditorPropview').show();
+	atributos = $(enode).find("> div span span[atributos]");
+	splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+	if (splitprops.evvttype=='group') {
+		$('#evvtSplitvtAppidDiv').hide();
+	} else {
+		$('#evvtSplitvtAppidDiv').show();
+	}
+	divid = atributos.attr('id').substring(14);
+	$('#evvtdbhighlightpane').remove();
+	$('#evvtdbappdiv-'+divid).append('<div id="evvtdbhighlightpane" class="evvtdbhighlightpane"></div>');
+	$('#evvtdbhighlightpane').width($('#evvtdbappdiv-'+divid).width()-5);
+	$('#evvtdbhighlightpane').height($('#evvtdbappdiv-'+divid).height()-5);
+	$('#evvteditingdiv').val('#evvtdbappdiv-'+divid);
+	showdbproperties(atributos);
+}
+
+function activateSaveRereshButton() {
+	$('#evvtDBETSave').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
+	$('#evvtDBETRefresh').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
+}
+
+function treeToJson(treeview, root) {
+    root = root || treeview.element.children(".k-group");
+    return root.children().map(function() {
+        var result = { text: treeview.text(this).replace(/\n|\t/g,'').trim() };
+        var atributos = $(this).find("> div span span[atributos]");
+            result.splitprops = atributos.attr('splitprops');
+            result.id = parseInt(atributos.attr('id').substring(14));
+            result.expanded = ($(this).children("ul").css("display") != "none");
+            result.spriteCssClass = ($(this).find('> div .k-sprite').hasClass('evvtdbrow') ? 'evvtdbrow' : ($(this).find('> div .k-sprite').hasClass('evvtdbapp') ? 'evvtdbapp' : 'evvtdbcol')); 
+            items = treeToJson(treeview, $(this).children(".k-group"));
+        if (items.length) {
+            result.items = items;
+        }
+        return result;
+      }).toArray();
+}
+
+function treeToLayout(treeview, root) {
+    root = root || treeview.element.children(".k-group");
+    return root.children().map(function() {
+        var result = '<div id="evvtdbappdiv-';
+        var atributos = $(this).find("> div span span[atributos]");
+        var splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+        var divappid = atributos.attr("id").substring(14);
+        result = result + divappid + '">';
+        if (splitprops.evvttype=='item') {
+        	result = result + '<div class="evvtappTitleBar" id="evvtappTitleBar-'+divappid+'" onclick="javascript:selectTreeElement($(\'#evvtdbappdata-'+divappid+'\').closest(\'li\'),true);"><div class="evvtappTitleBarTitle" id="evvtappTitleBarTitle-'+divappid+'"></div><div class="evvtappTitleBarTools" id="evvtappTitleBarTools-'+divappid+'"></div></div><div class="evvtappContentDiv" id="evvtappContentDiv-'+divappid+'"></div>';
+        }
+        var items = treeToLayout(treeview, $(this).children(".k-group"));
+        if (items.length) {
+        	for ( var it = 0; it < items.length; it++) {
+        		result = result + items[it].toString();
+			}
+        }
+        result = result + '</div>';
+        return result;
+      });
+}
+
+function recursiveDeleteNode(treeview, root) {
+    root = root || treeview.element.children(".k-group");
+    return root.children().each(function() {
+        recursiveDeleteNode(treeview, $(this).children(".k-group"));
+        treeview.remove($(this));
+        return result;
+      });
+}
+
+function getNewItemElement() {
+	return {
+		id: evvtMaxDashboardElementID,
+		splitprops: '{"vtappid":0, "evvttype": "item", "status":0, "splitCollapsed":false, "splitCollapsable":true, "splitMax":"100%", "splitMin":300, "splitResize":true, "splitSize":"100%", "splitScroll":true}',
+		text: vtApps.launchers[0].translate('vtApp Container'),
+		expanded: true,
+		spriteCssClass: "evvtdbcol"
+	};
+}
+
+function getNewGroupElement() {
+	return {
+		id: evvtMaxDashboardElementID,
+		splitprops: '{"vtappid":0, "evvttype": "group", "status":0, "splitCollapsed":false, "splitCollapsable":true, "splitMax":"100%", "splitMin":300, "splitResize":true, "splitSize":"100%", "splitScroll":true}',
+		text: vtApps.launchers[0].translate('Row Layout'),
+		expanded: true,
+		spriteCssClass: "evvtdbrow",
+		items : []
+	};
 }
 
 function evvtFindConfigApp() {
@@ -550,9 +862,9 @@ function hideAllInstances() {
        	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
        		if (vtApps.launchers[launch].instances[inst].isOnScreen()) {
        			$('#'+vtApps.launchers[launch].instances[inst].windowId).data('kendoWindow').close();
-       		}
-       	}
-	}
+       		};
+       	};
+	};
 }
 
 function makeContent(contentName){
@@ -565,6 +877,8 @@ function makeContent(contentName){
         jQuery("#evvtleftButton").hide();
         jQuery("#evvtrightButton").hide();
         jQuery("#evvtCanvas").css('width','96%');
+        jQuery("#evvtCanvas").show();
+        jQuery("#evvtDashboardCanvas").hide();
         jQuery("#evvthcwin").addClass('evvtheaderCenterActive');
 		setCanvas2Window();
 		break;
@@ -574,9 +888,10 @@ function makeContent(contentName){
 		hideAllInstances();
         jQuery("#evvtleftButton").hide();
         jQuery("#evvtrightButton").hide();
-        jQuery("#evvtCanvas").css('width','96%');
+        jQuery("#evvtCanvas").hide();
+        jQuery("#evvtDashboardCanvas").show();
         jQuery("#evvthcdsh").addClass('evvtheaderCenterActive');
-        jQuery("#evvtCanvas").html("dashboard");
+        setCanvas2Dashboard();
 		break;
 	  case 'allapps':
 		hideAllInstances();
@@ -584,6 +899,8 @@ function makeContent(contentName){
         jQuery("#evvtleftButton").show();
         jQuery("#evvtrightButton").show();
         jQuery("#evvtCanvas").css('width','90%');
+        jQuery("#evvtCanvas").show();
+        jQuery("#evvtDashboardCanvas").hide();
         jQuery("#evvthcapp").addClass('evvtheaderCenterActive');
         move2App(evvtCurrentAppOnScreen);
 		break;
@@ -609,7 +926,7 @@ function move2NextApp(offset){
 		//configapp = evvtFindConfigApp();
 		//vtApps.launchers[configapp].instances[0].ajaxRequest('getAppUserData', [ instancesid[evvtCurrentAppOnScreen].launcher.id ], $.proxy(evvtAllAppsDataReceived));
 		evvtAllAppsDataReceived({'icon': instancesid[evvtCurrentAppOnScreen].launcher.iconPath, 'description':instancesid[evvtCurrentAppOnScreen].launcher.shortDescription});
-		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar"><div id="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv"></div>');
+		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar" class="evvtappTitleBar"><div id="evvtappTitleBarTitle" class="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools" class="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv" class="evvtappContentDiv"></div>');
 		instancesid[evvtCurrentAppOnScreen].show();
 	}	
     return false;
@@ -632,7 +949,7 @@ function move2App(posicion){
 		//configapp = evvtFindConfigApp();
 		//vtApps.launchers[configapp].instances[0].ajaxRequest('getAppUserData', [ instancesid[evvtCurrentAppOnScreen].launcher.id ], $.proxy(evvtAllAppsDataReceived));
 		evvtAllAppsDataReceived({'icon': instancesid[evvtCurrentAppOnScreen].launcher.iconPath, 'description':instancesid[evvtCurrentAppOnScreen].launcher.shortDescription});
-		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar"><div id="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv"></div>');
+		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar" class="evvtappTitleBar"><div id="evvtappTitleBarTitle" class="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools" class="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv" class="evvtappContentDiv"></div>');
 		instancesid[evvtCurrentAppOnScreen].show();
 	}	
     return false;
@@ -666,12 +983,11 @@ function jumpToMenu() {
     $("#vtappDDListInput").kendoDropDownList({
         dataTextField: "title",
         dataValueField: "listid",
-        template: '<span style="vertical-align:middle;"><img src="${ data.icon }" height="16px"/>' +'&nbsp;${ data.title }</span>',
+        template: '<span style="vertical-align:middle;"><img src="${ data.icon }" height="16px"/>&nbsp;${ data.title }</span>',
         dataSource: dataobj,
         change: function(e) {
             move2App(e.sender.selectedIndex);
-            var ddl = $("#vtappDDListInput").data("kendoDropDownList");
-            ddl.close();
+            this.close();
             $("#vtappDDListDiv").hide();
         },
         open: function(e) {
@@ -692,3 +1008,238 @@ function evvtAllAppsDataReceived(data) {
     jQuery('#evvtHeaderDesc').html(data.description);
 }
 
+function getDashboardAssignedAppsFromTree () {
+	result = [];
+	treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+	treeview._processNodes('.k-item', function (index, item) {
+      	atributos = $(item).find("> div span span[atributos]");
+      	if (!jQuery.isEmptyObject(atributos)) {
+	      	var splitprops = jQuery.parseJSON('[' + atributos.attr("splitprops") + ']');
+	      	if (splitprops.vtappid>0) {
+	      		result.push(splitprops.vtappid);
+	      	}
+      	}
+      });
+	return result;
+}
+
+function getNumberOfElementsFromTree() {
+	return $("#evvtDashboardEditorTreeview").data("kendoTreeView").element.find('li').length;
+}
+
+function getMaxElementsIDFromTree() {
+	var maxid = 1;
+	$("#evvtDashboardEditorTreeview").data("kendoTreeView").element.find('span[atributos]').each(function(idx,attrelem) {
+		var elemid = parseInt($(this).attr('id').substring(14));
+		if (maxid<elemid) maxid = elemid;
+	});
+	return maxid;
+}
+
+function assignAppDropdown() {
+	$("#vtappStatus").show();
+	dbAssignedApps = getDashboardAssignedAppsFromTree();
+	var datastr = '{"operation": "modules/evvtApps/images/blank.png", "vtappid": 0, "icon":"modules/evvtApps/images/blank.png", "title": "' + vtApps.launchers[0].translate('NotAssigned') + '"}';
+	if (vtApps.launchers.length>0) datastr = datastr + ',';
+	var numinst = 0;
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+		if (!vtApps.launchers[launch].canshow) continue;  // can't pick from the ones you can't show
+		if (vtApps.launchers[launch].clonable) {
+			datastr = datastr + '{"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": -1, "icon":"' + vtApps.launchers[launch].iconPath + '", "title": "' + vtApps.launchers[launch].shortDescription + '"}';
+			if (vtApps.launchers[launch].instances.length>0) datastr = datastr + ',';
+		}
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		datastr = datastr + '{"operation": "modules/evvtApps/images/swap.gif", "vtappid": ' + vtApps.launchers[launch].instances[inst].id + ', "icon":"' + vtApps.launchers[launch].iconPath + '", "title": "';
+       		ajaxurl = vtApps.launchers[launch].instances[inst].getServerMethodURL('getTitle', {
+                evvtapps_appid: vtApps.launchers[launch].instances[inst].id
+            });
+       		$.ajax({
+       		  url: 'index.php?' + ajaxurl,
+       		  async:false
+       		}).done(function(apptitle) { 
+       			datastr = datastr + apptitle + '"}';
+       		});
+       		if (inst+1<vtApps.launchers[launch].instances.length) datastr = datastr + ',';
+       		numinst++;
+       	}
+       	if (launch+1<vtApps.launchers.length) datastr = datastr + ',';
+    }
+	dataobj = jQuery.parseJSON('[' + datastr + ']');
+	$("#evvtSplitvtAppid").show();
+    $("#evvtSplitvtAppid").kendoDropDownList({
+        dataTextField: "title",
+        dataValueField: "vtappid",
+        template: '<span style="vertical-align:middle;"><img src="${ data.operation }" height="16px"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="${ data.icon }" height="16px"/>&nbsp;${ data.title }</span>',
+        dataSource: dataobj,
+        change: function(e) {
+            this.close();
+            var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+            tvsel = treeview.select();
+            if (!jQuery.isEmptyObject(tvsel)) {
+	            var atributos = treeview.select().find("> div span span[atributos]");
+	            if (!jQuery.isEmptyObject(atributos)) {
+		            var splitprops = jQuery.parseJSON('[' + atributos.attr("splitprops") + ']');
+		            /*
+		             * this.value() es el vtappid
+		             * this.value() = -1  => new vtapp instance, will directly overwrite any existing assignment in selected vtapp item in tree
+		             * this.value() = 0  => empty item, will directly overwrite any existing assignment in selected vtapp item in tree
+		             * this.value() > 0  => assign or swap depending on value of selected vtapp item in tree
+		             * splitprops.vtappid
+		             */
+		            splitprops.vtappid = e.sender.selectedIndex;
+	            }
+            }
+        }
+    });
+    var dropdownlist = $("#evvtSplitvtAppid").data("kendoDropDownList");
+    dropdownlist.list.width(400);
+    $("#vtappStatus").hide();
+}
+
+function getdbproperty(treenode,attrname) {
+	attrvalue = '';
+    var atributos = treenode.find("> div span span[atributos]");
+    if (!jQuery.isEmptyObject(atributos)) {
+    	splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+    	attrvalue = splitprops[attrname];
+    }
+    return attrvalue;
+}
+
+function getAlldbproperty(treenode) {
+	splitprops = {};
+    var atributos = treenode.find("> div span span[atributos]");
+    if (!jQuery.isEmptyObject(atributos)) {
+    	splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+    }
+    return splitprops;
+}
+
+function setdbproperty(treenode,attrname,attrvalue) {
+    var atributos = treenode.find("> div span span[atributos]");
+    if (!jQuery.isEmptyObject(atributos)) {
+    	splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+        splitprops[attrname] = attrvalue;
+        sprops = JSON.stringify(splitprops);
+        atributos.attr("splitprops",sprops);
+        activateSaveRereshButton();
+    }
+}
+
+function setdbpropertyToTreeSelected(attrname,attrvalue) {
+    treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+    tvsel = treeview.select();
+    if (!jQuery.isEmptyObject(tvsel)) {
+    	setdbproperty(tvsel,attrname,attrvalue);
+    }
+}
+
+function showdbproperties(atributos) {
+    if (!jQuery.isEmptyObject(atributos)) {
+        splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+        // I'm counting that all these values are set to their defaults when they are sent from the database
+        dropdownlist = $("#evvtSplitvtAppid").data("kendoDropDownList");
+        dropdownlist.select(splitprops['vtappid']);
+        numerictextbox = $("#evvtSplitSize").data("kendoNumericTextBox");
+        numerictextbox.value(splitprops['splitSize']);
+        numerictextbox = $("#evvtSplitMax").data("kendoNumericTextBox");
+        numerictextbox.value(splitprops['splitMax']);
+        numerictextbox = $("#evvtSplitMin").data("kendoNumericTextBox");
+        numerictextbox.value(splitprops['splitMin']);
+		$("#evvtSplitResize").attr('checked',splitprops['splitResize']);
+		$("#evvtSplitScroll").attr('checked',splitprops['splitScroll']);
+		$("#evvtSplitCollapsed").attr('checked',splitprops['splitCollapsed']);
+		$("#evvtSplitCollapsable").attr('checked',splitprops['splitCollapsable']);
+    }
+}
+
+function doCollapsedChange(valor,collapseit) {
+	setdbpropertyToTreeSelected('splitCollapsed',valor);
+	if (collapseit) {
+		editdiv = $('#evvteditingdiv').val();
+		var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
+		if (valor) {
+			splitter.collapse(editdiv);
+		} else {
+			splitter.expand(editdiv);
+		}
+	} else {
+		$('#evvtSplitCollapsed').attr('checked',valor);
+	}
+}
+
+function doCollapsibleChange(valor,changeit) {
+	setdbpropertyToTreeSelected('splitCollapsable',valor);
+	if (changeit) {
+		editdiv = $('#evvteditingdiv').val();
+		var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
+        //function(pane, value) {
+        //var paneConfig = $(pane).data(PANE);
+        //paneConfig[propertyName] = value;
+		splitter['collapsible'] = valor;
+		splitter._updateSplitBars();
+	} else {
+		$('#splitCollapsable').attr('checked',valor);
+	}
+}
+
+function doResizeChange(valor,changeit) {
+	if (!evvtDoingDashboardPaint) {
+		evvtDoingDashboardPaint = true;
+		setdbpropertyToTreeSelected('splitSize',valor);
+		numerictextbox = $("#evvtSplitSize").data("kendoNumericTextBox");
+		//pns = getSplitterPanes(p.sender.element[0].id);
+		if (changeit) {
+			editdiv = $('#evvteditingdiv').val();
+			var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
+			splitter.size(editdiv,valor+'px');
+		} else {
+		    numerictextbox.value(valor);
+		}
+		evvtDoingDashboardPaint = false;
+	}
+};
+
+function getSplitterPanes(splitter) {
+	var pns = (function($) {
+	    
+    // This is the main object that handles everything
+    function panes() {
+      this.init();
+    }
+    panes.prototype = {
+    	panes: null,
+    	splitter: null,
+    	init: function() { 
+    		this.panes = $('#'+splitter).children('.k-pane');
+    		this.splitter = $('#'+splitter).data("kendoSplitter");
+    	},
+    	getPane: function (index) {
+	        index = Number(index);
+	        if(!isNaN(index) && index < this.panes.length) {
+	            return this.panes[index];
+	        }
+	    },
+	    setSize: function (index,newsize) {
+	        index = Number(index);
+	        if(!isNaN(index) && index < this.panes.length) {
+	        	this.splitter.size(this.panes[index], newsize+'px');
+	        }
+	    },
+	    setMinSize: function (index,newsize) {
+	        index = Number(index);
+	        if(!isNaN(index) && index < this.panes.length) {
+	        	this.splitter.min(this.panes[index], newsize+'px');
+	        }
+	    },
+	    setMaxSize: function (index,newsize) {
+	        index = Number(index);
+	        if(!isNaN(index) && index < this.panes.length) {
+	        	this.splitter.max(this.panes[index], newsize+'px');
+	        }
+	    }
+    };
+    return new panes();
+	})(jQuery);
+	return pns;
+}

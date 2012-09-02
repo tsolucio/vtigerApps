@@ -188,40 +188,44 @@
     height: 30px;
 }
 
-#evvtappTitleBar, #evvtappTitleBarTitle, #evvtappTitleBarTools {
+.evvtappTitleBar, .evvtappTitleBarTitle, .evvtappTitleBarTools {
     width: 100%;
     height: 16px;
     background-color: #f1f1f1; 
     background-image: -webkit-linear-gradient( rgba(242, 242, 242, 0.9), rgba(222, 222, 222, 0.9));
+    overflow: hidden;
 }
-#evvtappTitleBarTitle {
-    width: 60%;
+.evvtappTitleBarTitle {
+    width: 58%;
     float: left;
-    padding-left: 6px;
+    padding-left: 4px;
+    overflow: hidden;
 }
-#evvtappTitleBarTools {
+.evvtappTitleBarTools {
     width: 39%;
     float: right;
     padding-right: 6px;
     text-align: right;
+    overflow: hidden;
 }
-#evvtappTitleBarToolsDestroy, #evvtappTitleBarToolsRefresh, #evvtappTitleBarToolsClone, #evvtappTitleBarToolsEdit {
+.evvtappTitleBarToolsDestroy, .evvtappTitleBarToolsRefresh, .evvtappTitleBarToolsClone, .evvtappTitleBarToolsEdit {
 	background-image: url('../kendoui/styles/Default/sprite.png');
 	padding-left: 2px;
 	float: right;
 	height: 16px;
 	width: 16px;
+	overflow: hidden;
 }
-#evvtappTitleBarToolsDestroy {
+.evvtappTitleBarToolsDestroy {
 	background-position: -32px -16px;
 }
-#evvtappTitleBarToolsRefresh {
+.evvtappTitleBarToolsRefresh {
 	background-position: -32px -112px;
 }
-#evvtappTitleBarToolsClone {
+.evvtappTitleBarToolsClone {
 	background-position: -32px -128px;
 }
-#evvtappTitleBarToolsEdit {
+.evvtappTitleBarToolsEdit {
 	background-position: -32px 0;
 }
 
@@ -237,4 +241,123 @@
     float: left;
     margin: 5px;
     vertical-align: middle;
+}
+
+.evvtDashboardEditorpane-content {
+	height: 50%;
+}
+
+.evvtDashboardEditorMenuTop {
+	width:100%;
+	height:32px;
+	display:block;
+	background-image: url('../images/fondomenu.png');
+	text-align: center;
+	font-size: 1.4em;
+	font-weight: bold;
+}
+
+.evvtDashboardEditorTool {
+	width:30px;
+	height:30px;
+	float: left;
+}
+
+.evvtDashboardEditorToolAddRowLayout {
+	background-image: url('../images/sibling_icon.png')
+}
+
+.evvtDashboardEditorToolAddvtAppCell {
+	background-image: url('../images/children_icon.png')
+}
+
+.evvtDashboardEditorToolDelete {
+	background-image: url('../images/delete_icon.png')
+}
+
+.evvtDashboardEditorToolCollapseExpand {
+	background-image: url('../images/treecolexp.png')
+}
+
+.evvtDashboardEditorToolRefresh {
+	background-image: url('../images/refresh_icon.png')
+}
+
+.evvtDashboardEditorToolSave {
+	background-image: url('../images/save_icon.png')
+}
+
+.evvtDashboardEditorToolActive {
+	background-position: 0 0;
+}
+
+.evvtDashboardEditorToolUnactive {
+	background-position: 0 30px;
+}
+
+#evvtDashboardEditorTreeview {
+    float: left;
+    width: 300px;
+}
+
+#evvtDashboardEditorTreeview .evvtdbrow {
+    background-image: url("../images/dbrow.png");
+}
+
+#evvtDashboardEditorTreeview .evvtdbcol {
+    background-image: url("../images/dbcol.png");
+}
+
+#evvtDashboardEditorTreeview .evvtdbapp {
+    background-image: url("../images/vtevolutivo_16.png");
+}
+
+.evvtdbhighlightpane {
+    border: 2px solid #8597AF;
+    float: left;
+    /* height: 97%; */
+    left: 0;
+    position: absolute;
+    top: 0;
+    /* width: 99%; */
+    z-index: 10000;	
+}
+
+.delete-link {
+    width: 12px;
+    height: 12px;
+    background: transparent url("../images/close.png") no-repeat 50% 50%;
+    overflow: hidden;
+    display: inline-block;
+    font-size: 0;
+    line-height: 0;
+    vertical-align: top;
+    margin: 2px 0 0 3px;
+    -webkit-border-radius: 5px;
+    -mox-border-radius: 5px;
+    border-radius: 5px;
+}
+
+.evvtPropertyItem div {
+    border-right: 1px solid #D4D4D4;
+    border-bottom: 1px solid #D4D4D4;
+    height: 22px;
+    line-height: 22px;
+    overflow: hidden;
+    padding-left: 6px;
+}
+
+.evvtPropertycol2 {
+    text-align: left;
+    background-color: #FFFFFF;
+    width:100%;
+    cursor: pointer;
+}
+
+.evvtPropertycol1 {
+	cursor: default;
+	background-color: #F0F6FE;
+	width:110px;
+    float: left;
+    font-weight: bold;
 }
