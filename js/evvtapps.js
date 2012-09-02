@@ -522,6 +522,7 @@ function setCanvas2Dashboard() {
 }
 
 function setCanvas2DashboardWithData(dblayout) {
+	evvtDoingDashboardPaint = true;
 		if (jQuery.isPlainObject(dblayout)) {
 			dblayout = [{
 				id: 1,
@@ -629,20 +630,17 @@ function setCanvas2DashboardWithData(dblayout) {
         		   max: 2000,
         		   step: 10
         		};
-        $("#evvtSplitSize").width('60px').kendoNumericTextBox(numfldops);
+        $("#evvtSplitSize").width('60px').kendoNumericTextBox($.extend(numfldops, {
+        	change: function() { doSizeChange(this.value()); },
+        	spin: function() { doSizeChange(this.value()); }
+        }));
         $("#evvtSplitMax").width('60px').kendoNumericTextBox($.extend(numfldops, {
-        	change: function() {
-        		var numeric = $("#evvtSplitSize").data("kendoNumericTextBox");
-        		numeric.max(this.value());
-        		if (numeric.value()>this.value()) numeric.value(this.value());
-        	}
+        	change: function() { doMaxMinChange(this.value(),true); },
+        	spin: function() { doMaxMinChange(this.value(),true); }
         }));
         $("#evvtSplitMin").width('60px').kendoNumericTextBox($.extend(numfldops, {
-        	change: function() {
-        		var numeric = $("#evvtSplitSize").data("kendoNumericTextBox");
-        		numeric.min(this.value());
-        		if (numeric.value()<this.value()) numeric.value(this.value());
-        	}
+        	change: function() { doMaxMinChange(this.value(),false); },
+        	spin: function() { doMaxMinChange(this.value(),false); }
         }));
         assignAppDropdown();
         $('#evvtDashboardEditorPropview').hide();
@@ -664,6 +662,7 @@ function setCanvas2DashboardWithData(dblayout) {
         });
         // now the layout
         paintLayoutOnCanvas();
+        evvtDoingDashboardPaint = false;
 }
 
 function paintLayoutOnCanvas() {
@@ -686,17 +685,17 @@ function paintLayoutOnCanvas() {
 			panes.push({
 				collapsible: atributos.splitCollapsable,
 				collapsed: atributos.splitCollapsed,
-				size: atributos.splitSize,
-				max: atributos.splitMax,
-				min: atributos.splitMin,
-				resize: atributos.splitResize,
-				scroll: atributos.splitScroll,
-				myvalue: $(this).find("> div span span[atributos]").attr('id').substring(14)
+				size: atributos.splitSize+'px',
+				max: atributos.splitMax+'px',
+				min: atributos.splitMin+'px',
+				resizable: atributos.splitResize,
+				//myvalue: $(this).find("> div span span[atributos]").attr('id').substring(14),
+				scrollable: atributos.splitScroll
 			});
 		});
 		ksplit.panes = panes;
-		ksplit.resize = function(p){
-			if (!evvtDoingDashboardPaint) doResizeChange(p);
+		ksplit.layoutChange = function(p){
+			doSplitterSizeChange(p.sender.element[0].id);
 		};
 		ksplit.collapse = function(p){
 			doCollapsedChange(true,false);
@@ -712,6 +711,7 @@ function paintLayoutOnCanvas() {
 		}
 		$(ksplitdiv).kendoSplitter(ksplit);
 	});
+	$(window).resize(evvttriggerResize);	
 	evvtDoingDashboardPaint = false;
 	return true;
 }
@@ -769,21 +769,23 @@ function treeToJson(treeview, root) {
 function treeToLayout(treeview, root) {
     root = root || treeview.element.children(".k-group");
     return root.children().map(function() {
-        var result = '<div id="evvtdbappdiv-';
         var atributos = $(this).find("> div span span[atributos]");
         var splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
         var divappid = atributos.attr("id").substring(14);
-        result = result + divappid + '">';
+        var startdiv = '<div id="evvtdbappdiv-'+ divappid + '"';
+        var result = '';
         if (splitprops.evvttype=='item') {
-        	result = result + '<div class="evvtappTitleBar" id="evvtappTitleBar-'+divappid+'" onclick="javascript:selectTreeElement($(\'#evvtdbappdata-'+divappid+'\').closest(\'li\'),true);"><div class="evvtappTitleBarTitle" id="evvtappTitleBarTitle-'+divappid+'"></div><div class="evvtappTitleBarTools" id="evvtappTitleBarTools-'+divappid+'"></div></div><div class="evvtappContentDiv" id="evvtappContentDiv-'+divappid+'"></div>';
+        	result = result + '<div class="evvtappTitleBar" id="evvtappTitleBar-'+divappid+'"><div class="evvtappTitleBarTitle" id="evvtappTitleBarTitle-'+divappid+'"></div><div class="evvtappTitleBarTools" id="evvtappTitleBarTools-'+divappid+'"></div></div><div class="evvtappContentDiv" id="evvtappContentDiv-'+divappid+'"></div>';
         }
         var items = treeToLayout(treeview, $(this).children(".k-group"));
         if (items.length) {
         	for ( var it = 0; it < items.length; it++) {
         		result = result + items[it].toString();
 			}
+        } else {
+        	startdiv = startdiv + ' onclick="javascript:selectTreeElement($(\'#evvtdbappdata-'+divappid+'\').closest(\'li\'),true);"';
         }
-        result = result + '</div>';
+        result = startdiv + '>' + result + '</div>';
         return result;
       });
 }
@@ -854,6 +856,24 @@ function evvtHeaderToggle() {
 		$('#evvtheaderhideimage').attr('src','modules/evvtApps/images/showpanel.png');
 	} else {
 		$('#evvtheaderhideimage').attr('src','modules/evvtApps/images/hidepanel.png');
+	}
+}
+
+function evvtHeaderToggleAll() {
+	if ($('#evvtheaderhideallimage').attr('src')=='modules/evvtApps/images/showallpanel.png') {
+		$('#evvtheader').show();
+		$('.hdrNameBg').show();
+		$('.hdrTabBg').show();
+		$('.level2Bg').show();
+		$('#evvtheaderhideimage').attr('src','modules/evvtApps/images/hidepanel.png');
+		$('#evvtheaderhideallimage').attr('src','modules/evvtApps/images/hideallpanel.png');
+	} else {
+		$('#evvtheader').hide();
+		$('.hdrNameBg').hide();
+		$('.hdrTabBg').hide();
+		$('.level2Bg').hide();
+		$('#evvtheaderhideimage').attr('src','modules/evvtApps/images/showpanel.png');
+		$('#evvtheaderhideallimage').attr('src','modules/evvtApps/images/showallpanel.png');
 	}
 }
 
@@ -1134,6 +1154,32 @@ function setdbpropertyToTreeSelected(attrname,attrvalue) {
     }
 }
 
+function setdbpropertySizeToTreeBranch(treeview, root, treenodeselected) {
+    root = root || treeview.element.children(".k-group");
+    return root.children('ul').children('li').map(function() {
+        var atributos = $(this).find("> div span span[atributos]");
+        var splitprops = jQuery.parseJSON(atributos.attr('splitprops'));
+        var divid = atributos.attr('id').substring(14);
+        var divappid = '#evvtdbappdiv-' + divid;
+
+        if (splitprops['evvttype']=='group') {
+        	newsize = $(divappid).height();
+        } else {
+        	newsize = $(divappid).width();
+        }
+        splitprops['splitSize'] = newsize;
+        sprops = JSON.stringify(splitprops);
+        atributos.attr("splitprops",sprops);
+        
+		if (divid == treenodeselected) {
+			numerictextbox = $("#evvtSplitSize").data("kendoNumericTextBox");
+		    numerictextbox.value(newsize);
+		}
+
+		setdbpropertySizeToTreeBranch(treeview, $(this).children(".k-group"), treenodeselected);
+      });
+}
+
 function showdbproperties(atributos) {
     if (!jQuery.isEmptyObject(atributos)) {
         splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
@@ -1168,37 +1214,97 @@ function doCollapsedChange(valor,collapseit) {
 	}
 }
 
-function doCollapsibleChange(valor,changeit) {
+function doCollapsibleChange(valor) {
 	setdbpropertyToTreeSelected('splitCollapsable',valor);
-	if (changeit) {
-		editdiv = $('#evvteditingdiv').val();
-		var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
-        //function(pane, value) {
-        //var paneConfig = $(pane).data(PANE);
-        //paneConfig[propertyName] = value;
-		splitter['collapsible'] = valor;
-		splitter._updateSplitBars();
-	} else {
-		$('#splitCollapsable').attr('checked',valor);
-	}
+	editdiv = $('#evvteditingdiv').val();
+	var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
+	var paneConfig = $(editdiv).data("pane");
+    paneConfig['collapsible'] = valor;
+	splitter._updateSplitBars();
 }
 
-function doResizeChange(valor,changeit) {
+function doSizeChange(valor) {
 	if (!evvtDoingDashboardPaint) {
 		evvtDoingDashboardPaint = true;
 		setdbpropertyToTreeSelected('splitSize',valor);
-		numerictextbox = $("#evvtSplitSize").data("kendoNumericTextBox");
-		//pns = getSplitterPanes(p.sender.element[0].id);
-		if (changeit) {
-			editdiv = $('#evvteditingdiv').val();
-			var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
-			splitter.size(editdiv,valor+'px');
-		} else {
-		    numerictextbox.value(valor);
-		}
+		editdiv = $('#evvteditingdiv').val();
+		var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
+		splitter.size(editdiv,valor+'px');
 		evvtDoingDashboardPaint = false;
 	}
+	return true;
 };
+
+function doSplitterSizeChange(splitterdiv) {
+	if (!evvtDoingDashboardPaint) {
+		evvtDoingDashboardPaint = true;
+		activateSaveRereshButton();
+		var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+		var divappid = splitterdiv.substring(splitterdiv.indexOf('-')+1);
+		var root = $('#evvtdbappdata-'+divappid).closest('li');
+		var treenodeselected = treeview.select();
+        var atributos = treenodeselected.find("> div span span[atributos]");
+        var treenodeseldivid = atributos.attr('id').substring(14);
+	    if (!jQuery.isPlainObject(treenodeselected)) {
+	    	setdbpropertySizeToTreeBranch(treeview, root, treenodeseldivid);
+	    }
+		$('#evvtdbhighlightpane').width($('#evvtdbappdiv-'+treenodeseldivid).width()-5);
+		$('#evvtdbhighlightpane').height($('#evvtdbappdiv-'+treenodeseldivid).height()-5);
+		evvtDoingDashboardPaint = false;
+	}
+	return true;
+};
+
+function doMaxMinChange(valor,maximo) {
+	var numeric = $("#evvtSplitSize").data("kendoNumericTextBox");
+	var dosizechange = false;
+	if (maximo) {
+		setdbpropertyToTreeSelected('splitMax',valor+'px');
+		numeric.max(valor);
+		if (numeric.value()>valor) dosizechange = true;
+	} else {
+		setdbpropertyToTreeSelected('splitMin',valor+'px');
+		numeric.min(valor);
+		if (numeric.value()<valor) dosizechange = true;
+	}
+	if (dosizechange) {
+		numeric.value(valor);
+		doSizeChange(valor);
+	}
+}
+
+function doResizeChange(valor) {
+	setdbpropertyToTreeSelected('splitResize',valor);
+	editdiv = $('#evvteditingdiv').val();
+	var splitter = $(editdiv).parents('div:first').data("kendoSplitter");
+	var paneConfig = $(editdiv).data("pane");
+    paneConfig['resize'] = valor;
+    paneConfig['resizable'] = valor;
+	splitter._updateSplitBars();
+}
+
+function doScrollChange(valor) {
+	setdbpropertyToTreeSelected('splitScroll',valor);
+	editdiv = $('#evvteditingdiv').val();
+	var paneConfig = $(editdiv).data("pane");
+    paneConfig['scroll'] = valor;
+    paneConfig['scrollable'] = valor;
+    $(editdiv).toggleClass("k-scrollable", valor);
+}
+
+function evvttriggerResize() {
+    $("#evvtDashboardDesigner").data("kendoSplitter").trigger("resize");
+}
+
+/*
+ * Joe 2-Sep-2012
+ * This function creates a Splitter PANES object which permits to manipulate all the panes contained in a splitter
+ * It is in a basic version, it would need to be enhanced with some additional properties for each pane and some
+ * additional methods, but it works correctly.
+ * In the end version of the dashboard I don't need this object, due to the way the DB layout editor manipulates
+ * each pane individually it made no sense to load all it's brother panes to be able to makes changes in one pane
+ * so I create the DB layout with direct pane manipulation and this object was not used.
+ * I comment it out to ease the load in memory but leave it in case it is needed in the future.
 
 function getSplitterPanes(splitter) {
 	var pns = (function($) {
@@ -1243,3 +1349,5 @@ function getSplitterPanes(splitter) {
 	})(jQuery);
 	return pns;
 }
+ * 
+ */

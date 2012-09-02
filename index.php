@@ -37,7 +37,7 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
     <a href="javascript:void(0);" id="evvthcapp" onClick="makeContent('allapps')" <?php if ($evvtcanvas=='allapps') echo 'class="evvtheaderCenterActive"'; ?>><?php echo getTranslatedString('Applications',$currentModule); ?></a>
   </div>
 </div>
-<div id="evvtheaderhide"><img src="<?php echo $mypath; ?>/images/hidepanel.png" id="evvtheaderhideimage" onClick="javascript:evvtHeaderToggle();"/></div>
+<div id="evvtheaderhide"><img src="<?php echo $mypath; ?>/images/hidepanel.png" id="evvtheaderhideimage" onClick="javascript:evvtHeaderToggle();"/><img src="<?php echo $mypath; ?>/images/hideallpanel.png" id="evvtheaderhideallimage" onClick="javascript:evvtHeaderToggleAll();" style="margin-left: 5px;" /></div>
 </div>
 <div id="evvtleftButton"<?php if ($evvtcanvas!='allapps') echo ' style="display:none;"'; ?>><input type="button" value="<" onClick="move2NextApp(-1)"></div>
 <div id="evvtCanvas" class="evvtCanvas"><ul id="launchers"></ul></div>
@@ -70,23 +70,23 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
 		</div>
        	<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitSize',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitSize" type="number" size=4 value="" onblur="javascript:doResizeChange(this.value,true)" /></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitSize" type="number" size=4 value="" /></div>
 		</div>
        	<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitMax',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitMax" type="number" size=4 value="" onblur="javascript:setdbpropertyToTreeSelected('splitMax',this.value);" /></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitMax" type="number" size=4 value="" /></div>
 		</div>
        	<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitMin',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitMin" type="number" size=4 value="" onblur="javascript:setdbpropertyToTreeSelected('splitMin',this.value);" /></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitMin" type="number" size=4 value="" /></div>
 		</div>
        	<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitResize',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitResize" type="checkbox" onblur="javascript:setdbpropertyToTreeSelected('splitResize',this.checked);" /></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitResize" type="checkbox" onchange="javascript:doResizeChange(this.checked);" /></div>
 		</div>
        	<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitScroll',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitScroll" type="checkbox" onblur="javascript:setdbpropertyToTreeSelected('splitScroll',this.checked);" /></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitScroll" type="checkbox" onchange="javascript:doScrollChange(this.checked);" /></div>
 		</div>
 		<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsed',$currentModule); ?></div>
@@ -94,7 +94,7 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
 		</div>
        	<div class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsable',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitCollapsable" type="checkbox" onchange="javascript:doCollapsibleChange(this.checked,true);" /></div>
+			<div class="evvtPropertycol2"><input id="evvtSplitCollapsable" type="checkbox" onchange="javascript:doCollapsibleChange(this.checked);" /></div>
 		</div>
        </div>
       </div>
