@@ -48,8 +48,9 @@ switch ($operation) {
 	break;
   case 'VTAPP_getContent':
     $appInstance = $vtAppManager->getAppInstance($appId);
+    $title = $appInstance->getTitle();
     $data = array(
-      'title' => $appInstance->getTitle(),
+      'title' => ($title ? $title : '---'), // this is to avoid sending false as title because it breaks the window buttons
       'content' => $appInstance->getContent()
       );
     echo json_encode($data);

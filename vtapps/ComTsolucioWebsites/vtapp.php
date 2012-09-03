@@ -13,7 +13,7 @@ class VtApp_ComTsolucioWebsites extends VtAppBase {
 	public function getContent() {		
 		return '
 		<div id="urldiv" style="width:100%;display:none;text-align:center;margin-bottom:6px;">&nbsp;'.$this->translate('website').'&nbsp;<input type="text" id="urlname" name="urlname" value="'.$this->website.'">&nbsp;<input type="button" id="urlbutton" value="'.$this->translate('saveurl').'" class="crmButton small save"></div>
-		<iframe src="'.$this->website.'" width=100% height=100%></iframe>';
+		<iframe src="'.$this->website.'" style="width:100%;height:100%"></iframe>';
 	}
 
 	public function getTitle() {

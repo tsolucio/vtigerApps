@@ -18,7 +18,6 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
 <link href="<?php echo $mypath; ?>/styles/tipsy.css" rel="stylesheet" type="text/css" />
 <script src="<?php echo $mypath; ?>/kendoui/js/jquery.min.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/kendoui/js/kendo.web.min.js" type="text/javascript"></script>
-<script src="<?php echo $mypath; ?>/kendoui/js/kendo.upload.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/js/jquery.tipsy.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/js/evvtapps.js" type="text/javascript"></script>
 <script src="<?php echo $mypath; ?>/jquery-ui/js/jquery-ui-1.8.21.custom.min.js" type="text/javascript"></script>
@@ -53,7 +52,7 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
         <div id="evvtDBETCollapseExpand" class="evvtDashboardEditorTool evvtDashboardEditorToolCollapseExpand evvtDashboardEditorToolActive"/></div>
         <div id="evvtDBETSave" class="evvtDashboardEditorTool evvtDashboardEditorToolSave evvtDashboardEditorToolUnactive"/></div>
        </span>
-       <div id="evvtDashboardEditorTreeview"></div>
+       <div id="evvtDashboardEditorTreeview" style="width:100%"></div>
        <script id="evvtDashboardEditorTreeview-template" type="text/kendo-ui-template">
             #= item.text #
 			<span id="evvtdbappdata-#= item.id #" atributos="evvtinfo" splitprops='#= item.splitprops #'>&nbsp;&nbsp;</span>
@@ -62,8 +61,8 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
       </div>
       <div class="evvtDashboardEditorpane-content">
        <span  class="evvtDashboardEditorMenuTop"><?php echo getTranslatedString('MenuAppProps',$currentModule); ?><input type="hidden" id="evvteditingdiv"/></span>
-       <div id="evvtDashboardEditorPropview">
-       <div id="evvtDashboardEditorProps">
+       <div id="evvtDashboardEditorPropview" style="width:100%">
+       <div id="evvtDashboardEditorProps" style="width:100%">
        	<div id="evvtSplitvtAppidDiv" class="evvtPropertyItem">
 			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitvtAppid',$currentModule); ?></div>
 			<div class="evvtPropertycol2"><input id="evvtSplitvtAppid" type="hidden" /></div>
@@ -100,6 +99,7 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
       </div>
     </div>
   </div>
+</div>
 </div>
 <div id="evvtrightButton"<?php if ($evvtcanvas!='allapps') echo ' style="display:none;"'; ?>><input type="button" value=">" onClick="move2NextApp(1)"></div>
 <div style="clear:both"></div>

@@ -317,14 +317,14 @@ var vtApps = (function($) {
           // Get kendoWindow object
           var kWin = $('#'+this.windowId).data("kendoWindow");
           // Bind minimize button
-          kWin.wrapper.find('.k-minimize').click($.proxy(function() { this.hide(); return false; }, this));
+          kWin.wrapper.find('.k-i-minimize').click($.proxy(function() { this.hide(); return false; }, this));
           // Bind close button
-          kWin.wrapper.find('.k-close').click($.proxy(function() { this.launcher.removeInstance(this); return false; }, this));
+          kWin.wrapper.find('.k-i-close').click($.proxy(function() { this.launcher.removeInstance(this); return false; }, this));
           // Bind refresh button
-          kWin.wrapper.find('.k-refresh').click($.proxy(function() { this.refresh(); return false; }, this));
+          kWin.wrapper.find('.k-i-refresh').click($.proxy(function() { this.refresh(); return false; }, this));
           // Bind edit button
           if (this.launcher.editable) {
-            kWin.wrapper.find('.k-edit').click($.proxy(this.onEdit, this));
+            kWin.wrapper.find('.k-i-edit').click($.proxy(this.onEdit, this));
           }
           // Position it
           if (this.top==null && this.left==null) {
@@ -502,7 +502,11 @@ function setCanvas2Window() {
            	vtApps.launchers[launch].show();
            	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
            		if (vtApps.launchers[launch].instances[inst].isOnScreen()) {
-           			$('#'+vtApps.launchers[launch].instances[inst].windowId).data('kendoWindow').open();
+           			if (vtApps.launchers[launch].instances[inst].windowId == null) {
+           				vtApps.launchers[launch].instances[inst].createWindow();  // this one was created on another canvas
+           			} else {
+           				$('#'+vtApps.launchers[launch].instances[inst].windowId).data('kendoWindow').open();
+           			}
            		}
            	}
         }
@@ -645,13 +649,6 @@ function setCanvas2DashboardWithData(dblayout) {
         assignAppDropdown();
         $('#evvtDashboardEditorPropview').hide();
         // now the content panes
-        $("#evvtDashboardEditor").kendoSplitter({
-            orientation: "vertical",
-            panes: [
-                { collapsible: false, resizable: true },
-                { collapsible: false, resizable: true }
-            ]
-        });
         $("#evvtDashboardDesigner").kendoSplitter({
         	orientation: "horizontal",
         	collapse: function(p) {$('#evvtdbhighlightpane').remove();},
@@ -659,6 +656,16 @@ function setCanvas2DashboardWithData(dblayout) {
                 { collapsible: false, size: "80%" },
                 { collapsible: true, size: "20%" }
             ]
+        });
+        $("#evvtDashboardEditor").kendoSplitter({
+            orientation: "vertical",
+            panes: [
+                { collapsible: false, resizable: true, size: '50%' },
+                { collapsible: false, resizable: true, size: '50%' }
+            ],
+    		layoutChange: function(p){
+    			doSplitterSizeChange(p.sender.element[0].id);
+    		}
         });
         // now the layout
         paintLayoutOnCanvas();
@@ -896,7 +903,7 @@ function makeContent(contentName){
 		jQuery("#evvtHeaderJumpTo").hide();
         jQuery("#evvtleftButton").hide();
         jQuery("#evvtrightButton").hide();
-        jQuery("#evvtCanvas").css('width','96%');
+        jQuery("#evvtCanvas").width('96%');
         jQuery("#evvtCanvas").show();
         jQuery("#evvtDashboardCanvas").hide();
         jQuery("#evvthcwin").addClass('evvtheaderCenterActive');
@@ -918,7 +925,8 @@ function makeContent(contentName){
 		jQuery("#evvtHeaderJumpTo").show();
         jQuery("#evvtleftButton").show();
         jQuery("#evvtrightButton").show();
-        jQuery("#evvtCanvas").css('width','90%');
+        jQuery("#evvtCanvas").width('90%');
+        jQuery("#evvtCanvas").height('80%');
         jQuery("#evvtCanvas").show();
         jQuery("#evvtDashboardCanvas").hide();
         jQuery("#evvthcapp").addClass('evvtheaderCenterActive');

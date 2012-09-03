@@ -115,12 +115,12 @@ class VtAppBase {
 	
 	// Get window top position
 	public function getTop() {
-	  return $this->VTAPP_windowTop;
+	  return (empty($this->VTAPP_windowTop) ? 100 : $this->VTAPP_windowTop);
 	}
 	
 	// Get window left position
 	public function getLeft() {
-	  return $this->VTAPP_windowLeft;
+	  return (empty($this->VTAPP_windowLeft) ? 100 : $this->VTAPP_windowLeft);
 	}
 	
 	// Get window width
@@ -135,7 +135,7 @@ class VtAppBase {
 
 	// Get window height
 	public function getOnScreen() {
-		return $this->VTAPP_onScreen;
+		return (is_null($this->VTAPP_onScreen) ? true : $this->VTAPP_onScreen);
 	}
 
 	// Get user object
