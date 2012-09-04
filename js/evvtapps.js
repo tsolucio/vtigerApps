@@ -213,6 +213,7 @@ var vtApps = (function($) {
       width: null,
       height: null,
       windowId: null,
+      title: '',
       onscreen: false,
       resizeTimeout: false,
       // Init app instance from data provided
@@ -358,6 +359,7 @@ var vtApps = (function($) {
       },
       // Set window title
       setTitle: function(title) {
+    	  this.title = title;
     	  switch (evvtcanvas) {
     	  case 'allapps':
     		  $('#evvtappTitleBarTitle').html(title);
@@ -1001,27 +1003,40 @@ function move2App(posicion){
 
 function jumpToMenu() {
 	$("#vtappStatus").show();
-	var DDapplistTimer; 
-	var datastr = '';
+	appidlist = '';
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+		if (!vtApps.launchers[launch].canshow) continue;  // can't pick from the ones you can't show
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		if (vtApps.launchers[launch].instances[inst].title!='') continue;
+       		appidlist = appidlist + (appidlist!='' ? ',' : '') + vtApps.launchers[launch].instances[inst].id;
+       	}
+    }
+	appidtitle = [];
+	if (appidlist!='') {
+		ajaxurl = 'index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=VTAPP_getManyTitles&appid_list='+appidlist;
+   		$.ajax({
+   		  url: ajaxurl,
+   		  async:false
+   		}).done(function(apptitles) {
+   			appidtitle = jQuery.parseJSON(apptitles);
+   		});
+		
+	}
+	var dataobj = [];
 	var numinst = 0;
 	for(var launch=0; launch<vtApps.launchers.length; launch++) {
        	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
-       		datastr = datastr + '{"listid": ' + numinst + ', "icon":"' + vtApps.launchers[launch].iconPath + '", "title": "';
-       		ajaxurl = vtApps.launchers[launch].instances[inst].getServerMethodURL('getTitle', {
-                evvtapps_appid: vtApps.launchers[launch].instances[inst].id
-            });
-       		$.ajax({
-       		  url: 'index.php?' + ajaxurl,
-       		  async:false
-       		}).done(function(apptitle) { 
-       			datastr = datastr + apptitle + '"}';
-       		});
-       		if (inst+1<vtApps.launchers[launch].instances.length) datastr = datastr + ',';
+       		atitle = vtApps.launchers[launch].instances[inst].title;
+       		if (atitle=='') {
+       			atitle = appidtitle[vtApps.launchers[launch].instances[inst].id];
+       			vtApps.launchers[launch].instances[inst].title = atitle;
+       		}
+       		data = {"listid": numinst, "icon": vtApps.launchers[launch].iconPath, "title": atitle};
+       		dataobj.push(data);
        		numinst++;
        	}
-       	if (launch+1<vtApps.launchers.length) datastr = datastr + ',';
     }
-	dataobj = jQuery.parseJSON('[' + datastr + ']');
+	var DDapplistTimer;
 	$("#vtappDDListDiv").show();
 	$("#vtappDDListInput").show();
     $("#vtappDDListInput").kendoDropDownList({
@@ -1083,32 +1098,44 @@ function getMaxElementsIDFromTree() {
 function assignAppDropdown() {
 	$("#vtappStatus").show();
 	dbAssignedApps = getDashboardAssignedAppsFromTree();
-	var datastr = '{"operation": "modules/evvtApps/images/blank.png", "vtappid": 0, "icon":"modules/evvtApps/images/blank.png", "title": "' + vtApps.launchers[0].translate('NotAssigned') + '"}';
-	if (vtApps.launchers.length>0) datastr = datastr + ',';
-	var numinst = 0;
+	appidlist = '';
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+		if (!vtApps.launchers[launch].canshow) continue;  // can't pick from the ones you can't show
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		if (vtApps.launchers[launch].instances[inst].title!='') continue;
+       		appidlist = appidlist + (appidlist!='' ? ',' : '') + vtApps.launchers[launch].instances[inst].id;
+       	}
+    }
+	appidtitle = [];
+	if (appidlist!='') {
+		ajaxurl = 'index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=VTAPP_getManyTitles&appid_list='+appidlist;
+   		$.ajax({
+   		  url: ajaxurl,
+   		  async:false
+   		}).done(function(apptitles) {
+   			appidtitle = jQuery.parseJSON(apptitles);
+   		});
+		
+	}
+	dataobj = [];
+	var data = {"operation": "modules/evvtApps/images/blank.png", "vtappid": 0, "icon":"modules/evvtApps/images/blank.png", "title": vtApps.launchers[0].translate('NotAssigned') };
+	dataobj.push(data);
 	for(var launch=0; launch<vtApps.launchers.length; launch++) {
 		if (!vtApps.launchers[launch].canshow) continue;  // can't pick from the ones you can't show
 		if (vtApps.launchers[launch].clonable) {
-			datastr = datastr + '{"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": -1, "icon":"' + vtApps.launchers[launch].iconPath + '", "title": "' + vtApps.launchers[launch].shortDescription + '"}';
-			if (vtApps.launchers[launch].instances.length>0) datastr = datastr + ',';
+			data = {"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": -1, "icon": vtApps.launchers[launch].iconPath, "title": vtApps.launchers[launch].shortDescription };
+			dataobj.push(data);
 		}
        	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
-       		datastr = datastr + '{"operation": "modules/evvtApps/images/swap.gif", "vtappid": ' + vtApps.launchers[launch].instances[inst].id + ', "icon":"' + vtApps.launchers[launch].iconPath + '", "title": "';
-       		ajaxurl = vtApps.launchers[launch].instances[inst].getServerMethodURL('getTitle', {
-                evvtapps_appid: vtApps.launchers[launch].instances[inst].id
-            });
-       		$.ajax({
-       		  url: 'index.php?' + ajaxurl,
-       		  async:false
-       		}).done(function(apptitle) { 
-       			datastr = datastr + apptitle + '"}';
-       		});
-       		if (inst+1<vtApps.launchers[launch].instances.length) datastr = datastr + ',';
-       		numinst++;
+       		atitle = vtApps.launchers[launch].instances[inst].title;
+       		if (atitle=='') {
+       			atitle = appidtitle[vtApps.launchers[launch].instances[inst].id];
+       			vtApps.launchers[launch].instances[inst].title = atitle;
+       		}
+       		data = {"operation": "modules/evvtApps/images/swap.gif", "vtappid": vtApps.launchers[launch].instances[inst].id, "icon": vtApps.launchers[launch].iconPath, "title": atitle};
+       		dataobj.push(data);
        	}
-       	if (launch+1<vtApps.launchers.length) datastr = datastr + ',';
     }
-	dataobj = jQuery.parseJSON('[' + datastr + ']');
 	$("#evvtSplitvtAppid").show();
     $("#evvtSplitvtAppid").kendoDropDownList({
         dataTextField: "title",

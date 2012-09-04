@@ -8,10 +8,10 @@
 $mypath="modules/$currentModule";
 include "$mypath/language/$current_language.lang.php";
 $skipFooters=true;
-$evvtcanvas = vtlib_purify($_REQUEST['evvtapps_canvas']);
-$evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
 $defaultcanvas = $adb->getone('select defaultcanvas from vtiger_evvtappscanvas where userid='.$current_user->id);
 if (empty($defaultcanvas)) $defaultcanvas='windows';
+$evvtcanvas = vtlib_purify($_REQUEST['evvtapps_canvas']);
+$evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 ?>
 <script type="text/javascript">
 	var evvtcanvas = '<?php echo $evvtcanvas; ?>';

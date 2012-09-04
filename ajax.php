@@ -46,6 +46,16 @@ switch ($operation) {
   	$canvas = $_REQUEST['evvtcanvas'];
 	$vtAppManager->setCanvasDefault($canvas);
 	break;
+  case 'VTAPP_getManyTitles':
+  	$appid_list = explode(',',$_REQUEST['appid_list']);
+  	$titles = array();
+  	foreach ($appid_list as $appId) {
+	    $appInstance = $vtAppManager->getAppInstance($appId);
+	    $title = $appInstance->getTitle();
+	    $titles[$appId] = ($title ? $title : '---'); // this is to avoid sending false as title because it breaks the window buttons
+  	}
+    echo json_encode($titles);
+  	break;
   case 'VTAPP_getContent':
     $appInstance = $vtAppManager->getAppInstance($appId);
     $title = $appInstance->getTitle();
