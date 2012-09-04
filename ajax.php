@@ -47,7 +47,7 @@ switch ($operation) {
 	$vtAppManager->setCanvasDefault($canvas);
 	break;
   case 'VTAPP_getManyTitles':
-  	$appid_list = explode(',',$_REQUEST['appid_list']);
+  	$appid_list = explode(',',vtlib_purify($_REQUEST['appid_list']));
   	$titles = array();
   	foreach ($appid_list as $appId) {
 	    $appInstance = $vtAppManager->getAppInstance($appId);

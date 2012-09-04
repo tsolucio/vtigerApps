@@ -15,7 +15,7 @@ $(document).ready($.proxy(function() {
 			tgtimg.attr('src','modules/evvtApps/images/selectedcanvas.png');
 			}),
 		$.proxy(function(tgt) {
-			$('#'+tgt.target.id).attr('src',defaultcanvasimage);
+			setDefaultCanvasImage();
 			})
 	);
 }));
@@ -37,23 +37,11 @@ var vtApps = (function($) {
       __init: function(data) {
         $(document).ready($.proxy(function() {
             this.canvas = $('#evvtCanvas');
-            $("#launchers").sortable({
-              helper : 'clone',
-              update: function(e, ui) {
-            	  serial = $('#launchers').sortable('toArray');
-            	  VtApps.prototype.ajaxRequest('VTAPP_doReorderApps', {'vtapp_order':serial});
-              },
-              placeholder: "evvtappbox evvtappbox-highlight"
-            });
-            $("#launchers").disableSelection();
             for(var i=0; i<data.length; i++) {
               var appLauncher = new this.VtAppLauncher(data[i]);
               this.launchers.push(appLauncher);
-              if (evvtcanvas == 'windows') {
-              appLauncher.show();
-              }
             };
-            //makeContent(evvtcanvas);
+            makeContent(evvtcanvas);
         }, this));
       },
       // Function to do ajax requests with callback function and context
@@ -268,8 +256,11 @@ var vtApps = (function($) {
 	      }
 		  break;
 	  case 'windows':
-        $('#'+this.windowId).data('kendoWindow').open();
+		if (this.windowId == null) {
+			this.createWindow();  // this one was created on another canvas
+		}
         kWin = $('#'+this.windowId).data("kendoWindow");
+        kWin.open();
         kWin.toFront();
         this.onscreen = true;
         this.ajaxRequest('windowOnScreen', [ 1 ]);  // save state change of window
@@ -516,6 +507,15 @@ function setCanvas2Window() {
 	if (evvtcanvas == 'windows') {
 		jQuery("#evvtDashboardCanvas").hide();
 		jQuery("#evvtCanvas").html('<ul id="launchers"></ul>').show();
+        $("#launchers").sortable({
+            helper : 'clone',
+            update: function(e, ui) {
+          	  serial = $('#launchers').sortable('toArray');
+          	  vtApps.ajaxRequest('VTAPP_doReorderApps', {'vtapp_order':serial});
+            },
+            placeholder: "evvtappbox evvtappbox-highlight"
+          });
+        $("#launchers").disableSelection();
         for(var launch=0; launch<vtApps.launchers.length; launch++) {
            	vtApps.launchers[launch].show();
            	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
@@ -906,6 +906,7 @@ function hideAllInstances() {
 	for(var launch=0; launch<vtApps.launchers.length; launch++) {
        	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
        		if (vtApps.launchers[launch].instances[inst].isOnScreen()) {
+       			if (vtApps.launchers[launch].instances[inst].windowId!=null)
        			$('#'+vtApps.launchers[launch].instances[inst].windowId).data('kendoWindow').close();
        		};
        	};
@@ -969,8 +970,6 @@ function move2NextApp(offset){
 		if (newpos < 0) {
 			evvtCurrentAppOnScreen = numinstances - evvtCurrentAppOnScreen;
 		}
-		//configapp = evvtFindConfigApp();
-		//vtApps.launchers[configapp].instances[0].ajaxRequest('getAppUserData', [ instancesid[evvtCurrentAppOnScreen].launcher.id ], $.proxy(evvtAllAppsDataReceived));
 		evvtAllAppsDataReceived({'icon': instancesid[evvtCurrentAppOnScreen].launcher.iconPath, 'description':instancesid[evvtCurrentAppOnScreen].launcher.shortDescription});
 		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar" class="evvtappTitleBar"><div id="evvtappTitleBarTitle" class="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools" class="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv" class="evvtappContentDiv"></div>');
 		instancesid[evvtCurrentAppOnScreen].show();
@@ -992,8 +991,6 @@ function move2App(posicion){
 			posicion = 0;  // invalid position, we set on the first one
 		}
 		evvtCurrentAppOnScreen = posicion;
-		//configapp = evvtFindConfigApp();
-		//vtApps.launchers[configapp].instances[0].ajaxRequest('getAppUserData', [ instancesid[evvtCurrentAppOnScreen].launcher.id ], $.proxy(evvtAllAppsDataReceived));
 		evvtAllAppsDataReceived({'icon': instancesid[evvtCurrentAppOnScreen].launcher.iconPath, 'description':instancesid[evvtCurrentAppOnScreen].launcher.shortDescription});
 		jQuery("#evvtCanvas").html('<div id="evvtappTitleBar" class="evvtappTitleBar"><div id="evvtappTitleBarTitle" class="evvtappTitleBarTitle"></div><div id="evvtappTitleBarTools" class="evvtappTitleBarTools"></div></div><div id="evvtappContentDiv" class="evvtappContentDiv"></div>');
 		instancesid[evvtCurrentAppOnScreen].show();
@@ -1354,19 +1351,24 @@ function changeDefaultCanvas(newcanvas) {
 	  type: "POST",
 	  data: 'evvtcanvas=' + newcanvas
 	}).done(function() {
-		$('#defaultcanvasimg1, #defaultcanvasimg2, #defaultcanvasimg3').attr('src','modules/evvtApps/images/blank.png');
-		switch (newcanvas) {
-		case 'windows':
-			$('#defaultcanvasimg1').attr('src','modules/evvtApps/images/selectedcanvas.png');
-			break;
-		case 'dashboard':
-			$('#defaultcanvasimg2').attr('src','modules/evvtApps/images/selectedcanvas.png');
-			break;
-		case 'allapps':
-			$('#defaultcanvasimg3').attr('src','modules/evvtApps/images/selectedcanvas.png');
-			break;
-		}
+		defaultcanvas = newcanvas;
+		setDefaultCanvasImage();
 	});
+}
+
+function setDefaultCanvasImage() {
+	$('#defaultcanvasimg1, #defaultcanvasimg2, #defaultcanvasimg3').attr('src','modules/evvtApps/images/blank.png');
+	switch (defaultcanvas) {
+	case 'windows':
+		$('#defaultcanvasimg1').attr('src','modules/evvtApps/images/selectedcanvas.png');
+		break;
+	case 'dashboard':
+		$('#defaultcanvasimg2').attr('src','modules/evvtApps/images/selectedcanvas.png');
+		break;
+	case 'allapps':
+		$('#defaultcanvasimg3').attr('src','modules/evvtApps/images/selectedcanvas.png');
+		break;
+	}
 }
 
 /*
