@@ -150,9 +150,34 @@ html, body {
 .evvtheaderCenterActive{
     background-image: url('../images/bgLinkActive.png') !important;
 }
+#defaultcanvasimg1, #defaultcanvasimg2, #defaultcanvasimg3 {
+    position: relative;
+    float: center;
+    left: 64px;
+    top: -20px;
+    width: 8px;
+    height: 8px;
+}
+#defaultcanvasimg2 {
+	left: 139px;
+}
+#defaultcanvasimg3 {
+	left: 212px;
+}
+.defaultcanvasimg {
+    position: relative;
+    float: center;
+    display: block;
+    left: 64px;
+    top: -20px;
+    width: 80px;
+    height: 8px;
+    background-image: url('../images/selectedcanvas.png') !important;
+}
+
 #evvtheaderRight{
     /* border: 1px solid red !important; */
-    width: 30%;
+    width: 40%;
     height: 40px;
     float: right;
     text-align: right;
@@ -181,10 +206,10 @@ html, body {
 }
 #evvtheaderLeft{
     /*border: 1px solid red !important;*/
-    width: 30%;
+    width: 20%;
     height: 40px;
     float: left;
-    margin-left: 20px;
+    margin-left: 10px;
     margin-top: 5px;
 }
 

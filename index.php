@@ -10,8 +10,13 @@ include "$mypath/language/$current_language.lang.php";
 $skipFooters=true;
 $evvtcanvas = vtlib_purify($_REQUEST['evvtapps_canvas']);
 $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
+$defaultcanvas = $adb->getone('select defaultcanvas from vtiger_evvtappscanvas where userid='.$current_user->id);
+if (empty($defaultcanvas)) $defaultcanvas='windows';
 ?>
-<script type="text/javascript">var evvtcanvas = '<?php echo $evvtcanvas; ?>';</script>
+<script type="text/javascript">
+	var evvtcanvas = '<?php echo $evvtcanvas; ?>';
+	var defaultcanvas = '<?php echo $defaultcanvas; ?>';
+</script>
 <link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/kendoui/styles/kendo.common.min.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/kendoui/styles/kendo.default.min.css" rel="stylesheet" type="text/css" />
@@ -31,6 +36,7 @@ $evvtcanvas = (empty($evvtcanvas) ? 'windows' : $evvtcanvas);
   <div id="evvtheaderLeft"><img src="<?php echo $mypath; ?>/images/evolutivo.png" id="evvtAboutUsImage" onClick="javascript:evvtShowAboutUs();"/></div>
   <div id="evvtheaderRight"><div id="evvtHeaderDesc"></div><div style="float:right;height:45px;" onClick="javascript:jumpToMenu();"><img src="<?php echo $mypath; ?>/images/showpanel.png" id="evvtHeaderJumpTo" style="display:none;"/></div><div style="float:right;"><img src="<?php echo $mypath; ?>/images/blank.png" id="evvtHeaderImage"/></div></div>
   <div id="evvtheaderCenter">
+  	<img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='windows' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg1"><img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='dashboard' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg2"><img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='allapps' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg3">
     <a href="javascript:void(0);" id="evvthcwin" onClick="makeContent('windows')" <?php if ($evvtcanvas=='windows') echo 'class="evvtheaderCenterActive"'; ?>><?php echo getTranslatedString('Windows',$currentModule); ?></a>
     <a href="javascript:void(0);" id="evvthcdsh" onClick="makeContent('dashboard')" <?php if ($evvtcanvas=='dashboard') echo 'class="evvtheaderCenterActive"'; ?>><?php echo getTranslatedString('Dashboard',$currentModule); ?></a>
     <a href="javascript:void(0);" id="evvthcapp" onClick="makeContent('allapps')" <?php if ($evvtcanvas=='allapps') echo 'class="evvtheaderCenterActive"'; ?>><?php echo getTranslatedString('Applications',$currentModule); ?></a>

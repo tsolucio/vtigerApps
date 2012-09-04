@@ -2,7 +2,23 @@
 var evvtCurrentAppOnScreen = 0;
 var evvtMaxDashboardElementID = 0;
 var evvtDoingDashboardPaint = 0;
-
+var defaultcanvasimage = '';
+// Initializes header and canvas
+$(document).ready($.proxy(function() {
+	$('#defaultcanvasimg1').click($.proxy(function() { changeDefaultCanvas('windows');}));
+	$('#defaultcanvasimg2').click($.proxy(function() { changeDefaultCanvas('dashboard');}));
+	$('#defaultcanvasimg3').click($.proxy(function() { changeDefaultCanvas('allapps');}));
+	$('#defaultcanvasimg1, #defaultcanvasimg2, #defaultcanvasimg3').hover(
+		$.proxy(function(tgt) {
+			tgtimg = $('#'+tgt.target.id);
+			defaultcanvasimage = tgtimg.attr('src');
+			tgtimg.attr('src','modules/evvtApps/images/selectedcanvas.png');
+			}),
+		$.proxy(function(tgt) {
+			$('#'+tgt.target.id).attr('src',defaultcanvasimage);
+			})
+	);
+}));
 var vtApps = (function($) {
     
     // This is the main object that handles everything
@@ -1302,6 +1318,28 @@ function doScrollChange(valor) {
 
 function evvttriggerResize() {
     $("#evvtDashboardDesigner").data("kendoSplitter").trigger("resize");
+}
+
+function changeDefaultCanvas(newcanvas) {
+	ajaxurl = 'index.php?module=evvtApps&action=evvtAppsAjax&file=ajax&evvtapps_action=VTAPP_setCanvasDefault';
+	$.ajax({
+	  url: ajaxurl,
+	  type: "POST",
+	  data: 'evvtcanvas=' + newcanvas
+	}).done(function() {
+		$('#defaultcanvasimg1, #defaultcanvasimg2, #defaultcanvasimg3').attr('src','modules/evvtApps/images/blank.png');
+		switch (newcanvas) {
+		case 'windows':
+			$('#defaultcanvasimg1').attr('src','modules/evvtApps/images/selectedcanvas.png');
+			break;
+		case 'dashboard':
+			$('#defaultcanvasimg2').attr('src','modules/evvtApps/images/selectedcanvas.png');
+			break;
+		case 'allapps':
+			$('#defaultcanvasimg3').attr('src','modules/evvtApps/images/selectedcanvas.png');
+			break;
+		}
+	});
 }
 
 /*
