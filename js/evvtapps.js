@@ -1,8 +1,9 @@
-
 var evvtCurrentAppOnScreen = 0;
 var evvtMaxDashboardElementID = 0;
 var evvtDoingDashboardPaint = 0;
 var defaultcanvasimage = '';
+var dashboardeditorloaded = false;
+
 // Initializes header and canvas
 $(document).ready($.proxy(function() {
 	$('#defaultcanvasimg1').click($.proxy(function() { changeDefaultCanvas('windows');}));
@@ -725,6 +726,7 @@ function setCanvas2DashboardWithData(dblayout) {
         assignAppDropdown();
         $('#evvtDashboardEditorPropview').hide();
         // now the content panes
+        if (!dashboardeditorloaded) {
         $("#evvtDashboardDesigner").kendoSplitter({
         	orientation: "horizontal",
         	collapse: function(p) {
@@ -754,12 +756,14 @@ function setCanvas2DashboardWithData(dblayout) {
     			doSplitterSizeChange(p.sender.element[0].id);
     		}
         });
+        dashboardeditorloaded = true;
+        }
         // now the layout
         paintLayoutOnCanvas();
         selectTreeElement(treeview.element.find('.k-group').children('li').first(),true);
         $('#evvtdbhighlightpane').remove();
-		//var splitter = $('#evvtDashboardDesigner').data("kendoSplitter");
-		//splitter.collapse('#evvtDashboardEditor');
+		var splitter = $('#evvtDashboardDesigner').data("kendoSplitter");
+		splitter.collapse('#evvtDashboardEditor');
         evvtDoingDashboardPaint = false;
 }
 
