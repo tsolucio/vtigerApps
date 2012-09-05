@@ -845,17 +845,6 @@ function getNewGroupElement() {
 	};
 }
 
-function evvtFindConfigApp() {
-	found = false;
-	i = 0;
-    while (i<vtApps.launchers.length && !found) {
-       	found = (vtApps.launchers[i].key == 'com.tsolucio.Configuration');
-       	if (found) return i;
-       	i++;
-    }
-    return -1;
-}
-
 function evvtShowAboutUs() {
 	$('#evvtAppsAboutUs').kendoWindow({
 		modal: true,
@@ -1065,12 +1054,12 @@ function evvtAllAppsDataReceived(data) {
 }
 
 function getDashboardAssignedAppsFromTree () {
-	result = [];
+	var result = [];
 	treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
 	treeview._processNodes('.k-item', function (index, item) {
       	atributos = $(item).find("> div span span[atributos]");
       	if (!jQuery.isEmptyObject(atributos)) {
-	      	var splitprops = jQuery.parseJSON('[' + atributos.attr("splitprops") + ']');
+	      	var splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
 	      	if (splitprops.vtappid>0) {
 	      		result.push(splitprops.vtappid);
 	      	}
@@ -1092,8 +1081,7 @@ function getMaxElementsIDFromTree() {
 	return maxid;
 }
 
-function assignAppDropdown() {
-	$("#vtappStatus").show();
+function getAppDropdownData() {
 	dbAssignedApps = getDashboardAssignedAppsFromTree();
 	appidlist = '';
 	for(var launch=0; launch<vtApps.launchers.length; launch++) {
@@ -1115,12 +1103,20 @@ function assignAppDropdown() {
 		
 	}
 	dataobj = [];
-	var data = {"operation": "modules/evvtApps/images/blank.png", "vtappid": 0, "icon":"modules/evvtApps/images/blank.png", "title": vtApps.launchers[0].translate('NotAssigned') };
+	/*
+	 * action
+	 *   0 empty the selected pane
+	 *   1 new instance in the selected pane
+	 *   2 assign instance to the selected pane
+	 *   3 swap instance with the selected pane
+	 *  0, 1 and 2, will unassign any currently assigned instance, leaving it free to be assigned elsewhere
+	 */
+	var data = {"operation": "modules/evvtApps/images/blank.png", "vtappid": 0, "action": 0, "icon":"modules/evvtApps/images/blank.png", "title": vtApps.launchers[0].translate('NotAssigned') };
 	dataobj.push(data);
 	for(var launch=0; launch<vtApps.launchers.length; launch++) {
 		if (!vtApps.launchers[launch].canshow) continue;  // can't pick from the ones you can't show
 		if (vtApps.launchers[launch].clonable) {
-			data = {"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": -1, "icon": vtApps.launchers[launch].iconPath, "title": vtApps.launchers[launch].shortDescription };
+			data = {"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": launch, "action": 1, "icon": vtApps.launchers[launch].iconPath, "title": vtApps.launchers[launch].shortDescription };
 			dataobj.push(data);
 		}
        	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
@@ -1129,32 +1125,89 @@ function assignAppDropdown() {
        			atitle = appidtitle[vtApps.launchers[launch].instances[inst].id];
        			vtApps.launchers[launch].instances[inst].title = atitle;
        		}
-       		data = {"operation": "modules/evvtApps/images/swap.gif", "vtappid": vtApps.launchers[launch].instances[inst].id, "icon": vtApps.launchers[launch].iconPath, "title": atitle};
+       		if (dbAssignedApps.length>0 && jQuery.inArray(vtApps.launchers[launch].instances[inst].id,dbAssignedApps)>-1) {
+       			action = 3; // swap with currently assigned app
+       			actionimg = "swap.gif";
+       		} else {
+       			action = 2; // assign, overwriting currently assigned app and leaving it free if it exists
+       			actionimg = "assignapp16.png";
+       		}
+       		data = {"operation": "modules/evvtApps/images/"+actionimg, "vtappid": vtApps.launchers[launch].instances[inst].id, "vtlaunch": launch, "vtinst": inst, "action": action, "icon": vtApps.launchers[launch].iconPath, "title": atitle};
        		dataobj.push(data);
        	}
     }
+	return dataobj;
+}
+
+function assignAppDropdown() {
+	$("#vtappStatus").show();
+	dataobj = getAppDropdownData();
 	$("#evvtSplitvtAppid").show();
     $("#evvtSplitvtAppid").kendoDropDownList({
         dataTextField: "title",
         dataValueField: "vtappid",
         template: '<span style="vertical-align:middle;"><img src="${ data.operation }" height="16px"/>&nbsp;&nbsp;&nbsp;&nbsp;<img src="${ data.icon }" height="16px"/>&nbsp;${ data.title }</span>',
         dataSource: dataobj,
-        change: function(e) {
-            this.close();
+        select: function(e) {
             var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
             tvsel = treeview.select();
             if (!jQuery.isEmptyObject(tvsel)) {
-	            var atributos = treeview.select().find("> div span span[atributos]");
+	            var atributos = tvsel.find("> div span span[atributos]");
 	            if (!jQuery.isEmptyObject(atributos)) {
-		            var splitprops = jQuery.parseJSON('[' + atributos.attr("splitprops") + ']');
-		            /*
-		             * this.value() es el vtappid
-		             * this.value() = -1  => new vtapp instance, will directly overwrite any existing assignment in selected vtapp item in tree
-		             * this.value() = 0  => empty item, will directly overwrite any existing assignment in selected vtapp item in tree
-		             * this.value() > 0  => assign or swap depending on value of selected vtapp item in tree
-		             * splitprops.vtappid
-		             */
-		            splitprops.vtappid = e.sender.selectedIndex;
+	            	activateSaveRereshButton();
+	                divid = atributos.attr('id').substring(14);
+	                divappid = '#evvtappContentDiv-' + divid;
+	            	appinfo = this.dataItem(e.item.index());
+		            var splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+		            switch (appinfo.action) {
+		            case 0:  // 0 empty the selected pane. will unassign any currently assigned instance, leaving it free to be assigned elsewhere
+		            	splitprops.vtappid = 0;
+		            	$(divappid).html('0');
+		            	newtext = vtApps.launchers[0].translate('vtApp Container');
+		            	newimage = 'evvtdbcol';
+		            	break;
+		            case 1:  // 1 new instance in the selected pane. will unassign any currently assigned instance, leaving it free to be assigned elsewhere
+		            	newinst = appinfo.vtappid; // createinstance
+		            	splitprops.vtappid = newinst;
+		            	$(divappid).html('new');
+		            	newtext = vtApps.launchers[appinfo.vtappid].shortDescription;
+		            	newimage = 'evvtdbapp';
+		            	break;
+		            case 2:  // 2 assign instance to the selected pane. will unassign any currently assigned instance, leaving it free to be assigned elsewhere
+		            	splitprops.vtappid = appinfo.vtappid;
+		            	$(divappid).html(appinfo.vtappid);
+		            	newtext = vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].title;
+		            	newimage = 'evvtdbapp';
+		            	break;
+		            case 3:  // 3 swap instance with the selected pane
+		            	swpattrinfo = treeview.element.find("span[splitprops*='vtappid"+'":"'+appinfo.vtappid+"']");
+		            	swpnode = swpattrinfo.closest('li');
+		            	swpattr = jQuery.parseJSON(swpattrinfo.attr("splitprops"));
+		            	swpattr.vtappid = splitprops.vtappid;
+		                sprops = JSON.stringify(swpattr);
+		                swpattrinfo.attr("splitprops",sprops);
+		                swptext = tvsel.find('div > span').text().replace(/\n|\t/g,'').trim();
+		                swpclass = tvsel.find('div > span > span:first');
+		                if (swpclass.hasClass('evvtdbapp')) {
+		                	swpcls = 'evvtdbapp';
+		                } else if (swpclass.hasClass('evvtdbcol')) {
+		                	swpcls = 'evvtdbcol';
+		                } else {
+		                	swpcls = 'evvtdbrow';
+		                }
+		                changeTreenodeContent(swpnode,swptext,swpcls);
+		            	splitprops.vtappid = appinfo.vtappid;
+		            	$(divappid).html(appinfo.vtappid);
+		            	$('#evvtappContentDiv-' + swpattrinfo.attr('id').substring(14)).html(swpattr.vtappid);
+		            	newtext = vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].title;
+		            	newimage = 'evvtdbapp';
+		            	break;
+		            }
+	                sprops = JSON.stringify(splitprops);
+	                atributos.attr("splitprops",sprops);
+	                changeTreenodeContent(tvsel,newtext,newimage);
+	                this.dataSource.data(getAppDropdownData());
+	                //this.dataSource.read();
 	            }
             }
         }
@@ -1162,6 +1215,14 @@ function assignAppDropdown() {
     var dropdownlist = $("#evvtSplitvtAppid").data("kendoDropDownList");
     dropdownlist.list.width(400);
     $("#vtappStatus").hide();
+}
+
+function changeTreenodeContent(treenode,newtext,newimage) {
+	treenode.find('div > span > span:first').removeClass('evvtdbcol evvtdbrow evvtdbapp').addClass(newimage);
+	htmlspan = treenode.find('div > span');
+	html1 = htmlspan.html().substring(0,htmlspan.html().indexOf('</span>')+7)+newtext;
+	html2 = htmlspan.html().substring(htmlspan.html().indexOf('<span id'));
+	htmlspan.html(html1+html2);
 }
 
 function getdbproperty(treenode,attrname) {
@@ -1233,7 +1294,7 @@ function showdbproperties(atributos) {
         splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
         // I'm counting that all these values are set to their defaults when they are sent from the database
         dropdownlist = $("#evvtSplitvtAppid").data("kendoDropDownList");
-        dropdownlist.select(splitprops['vtappid']);
+        dropdownlist.value(splitprops['vtappid']);
         numerictextbox = $("#evvtSplitSize").data("kendoNumericTextBox");
         numerictextbox.value(splitprops['splitSize']);
         numerictextbox = $("#evvtSplitMax").data("kendoNumericTextBox");
@@ -1291,6 +1352,10 @@ function doSplitterSizeChange(splitterdiv) {
 		var divappid = splitterdiv.substring(splitterdiv.indexOf('-')+1);
 		var root = $('#evvtdbappdata-'+divappid).closest('li');
 		var treenodeselected = treeview.select();
+		if (treenodeselected.length==0) {
+			selectTreeElement(root,true);
+			treenodeselected = root;
+		}
         var atributos = treenodeselected.find("> div span span[atributos]");
         var treenodeseldivid = atributos.attr('id').substring(14);
 	    if (!jQuery.isPlainObject(treenodeselected)) {
