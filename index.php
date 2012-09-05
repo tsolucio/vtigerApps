@@ -49,7 +49,7 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 <div id="evvtDashboardCanvas" style='display:none;width:100%;height:610px;margin:auto'>
   <div id="evvtDashboardDesigner" style="height: 100%;">
     <div id="evvtDashboardLayout" style="height: 100%; width: 80%;"></div>
-    <div id="evvtDashboardEditor" style="height: 800px; width: 40%;">
+    <div id="evvtDashboardEditor" style="height: 800px; width: 20%;">
       <div class="evvtDashboardEditorpane-content">
        <span class="evvtDashboardEditorMenuTop"><div style="float:left">&nbsp;</div>
         <div id="evvtDBETAddRowLayout" class="evvtDashboardEditorTool evvtDashboardEditorToolAddRowLayout evvtDashboardEditorToolUnactive"/></div>

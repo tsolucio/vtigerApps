@@ -156,12 +156,12 @@ var vtApps = (function($) {
         }
       },
       // Request new app instance
-      newInstance: function() {
-        vtApps.ajaxRequest('VTAPP_createAppInstance', { launcherid: this.id }, function (data) { var inst = this.createInstance(data); this.newInstanceLaunch(inst); }, this);
+      newInstance: function(divid) {
+        vtApps.ajaxRequest('VTAPP_createAppInstance', { launcherid: this.id }, function (data) { var inst = this.createInstance(data,divid); this.newInstanceLaunch(inst); }, this);
       },
       // Create new app instance
-      createInstance: function(data) {
-        var appInstance = new vtApps.VtAppWindow(this, data);
+      createInstance: function(data,divid) {
+        var appInstance = new vtApps.VtAppWindow(this, data,divid);
         this.instances.push(appInstance);
         return appInstance;
       },
@@ -190,12 +190,13 @@ var vtApps = (function($) {
     };
     
     // Class for app instances
-    VtAppWindow = VtApps.prototype.VtAppWindow = function(launcher, data) {
-      this.init(launcher, data);
+    VtAppWindow = VtApps.prototype.VtAppWindow = function(launcher, data, divid) {
+      this.init(launcher, data, divid);
     };
     VtAppWindow.prototype = {
       launcher: null,
       id: null,
+      divid: null,
       top: null,
       left: null,
       width: null,
@@ -205,7 +206,7 @@ var vtApps = (function($) {
       onscreen: false,
       resizeTimeout: false,
       // Init app instance from data provided
-      init: function(launcher, data) {
+      init: function(launcher, data, divid) {
         this.launcher = launcher;
         this.id = data.id;
         this.top = data.top;
@@ -224,8 +225,22 @@ var vtApps = (function($) {
     		  this.createWindow();
     		  break;
     	  case 'dashboard':
+    		  this.divid = divid;
+    		  setTimeout($.proxy(this.onLoad, this), 0);
     		  break;
     	  }
+      },
+      getmydivid: function() {
+    	  retval = '';
+    	  if (this.divid!=null) {
+    		  retval = this.divid;
+    	  } else {
+	    	  var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+	    	  var attrid = treeview.element.find("span[splitprops*='vtappid"+'":"'+this.id+"']").attr('id');
+	    	  retval = attrid.substring(attrid.indexOf('-')+1);
+	    	  this.divid = retval;
+    	  }
+    	  return retval;
       },
       // Show app window
       show: function() {
@@ -266,6 +281,23 @@ var vtApps = (function($) {
         this.ajaxRequest('windowOnScreen', [ 1 ]);  // save state change of window
 		  break;
 	  case 'dashboard':
+		  divid = this.getmydivid();
+		  toolbar = '';
+          if (this.launcher.clonable && this.launcher.canhide) {
+        	  toolbar += '<span id="evvtappTitleBarToolsDestroy-'+divid+'" class="evvtappTitleBarToolsDestroy"></span>';
+          }
+          toolbar += '<span id="evvtappTitleBarToolsRefresh-'+divid+'" class="evvtappTitleBarToolsRefresh"></span>';
+	      if (this.launcher.editable) {
+	       	toolbar += '<span id="evvtappTitleBarToolsEdit-'+divid+'" class="evvtappTitleBarToolsEdit"></span>';
+	      }
+		  $('#evvtappTitleBarTools-'+divid).html(toolbar);
+          if (this.launcher.clonable && this.launcher.canhide) {
+        	  $('#evvtappTitleBarToolsDestroy-'+divid).click($.proxy(function() { this.launcher.removeInstance(this); return false; }, this));
+          }
+          $('#evvtappTitleBarToolsRefresh-'+divid).click($.proxy(function() { this.refresh(); return false; }, this));
+	      if (this.launcher.editable) {
+	       	$('#evvtappTitleBarToolsEdit-'+divid).click($.proxy(this.onEdit, this));
+	      }
 		  break;
 	  }
       },
@@ -285,6 +317,23 @@ var vtApps = (function($) {
         $(document).unbind('vta.'+this.id);
 		  break;
 	   case 'dashboard':
+		var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+		var atributos = treeview.element.find("span[splitprops*='vtappid"+'":"'+this.id+"']");
+		var treenode = atributos.closest('li');
+		var attrid = atributos.attr('id');
+		var divid = attrid.substring(attrid.indexOf('-')+1);
+		activateSaveRefreshButton();
+		var splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
+       	splitprops.vtappid = 0;
+        sprops = JSON.stringify(splitprops);
+        atributos.attr("splitprops",sprops);
+    	$('#evvtappContentDiv-' + divid).html('');
+    	$('#evvtappTitleBarTitle-' + divid).html('');
+    	$('#evvtappTitleBarTools-' + divid).html('');
+    	newtext = vtApps.launchers[0].translate('vtApp Container');
+    	newimage = 'evvtdbcol';
+        changeTreenodeContent(treenode,newtext,newimage);
+        $("#evvtSplitvtAppid").data("kendoDropDownList").dataSource.data(getAppDropdownData());
 		  break;
 	   }
       },
@@ -360,6 +409,8 @@ var vtApps = (function($) {
         kWin.title(title);
 		  break;
     	  case 'dashboard':
+    		  divid = this.getmydivid();
+    		  $('#evvtappTitleBarTitle-'+divid).html(title);
     		  break;
     	  }
       },
@@ -385,6 +436,13 @@ var vtApps = (function($) {
         });
 		  break;
     	  case 'dashboard':
+    		  divid = this.getmydivid();
+    		  $('#evvtappContentDiv-'+divid).html(content);
+    		  $('#evvtappContentDiv-'+divid+' *').each(function(index) {
+    	            if ($(this).attr('id')) {
+    	                $(this).attr('id', 'vtapp-id-'+id+'-'+$(this).attr('id'));
+    	              }
+    	          });
     		  break;
     	  }
       },
@@ -563,7 +621,7 @@ function setCanvas2DashboardWithData(dblayout) {
         	selectTreeElement(e.node);
         },
         dragend: function (e) {
-        	activateSaveRereshButton();
+        	activateSaveRefreshButton();
         },
         collapse: function (e) {
         	$('#evvtDBETCollapseExpand').removeClass('evvtDashboardEditorToolActive').addClass('evvtDashboardEditorToolUnactive');
@@ -588,7 +646,7 @@ function setCanvas2DashboardWithData(dblayout) {
             if(vrfy_delt) {
             	$('#evvtdbhighlightpane').remove();
             	recursiveDeleteNode(treeview, selectedNode);
-	            activateSaveRereshButton();
+	            activateSaveRefreshButton();
             }
         });
         $(document).on("click", "#evvtDBETAddRowLayout", function() {
@@ -601,7 +659,7 @@ function setCanvas2DashboardWithData(dblayout) {
             		newelem = getNewItemElement();
             	}
 	            treeview.insertAfter(newelem, selectedNode);
-	            activateSaveRereshButton();
+	            activateSaveRefreshButton();
             }
         });
         $(document).on("click", "#evvtDBETAddvtAppCell", function() {
@@ -614,7 +672,7 @@ function setCanvas2DashboardWithData(dblayout) {
             		newelem = getNewGroupElement();
             	}
             	treeview.append(newelem, selectedNode);
-            	activateSaveRereshButton();
+            	activateSaveRefreshButton();
             }
         });
         $(document).on("click", "#evvtDBETCollapseExpand", function() {
@@ -669,10 +727,21 @@ function setCanvas2DashboardWithData(dblayout) {
         // now the content panes
         $("#evvtDashboardDesigner").kendoSplitter({
         	orientation: "horizontal",
-        	collapse: function(p) {$('#evvtdbhighlightpane').remove();},
+        	collapse: function(p) {
+        		$('#evvtdbhighlightpane').remove();
+        		$('div[evvttype="item"]').unbind('click');
+        	},
+        	expand: function(p) {
+        		$('div[evvttype="item"]').each(function (idx,item) {
+        			$(item).bind('click',function (e) {
+        				divappid = this.id.substring(this.id.indexOf('-')+1);
+        				selectTreeElement($('#evvtdbappdata-'+divappid).closest('li'),true);
+        			});
+        		});
+        	},
             panes: [
                 { collapsible: false, size: "80%" },
-                { collapsible: true, size: "20%" }
+                { collapsible: true, size: "20%", collapsed: true }
             ]
         });
         $("#evvtDashboardEditor").kendoSplitter({
@@ -687,6 +756,10 @@ function setCanvas2DashboardWithData(dblayout) {
         });
         // now the layout
         paintLayoutOnCanvas();
+        selectTreeElement(treeview.element.find('.k-group').children('li').first(),true);
+        $('#evvtdbhighlightpane').remove();
+		//var splitter = $('#evvtDashboardDesigner').data("kendoSplitter");
+		//splitter.collapse('#evvtDashboardEditor');
         evvtDoingDashboardPaint = false;
 }
 
@@ -736,9 +809,32 @@ function paintLayoutOnCanvas() {
 		}
 		$(ksplitdiv).kendoSplitter(ksplit);
 	});
-	$(window).resize(evvttriggerResize);	
+	/**  click event is not set because editor panel is hidden by default
+	 *  this code must be activated if editor panel is open by default
+	 *  
+	$('div[evvttype="item"]').each(function (idx,item) {
+		$(item).bind('click',function (e) {
+			divappid = this.id.substring(this.id.indexOf('-')+1);
+			selectTreeElement($('#evvtdbappdata-'+divappid).closest('li'),true);
+		});
+	});
+	*/
+	$(window).resize(evvttriggerResize);
+	fillinpanes();
 	evvtDoingDashboardPaint = false;
 	return true;
+}
+
+function fillinpanes() {
+	var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		atributos = treeview.element.find("span[splitprops*='vtappid"+'":"'+vtApps.launchers[launch].instances[inst].id+"']");
+       		if (atributos.length>0) { // assigned to some pane
+       			vtApps.launchers[launch].instances[inst].show();
+       		}
+       	}
+    }
 }
 
 function selectTreeElement(enode,selnode) {
@@ -769,7 +865,7 @@ function selectTreeElement(enode,selnode) {
 	showdbproperties(atributos);
 }
 
-function activateSaveRereshButton() {
+function activateSaveRefreshButton() {
 	$('#evvtDBETSave').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
 	$('#evvtDBETRefresh').removeClass('evvtDashboardEditorToolUnactive').addClass('evvtDashboardEditorToolActive');
 }
@@ -807,10 +903,11 @@ function treeToLayout(treeview, root) {
         	for ( var it = 0; it < items.length; it++) {
         		result = result + items[it].toString();
 			}
+        	startdiv = startdiv + ' evvttype="group">';
         } else {
-        	startdiv = startdiv + ' onclick="javascript:selectTreeElement($(\'#evvtdbappdata-'+divappid+'\').closest(\'li\'),true);"';
+        	startdiv = startdiv + ' evvttype="item">';
         }
-        result = startdiv + '>' + result + '</div>';
+        result = startdiv + result + '</div>';
         return result;
       });
 }
@@ -1116,7 +1213,7 @@ function getAppDropdownData() {
 	for(var launch=0; launch<vtApps.launchers.length; launch++) {
 		if (!vtApps.launchers[launch].canshow) continue;  // can't pick from the ones you can't show
 		if (vtApps.launchers[launch].clonable) {
-			data = {"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": launch, "action": 1, "icon": vtApps.launchers[launch].iconPath, "title": vtApps.launchers[launch].shortDescription };
+			data = {"operation": "modules/evvtApps/images/assignapp16.png", "vtappid": launch, "vtlaunch": launch, "action": 1, "icon": vtApps.launchers[launch].iconPath, "title": vtApps.launchers[launch].shortDescription };
 			dataobj.push(data);
 		}
        	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
@@ -1154,36 +1251,52 @@ function assignAppDropdown() {
             if (!jQuery.isEmptyObject(tvsel)) {
 	            var atributos = tvsel.find("> div span span[atributos]");
 	            if (!jQuery.isEmptyObject(atributos)) {
-	            	activateSaveRereshButton();
+	            	activateSaveRefreshButton();
 	                divid = atributos.attr('id').substring(14);
 	                divappid = '#evvtappContentDiv-' + divid;
 	            	appinfo = this.dataItem(e.item.index());
 		            var splitprops = jQuery.parseJSON(atributos.attr("splitprops"));
 		            switch (appinfo.action) {
 		            case 0:  // 0 empty the selected pane. will unassign any currently assigned instance, leaving it free to be assigned elsewhere
+		            	newdropdownvalue = 0;
 		            	splitprops.vtappid = 0;
-		            	$(divappid).html('0');
+		            	$(divappid).html('');
+		            	$('#evvtappTitleBarTitle-' + divid).html('');
+		            	$('#evvtappTitleBarTools-' + divid).html('');
 		            	newtext = vtApps.launchers[0].translate('vtApp Container');
 		            	newimage = 'evvtdbcol';
+		                sprops = JSON.stringify(splitprops);
+		                atributos.attr("splitprops",sprops);
+		                changeTreenodeContent(tvsel,newtext,newimage);
 		            	break;
 		            case 1:  // 1 new instance in the selected pane. will unassign any currently assigned instance, leaving it free to be assigned elsewhere
-		            	newinst = appinfo.vtappid; // createinstance
-		            	splitprops.vtappid = newinst;
-		            	$(divappid).html('new');
-		            	newtext = vtApps.launchers[appinfo.vtappid].shortDescription;
+		            	vtApps.launchers[appinfo.vtlaunch].newInstance(divid);
+		            	splitprops.vtlaunch = appinfo.vtlaunch;
+		            	splitprops.vtinst = vtApps.launchers[appinfo.vtlaunch].instances.length - 1;
+		            	splitprops.vtappid = vtApps.launchers[appinfo.vtlaunch].instances[splitprops.vtinst].id;
+		            	newtext = vtApps.launchers[splitprops.vtlaunch].instances[splitprops.vtinst].title;
 		            	newimage = 'evvtdbapp';
+		                sprops = JSON.stringify(splitprops);
+		                atributos.attr("splitprops",sprops);
+		                changeTreenodeContent(tvsel,newtext,newimage);
+		                newdropdownvalue = splitprops.vtappid;
 		            	break;
 		            case 2:  // 2 assign instance to the selected pane. will unassign any currently assigned instance, leaving it free to be assigned elsewhere
 		            	splitprops.vtappid = appinfo.vtappid;
-		            	$(divappid).html(appinfo.vtappid);
 		            	newtext = vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].title;
 		            	newimage = 'evvtdbapp';
+		                sprops = JSON.stringify(splitprops);
+		                atributos.attr("splitprops",sprops);
+		                changeTreenodeContent(tvsel,newtext,newimage);
+		            	vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].show();
+		            	newdropdownvalue = splitprops.vtappid;
 		            	break;
 		            case 3:  // 3 swap instance with the selected pane
 		            	swpattrinfo = treeview.element.find("span[splitprops*='vtappid"+'":"'+appinfo.vtappid+"']");
 		            	swpnode = swpattrinfo.closest('li');
 		            	swpattr = jQuery.parseJSON(swpattrinfo.attr("splitprops"));
 		            	swpattr.vtappid = splitprops.vtappid;
+		            	swpdivid =  swpattrinfo.attr('id').substring(14);
 		                sprops = JSON.stringify(swpattr);
 		                swpattrinfo.attr("splitprops",sprops);
 		                swptext = tvsel.find('div > span').text().replace(/\n|\t/g,'').trim();
@@ -1197,17 +1310,24 @@ function assignAppDropdown() {
 		                }
 		                changeTreenodeContent(swpnode,swptext,swpcls);
 		            	splitprops.vtappid = appinfo.vtappid;
-		            	$(divappid).html(appinfo.vtappid);
-		            	$('#evvtappContentDiv-' + swpattrinfo.attr('id').substring(14)).html(swpattr.vtappid);
 		            	newtext = vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].title;
 		            	newimage = 'evvtdbapp';
+		                sprops = JSON.stringify(splitprops);
+		                atributos.attr("splitprops",sprops);
+		                changeTreenodeContent(tvsel,newtext,newimage);
+		                if (appinfo.vtappid>0) {
+		                	vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].divid = divid;
+		                	vtApps.launchers[appinfo.vtlaunch].instances[appinfo.vtinst].show();
+		                }
+		                if (swpattr.vtappid>0) {
+		                	showvtAppWithId(swpattr.vtappid,swpdivid);
+		                }
+		                newdropdownvalue = splitprops.vtappid;
 		            	break;
 		            }
-	                sprops = JSON.stringify(splitprops);
-	                atributos.attr("splitprops",sprops);
-	                changeTreenodeContent(tvsel,newtext,newimage);
 	                this.dataSource.data(getAppDropdownData());
 	                //this.dataSource.read();
+	                this.value(newdropdownvalue);
 	            }
             }
         }
@@ -1223,6 +1343,21 @@ function changeTreenodeContent(treenode,newtext,newimage) {
 	html1 = htmlspan.html().substring(0,htmlspan.html().indexOf('</span>')+7)+newtext;
 	html2 = htmlspan.html().substring(htmlspan.html().indexOf('<span id'));
 	htmlspan.html(html1+html2);
+}
+
+function showvtAppWithId(vtappid,swpdivid) {
+	found = false;
+	for(var launch=0; launch<vtApps.launchers.length; launch++) {
+       	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
+       		found = (vtApps.launchers[launch].instances[inst].id==vtappid);
+       		if (found) break;
+       	}
+       	if (found) break;
+    }
+	if (found) {
+		vtApps.launchers[launch].instances[inst].divid = swpdivid;
+		vtApps.launchers[launch].instances[inst].show();
+	}
 }
 
 function getdbproperty(treenode,attrname) {
@@ -1251,7 +1386,7 @@ function setdbproperty(treenode,attrname,attrvalue) {
         splitprops[attrname] = attrvalue;
         sprops = JSON.stringify(splitprops);
         atributos.attr("splitprops",sprops);
-        activateSaveRereshButton();
+        activateSaveRefreshButton();
     }
 }
 
@@ -1347,7 +1482,7 @@ function doSizeChange(valor) {
 function doSplitterSizeChange(splitterdiv) {
 	if (!evvtDoingDashboardPaint) {
 		evvtDoingDashboardPaint = true;
-		activateSaveRereshButton();
+		activateSaveRefreshButton();
 		var treeview = $("#evvtDashboardEditorTreeview").data("kendoTreeView");
 		var divappid = splitterdiv.substring(splitterdiv.indexOf('-')+1);
 		var root = $('#evvtdbappdata-'+divappid).closest('li');
