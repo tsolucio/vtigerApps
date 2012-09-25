@@ -1,0 +1,9 @@
+.comtsoluciokeymetrics_editbox {
+  width: 98%;
+  margin: 4px auto;
+  border: 5px ridge #98bf21;
+  padding: 3px;
+}
+.comtsoluciokeymetrics_editbox select {
+  vertical-align: top;
+}
