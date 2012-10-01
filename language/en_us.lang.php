@@ -35,5 +35,6 @@ $vtapps_js = Array(
 'My Dashboard Layout' => 'My Dashboard Layout',
 'Row Layout' => 'Row Layout',
 'vtApp Container' => 'vtApp Container',
+'DashboardEditor' => 'Dashboard Editor',
 );
 ?>

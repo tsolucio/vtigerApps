@@ -35,7 +35,7 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 <div id="evvtheader">
   <div id="evvtheaderLeft"><img src="<?php echo $mypath; ?>/images/evolutivo.png" id="evvtAboutUsImage" onClick="javascript:evvtShowAboutUs();"/></div>
   <div id="evvtheaderRight">
-  <a id="evvtDashboardEditorButton" href="javascript:void(0)" onclick="toggleDashboardEditor();"><img src="themes/<?php echo $theme; ?>/images/settingsBox.png"></a>
+  <a id="evvtDashboardEditorButton" href="javascript:void(0)" onclick="toggleDashboardEditor();"><img src="<?php echo $mypath; ?>/images/editdashboard.png"></a>
   <div id="evvtHeaderDesc"></div><div style="float:right;height:45px;" onClick="javascript:jumpToMenu();"><img src="<?php echo $mypath; ?>/images/showpanel.png" id="evvtHeaderJumpTo" style="display:none;"/></div><div style="float:right;"><img src="<?php echo $mypath; ?>/images/blank.png" id="evvtHeaderImage"/></div></div>
   <div id="evvtheaderCenter">
   	<img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='windows' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg1"><img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='dashboard' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg2"><img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='allapps' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg3">
@@ -49,11 +49,9 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 <div id="evvtleftButton"<?php if ($evvtcanvas!='allapps') echo ' style="display:none;"'; ?>><input type="button" value="<" onClick="move2NextApp(-1)"></div>
 <div id="evvtCanvas" class="evvtCanvas"><ul id="launchers"></ul></div>
 <div id="evvtDashboardCanvas" style='display:none;width:100%;height:610px;margin:auto'>
-  <div id="evvtDashboardDesigner" style="height: 100%;">
-    <div id="evvtDashboardLayout" style="height: 100%; width: 80%;"></div>
-  </div>
-  <div id="evvtDashboardEditorWindow">
-    <div id="evvtDashboardEditor" style="height: 800px">
+  <div id="evvtDashboardLayout" style="height: 100%; width: 100%;"></div>
+  <div id="evvtDashboardEditorWindow" style="height: 600px; width: 300px;">
+    <div id="evvtDashboardEditor">
       <div class="evvtDashboardEditorpane-content">
        <span class="evvtDashboardEditorMenuTop"><div style="float:left">&nbsp;</div>
         <div id="evvtDBETAddRowLayout" class="evvtDashboardEditorTool evvtDashboardEditorToolAddRowLayout evvtDashboardEditorToolUnactive"/></div>

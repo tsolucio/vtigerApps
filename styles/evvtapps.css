@@ -276,9 +276,16 @@ html, body {
     vertical-align: middle;
 }
 
+#evvtDashboardEditor {
+	height: 592px;
+	width: 292px;
+	margin: 0;
+	padding: 0;
+}
+
 .evvtDashboardEditorpane-content {
-	height: 50%;
-	width: 100%;
+	/* height: 50%; */
+	width: 95%;
 }
 
 .evvtDashboardEditorMenuTop {

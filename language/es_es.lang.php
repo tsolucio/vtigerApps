@@ -35,5 +35,6 @@ $vtapps_js = Array(
 'My Dashboard Layout' => 'Disposición Cuadro Mando',
 'Row Layout' => 'Fila',
 'vtApp Container' => 'Contenedor vtApp',
+'DashboardEditor' => 'Editor Cuadro Mando',
 );
 ?>

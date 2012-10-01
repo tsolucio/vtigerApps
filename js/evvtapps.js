@@ -727,42 +727,24 @@ function setCanvas2DashboardWithData(dblayout) {
         $('#evvtDashboardEditorPropview').hide();
         // now the content panes
         if (!dashboardeditorloaded) {
-        $("#evvtDashboardDesigner").kendoSplitter({
-        	orientation: "horizontal",
-        	collapse: function(p) {
-        		$('#evvtdbhighlightpane').remove();
-        		$('div[evvttype="item"]').unbind('click');
-        	},
-        	expand: function(p) {
-        		$('div[evvttype="item"]').each(function (idx,item) {
-        			$(item).bind('click',function (e) {
-        				divappid = this.id.substring(this.id.indexOf('-')+1);
-        				selectTreeElement($('#evvtdbappdata-'+divappid).closest('li'),true);
-        			});
-        		});
-        	},
-            panes: [
-                { collapsible: false, size: "80%" },
-                { collapsible: true, size: "20%", collapsed: true }
-            ]
-        });
         $("#evvtDashboardEditor").kendoSplitter({
             orientation: "vertical",
             panes: [
-                { collapsible: false, resizable: true, size: '50%' },
-                { collapsible: false, resizable: true, size: '50%' }
-            ],
-    		layoutChange: function(p){
-    			doSplitterSizeChange(p.sender.element[0].id);
-    		}
+                { collapsible: false, resizable: true, size: '364px' },
+                { collapsible: false, resizable: true, size: '200px' }
+            ]
         });
         $('#evvtDashboardEditorWindow').kendoWindow({
             width: '300px',
+            height: '600px',
+            title: vtApps.launchers[0].translate('DashboardEditor'),
             close: function() {
               if (!$('#evvtDashboardEditorWindow').data('closedByButton')) {
                 $('#evvtDashboardEditorWindow').data('visibility', false);
               }
               $('#evvtDashboardEditorWindow').data('closedByButton', false);
+              $('div[evvttype="item"]').unbind('click');
+              $('#evvtdbhighlightpane').remove();
             }
         });
         $('#evvtDashboardEditorWindow').data('visibility', true);
@@ -774,8 +756,6 @@ function setCanvas2DashboardWithData(dblayout) {
         paintLayoutOnCanvas();
         selectTreeElement(treeview.element.find('.k-group').children('li').first(),true);
         $('#evvtdbhighlightpane').remove();
-		var splitter = $('#evvtDashboardDesigner').data("kendoSplitter");
-		//splitter.collapse('#evvtDashboardEditor');
         evvtDoingDashboardPaint = false;
 }
 
@@ -827,14 +807,13 @@ function paintLayoutOnCanvas() {
 	});
 	/**  click event is not set because editor panel is hidden by default
 	 *  this code must be activated if editor panel is open by default
-	 *  
+	 */  
 	$('div[evvttype="item"]').each(function (idx,item) {
 		$(item).bind('click',function (e) {
 			divappid = this.id.substring(this.id.indexOf('-')+1);
 			selectTreeElement($('#evvtdbappdata-'+divappid).closest('li'),true);
 		});
 	});
-	*/
 	$(window).resize(evvttriggerResize);
 	fillinpanes();
 	evvtDoingDashboardPaint = false;
@@ -876,7 +855,7 @@ function selectTreeElement(enode,selnode) {
 	$('#evvtdbhighlightpane').remove();
 	$('#evvtdbappdiv-'+divid).append('<div id="evvtdbhighlightpane" class="evvtdbhighlightpane"></div>');
 	$('#evvtdbhighlightpane').width($('#evvtdbappdiv-'+divid).width()-5);
-	$('#evvtdbhighlightpane').height($('#evvtdbappdiv-'+divid).height()-5);
+	$('#evvtdbhighlightpane').height($('#evvtdbappdiv-'+divid).height()-4);
 	$('#evvteditingdiv').val('#evvtdbappdiv-'+divid);
 	showdbproperties(atributos);
 }
@@ -1560,7 +1539,7 @@ function doScrollChange(valor) {
 }
 
 function evvttriggerResize() {
-    $("#evvtDashboardDesigner").data("kendoSplitter").trigger("resize");
+    $("#evvtDashboardLayout").data("kendoSplitter").trigger("resize");
 }
 
 function changeDefaultCanvas(newcanvas) {
@@ -1653,11 +1632,19 @@ function toggleDashboardEditor() {
     if (jWindow.data('visibility')) {
       kWin.close();
       jWindow.data('visibility', false);
+      $('div[evvttype="item"]').unbind('click');
+      $('#evvtdbhighlightpane').remove();
     }
     else {
       kWin.open();
       kWin.toFront();
       jWindow.data('visibility', true);
+  	$('div[evvttype="item"]').each(function (idx,item) {
+		$(item).bind('click',function (e) {
+			divappid = this.id.substring(this.id.indexOf('-')+1);
+			selectTreeElement($('#evvtdbappdata-'+divappid).closest('li'),true);
+		});
+	});
     }
   }
 }
@@ -1670,6 +1657,8 @@ function hideDashboardEditor() {
     kWin.close();
   }
   $('#evvtDashboardEditorButton').hide();
+  $('div[evvttype="item"]').unbind('click');
+  $('#evvtdbhighlightpane').remove();
 }
 
 function showDashboardEditor() {
