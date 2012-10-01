@@ -34,7 +34,9 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 <div id= "evvtheadercontainer">
 <div id="evvtheader">
   <div id="evvtheaderLeft"><img src="<?php echo $mypath; ?>/images/evolutivo.png" id="evvtAboutUsImage" onClick="javascript:evvtShowAboutUs();"/></div>
-  <div id="evvtheaderRight"><div id="evvtHeaderDesc"></div><div style="float:right;height:45px;" onClick="javascript:jumpToMenu();"><img src="<?php echo $mypath; ?>/images/showpanel.png" id="evvtHeaderJumpTo" style="display:none;"/></div><div style="float:right;"><img src="<?php echo $mypath; ?>/images/blank.png" id="evvtHeaderImage"/></div></div>
+  <div id="evvtheaderRight">
+  <a id="evvtDashboardEditorButton" href="javascript:void(0)" onclick="toggleDashboardEditor();"><img src="themes/<?php echo $theme; ?>/images/settingsBox.png"></a>
+  <div id="evvtHeaderDesc"></div><div style="float:right;height:45px;" onClick="javascript:jumpToMenu();"><img src="<?php echo $mypath; ?>/images/showpanel.png" id="evvtHeaderJumpTo" style="display:none;"/></div><div style="float:right;"><img src="<?php echo $mypath; ?>/images/blank.png" id="evvtHeaderImage"/></div></div>
   <div id="evvtheaderCenter">
   	<img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='windows' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg1"><img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='dashboard' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg2"><img src="<?php echo $mypath; ?>/images/<?php echo ($defaultcanvas=='allapps' ? 'selectedcanvas' : 'blank'); ?>.png" id="defaultcanvasimg3">
     <a href="javascript:void(0);" id="evvthcwin" onClick="makeContent('windows')" <?php if ($evvtcanvas=='windows') echo 'class="evvtheaderCenterActive"'; ?>><?php echo getTranslatedString('Windows',$currentModule); ?></a>
@@ -49,7 +51,9 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 <div id="evvtDashboardCanvas" style='display:none;width:100%;height:610px;margin:auto'>
   <div id="evvtDashboardDesigner" style="height: 100%;">
     <div id="evvtDashboardLayout" style="height: 100%; width: 80%;"></div>
-    <div id="evvtDashboardEditor" style="height: 800px; width: 20%;">
+  </div>
+  <div id="evvtDashboardEditorWindow">
+    <div id="evvtDashboardEditor" style="height: 800px">
       <div class="evvtDashboardEditorpane-content">
        <span class="evvtDashboardEditorMenuTop"><div style="float:left">&nbsp;</div>
         <div id="evvtDBETAddRowLayout" class="evvtDashboardEditorTool evvtDashboardEditorToolAddRowLayout evvtDashboardEditorToolUnactive"/></div>
@@ -61,7 +65,7 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
        <div id="evvtDashboardEditorTreeview" style="width:100%"></div>
        <script id="evvtDashboardEditorTreeview-template" type="text/kendo-ui-template">
             #= item.text #
-			<span id="evvtdbappdata-#= item.id #" atributos="evvtinfo" splitprops='#= item.splitprops #'>&nbsp;&nbsp;</span>
+      <span id="evvtdbappdata-#= item.id #" atributos="evvtinfo" splitprops='#= item.splitprops #'>&nbsp;&nbsp;</span>
             <a href='javascript:void(0);'></a>
        </script>
       </div>
@@ -69,38 +73,38 @@ $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
        <span  class="evvtDashboardEditorMenuTop"><?php echo getTranslatedString('MenuAppProps',$currentModule); ?><input type="hidden" id="evvteditingdiv"/></span>
        <div id="evvtDashboardEditorPropview" style="width:100%">
        <div id="evvtDashboardEditorProps" style="width:100%">
-       	<div id="evvtSplitvtAppidDiv" class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitvtAppid',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitvtAppid" type="hidden" /></div>
-		</div>
-       	<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitSize',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitSize" type="number" size=4 value="" /></div>
-		</div>
-       	<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitMax',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitMax" type="number" size=4 value="" /></div>
-		</div>
-       	<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitMin',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitMin" type="number" size=4 value="" /></div>
-		</div>
-       	<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitResize',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitResize" type="checkbox" onchange="javascript:doResizeChange(this.checked);" /></div>
-		</div>
-       	<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitScroll',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitScroll" type="checkbox" onchange="javascript:doScrollChange(this.checked);" /></div>
-		</div>
-		<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsed',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitCollapsed" type="checkbox" onchange="javascript:doCollapsedChange(this.checked,true);" /></div>
-		</div>
-       	<div class="evvtPropertyItem">
-			<div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsable',$currentModule); ?></div>
-			<div class="evvtPropertycol2"><input id="evvtSplitCollapsable" type="checkbox" onchange="javascript:doCollapsibleChange(this.checked);" /></div>
-		</div>
+        <div id="evvtSplitvtAppidDiv" class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitvtAppid',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitvtAppid" type="hidden" /></div>
+    </div>
+        <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitSize',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitSize" type="number" size=4 value="" /></div>
+    </div>
+        <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitMax',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitMax" type="number" size=4 value="" /></div>
+    </div>
+        <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitMin',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitMin" type="number" size=4 value="" /></div>
+    </div>
+        <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitResize',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitResize" type="checkbox" onchange="javascript:doResizeChange(this.checked);" /></div>
+    </div>
+        <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitScroll',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitScroll" type="checkbox" onchange="javascript:doScrollChange(this.checked);" /></div>
+    </div>
+    <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsed',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitCollapsed" type="checkbox" onchange="javascript:doCollapsedChange(this.checked,true);" /></div>
+    </div>
+        <div class="evvtPropertyItem">
+      <div class="evvtPropertycol1"><?php echo getTranslatedString('splitCollapsable',$currentModule); ?></div>
+      <div class="evvtPropertycol2"><input id="evvtSplitCollapsable" type="checkbox" onchange="javascript:doCollapsibleChange(this.checked);" /></div>
+    </div>
        </div>
       </div>
     </div>

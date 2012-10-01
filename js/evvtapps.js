@@ -756,6 +756,18 @@ function setCanvas2DashboardWithData(dblayout) {
     			doSplitterSizeChange(p.sender.element[0].id);
     		}
         });
+        $('#evvtDashboardEditorWindow').kendoWindow({
+            width: '300px',
+            close: function() {
+              if (!$('#evvtDashboardEditorWindow').data('closedByButton')) {
+                $('#evvtDashboardEditorWindow').data('visibility', false);
+              }
+              $('#evvtDashboardEditorWindow').data('closedByButton', false);
+            }
+        });
+        $('#evvtDashboardEditorWindow').data('visibility', true);
+        $('#evvtDashboardEditorWindow').data('closedByButton', false);
+        $('#evvtDashboardEditorWindow').data('kendoWindow').center();
         dashboardeditorloaded = true;
         }
         // now the layout
@@ -763,7 +775,7 @@ function setCanvas2DashboardWithData(dblayout) {
         selectTreeElement(treeview.element.find('.k-group').children('li').first(),true);
         $('#evvtdbhighlightpane').remove();
 		var splitter = $('#evvtDashboardDesigner').data("kendoSplitter");
-		splitter.collapse('#evvtDashboardEditor');
+		//splitter.collapse('#evvtDashboardEditor');
         evvtDoingDashboardPaint = false;
 }
 
@@ -1008,6 +1020,7 @@ function makeContent(contentName){
 	evvtcanvas = contentName;
 	switch (contentName) {
 	  case 'windows':
+	    hideDashboardEditor();
 		evvtAllAppsDataReceived({'icon':'modules/evvtApps/images/blank.png', 'description':''});
 		jQuery("#evvtHeaderJumpTo").hide();
         jQuery("#evvtleftButton").hide();
@@ -1019,6 +1032,7 @@ function makeContent(contentName){
 		setCanvas2Window();
 		break;
 	  case 'dashboard':
+	    showDashboardEditor();
 		evvtAllAppsDataReceived({'icon':'modules/evvtApps/images/blank.png', 'description':''});
 		jQuery("#evvtHeaderJumpTo").hide();
 		hideAllInstances();
@@ -1030,6 +1044,7 @@ function makeContent(contentName){
         setCanvas2Dashboard();
 		break;
 	  case 'allapps':
+	    hideDashboardEditor();
 		hideAllInstances();
 		jQuery("#evvtHeaderJumpTo").show();
         jQuery("#evvtleftButton").show();
@@ -1630,3 +1645,39 @@ function getSplitterPanes(splitter) {
 }
  * 
  */
+
+function toggleDashboardEditor() {
+  var jWindow = $('#evvtDashboardEditorWindow');
+  var kWin = jWindow.data('kendoWindow');
+  if (kWin) {
+    if (jWindow.data('visibility')) {
+      kWin.close();
+      jWindow.data('visibility', false);
+    }
+    else {
+      kWin.open();
+      kWin.toFront();
+      jWindow.data('visibility', true);
+    }
+  }
+}
+
+function hideDashboardEditor() {
+  var jWindow = $('#evvtDashboardEditorWindow');
+  var kWin = jWindow.data('kendoWindow');
+  if (kWin && jWindow.data('visibility')) {
+    jWindow.data('closedByButton', true);
+    kWin.close();
+  }
+  $('#evvtDashboardEditorButton').hide();
+}
+
+function showDashboardEditor() {
+  var jWindow = $('#evvtDashboardEditorWindow');
+  var kWin = jWindow.data('kendoWindow');
+  if (kWin && jWindow.data('visibility')) {
+    kWin.open();
+    kWin.toFront();
+  }
+  $('#evvtDashboardEditorButton').show();
+}
