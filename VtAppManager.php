@@ -207,10 +207,11 @@ class VtAppManager {
 
 	public function getDashboardLayout() {
 		global $current_user,$adb;
+		$ret = '{}';
 		$query = "select dashboarddata from vtiger_evvtappscanvas where userid={$current_user->id}";
-		$ret = $adb->getone($query);
-		if (empty($ret)) {
-			$ret = '{}';
+		$res = $adb->query($query);
+		if ($adb->num_rows($res)>0) {
+		  $ret = $adb->query_result($res, 0, 0);
 		}
 		return $ret;
 	}
@@ -232,10 +233,11 @@ class VtAppManager {
 
 	public function getCanvasDefault() {
 		global $current_user,$adb;
+		$ret = 'windows';
 		$query = "select defaultcanvas from vtiger_evvtappscanvas where userid={$current_user->id}";
-		$ret = $adb->getone($query);
-		if (empty($ret)) {
-			$ret = 'windows';
+		$res = $adb->query($query);
+		if ($adb->num_rows($res)>0) {
+		  $ret = $adb->query_result($res, 0, 0);
 		}
 		return $ret;
 	}
