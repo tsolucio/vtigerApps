@@ -55,8 +55,8 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	    $item = array(
 	      'id' => $userId,
 	      'username' => $userName,
-	      'startdate' => '',
-	      'enddate' => '',
+	      'startdate' => $this->startDate,
+	      'enddate' => $this->endDate,
 	      );
 	    foreach ($metriclists as $key => $metriclist) {
 	      $queryGenerator = new QueryGenerator($metriclist['module'], $user);
