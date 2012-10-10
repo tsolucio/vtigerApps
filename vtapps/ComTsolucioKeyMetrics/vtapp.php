@@ -13,7 +13,7 @@ class ComTsolucioKeyMetrics extends vtAppBase {
   public $endDate;
   public $users;
   
-	public function getContent() {
+	public function getContent($onlydata=false) {
 	  global $adb, $current_user;
 	  
 	  require('user_privileges/user_privileges_'.$current_user->id.'.php');
@@ -105,7 +105,16 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	  $dateFormat = str_replace('mm', 'MM', $current_user->date_format);
 	  $startDate = DateTimeField::convertToUserFormat($this->startDate);
 	  $endDate = DateTimeField::convertToUserFormat($this->endDate);
-	  
+
+	  if ($onlydata) {
+	  	return array(
+	  			'startdate'=>$startDate,
+	  			'endDate'=>$endDate,
+	  			'users'=>$usersOptions,
+	  			'data'=>$data,
+	  			'columns'=>$columns
+	  			);
+	  }
 		$template = 'template.php';
 		ob_start();
 		require($this->getPath($template));
@@ -131,5 +140,40 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 		$this->users = $users;
 	}
 
+	public function getExcelExport() {
+		header("Content-Type: application/excel");
+		header("Content-Type: application/download");
+		header("Pragma: public");
+		header("Cache-Control: private");
+		header("Content-Disposition: attachment; filename=keymetric.xls");
+		header("Content-Description: vtapps download");
+		$info = $this->getContent(true);
+		$xls = $info['startdate'].';'.$info['endDate'].';';
+		foreach($info['users'] as $userId=>$userName) {
+			$xls.=$userName.';';
+		}
+		$xls.="\n";
+		foreach($info['columns'] as $colinfo) {
+			$xls.=$colinfo['title'].';';
+		}
+		$xls.="\n";
+		$aggs = array();
+		foreach($info['data'] as $dataRow) {
+			foreach ($dataRow as $key => $value) {
+				if ($key=='id') continue;
+				if (is_numeric($value)) {
+					$aggs[$key] = $aggs[$key] + $value; 
+				}
+				$xls.=$value.';';;
+			}
+		}
+		$xls.="\n";
+		$xls.=";;;";
+		foreach($aggs as $aggregate) {
+			$xls.=$aggregate.';';
+		}
+		$xls.="\n";
+		return $xls;
+	}
 }
 ?>

@@ -1,5 +1,5 @@
 <div id="editgrid" class="comtsoluciokeymetrics_editbox" style="display: <?php echo $this->getPin()? 'block' : 'none'; ?>">
-<span style="text-align:right;"><img align="right" width="16px" id="editpin" src="<?php echo $this->getPath($this->getPin()? 'pin_disabled.gif' : 'pin_enabled.gif'); ?>"></span>
+<span style="text-align:right;"><img align="right" width="16px" style="padding:4px" id="editpin" src="<?php echo $this->getPath($this->getPin()? 'pin_disabled.gif' : 'pin_enabled.gif'); ?>"><img align="right" width="16px" id="expxls" style="padding:4px" src="<?php echo $this->getPath('xls-file.jpg'); ?>"></span>
 <?php echo $this->translate('Start Date:'); ?>
 <input id="startdate-picker" format="<?php echo $dateFormat; ?>" value="<?php echo $startDate; ?>">
 <?php echo $this->translate('End Date:'); ?>
