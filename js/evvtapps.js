@@ -750,6 +750,7 @@ function setCanvas2DashboardWithData(dblayout) {
         $('#evvtDashboardEditorWindow').data('visibility', true);
         $('#evvtDashboardEditorWindow').data('closedByButton', false);
         $('#evvtDashboardEditorWindow').data('kendoWindow').center();
+        toggleDashboardEditor();
         dashboardeditorloaded = true;
         }
         // now the layout
@@ -1319,6 +1320,8 @@ function assignAppDropdown() {
 		                }
 		                if (swpattr.vtappid>0) {
 		                	showvtAppWithId(swpattr.vtappid,swpdivid);
+		                } else {
+		            		$('#evvtappContentDiv-'+swpdivid).html('');
 		                }
 		                newdropdownvalue = splitprops.vtappid;
 		            	break;
@@ -1355,6 +1358,9 @@ function showvtAppWithId(vtappid,swpdivid) {
 	if (found) {
 		vtApps.launchers[launch].instances[inst].divid = swpdivid;
 		vtApps.launchers[launch].instances[inst].show();
+	} else {
+		vtApps.launchers[launch].instances[inst].divid = 0;
+		$('#evvtappContentDiv-'+swpdivid).html('');
 	}
 }
 

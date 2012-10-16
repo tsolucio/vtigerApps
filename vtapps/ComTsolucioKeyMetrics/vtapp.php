@@ -7,17 +7,17 @@
 *************************************************************************************************/
 
 class ComTsolucioKeyMetrics extends vtAppBase {
-	
+
   public $lv_editpinned = false;
   public $startDate;
   public $endDate;
   public $users;
-  
+
 	public function getContent($onlydata=false) {
 	  global $adb, $current_user;
-	  
+
 	  require('user_privileges/user_privileges_'.$current_user->id.'.php');
-	  
+
 	  $ssql = "select vtiger_customview.* from vtiger_customview inner join vtiger_tab on vtiger_tab.name = vtiger_customview.entitytype where vtiger_customview.setmetrics = 1";
 	  if($is_admin == false){
 	    $ssql .= " and (vtiger_customview.status=0 or vtiger_customview.userid = {$current_user->id} or vtiger_customview.status =3 or vtiger_customview.userid in(select vtiger_user2role.userid from vtiger_user2role inner join vtiger_users on vtiger_users.id=vtiger_user2role.userid inner join vtiger_role on vtiger_role.roleid=vtiger_user2role.roleid where vtiger_role.parentrole like '".$current_user_parent_role_seq."::%'))";
@@ -37,16 +37,16 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	      }
 	    }
 	  }
-	  
+
 	  $subordinateUsers = array_merge(array($current_user->id), getSubordinateUsersList());
-	  
+
 	  if (empty($this->users)) {
 	    $users = $subordinateUsers;
 	  }
 	  else {
 	    $users = $this->users;
 	  }
-	  
+
 	  $data = array();
 	  foreach($users as $userId) {
 	    $user = CRMEntity::getInstance('Users');
@@ -55,15 +55,15 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	    $item = array(
 	      'id' => $userId,
 	      'username' => $userName,
-	      'startdate' => $this->startDate,
-	      'enddate' => $this->endDate,
+	      'startdate' => DateTimeField::convertToUserFormat($this->startDate,$current_user),
+	      'enddate' => DateTimeField::convertToUserFormat($this->endDate,$current_user),
 	      );
 	    foreach ($metriclists as $key => $metriclist) {
 	      $queryGenerator = new QueryGenerator($metriclist['module'], $user);
 	      $queryGenerator->initForCustomViewById($metriclist['id']);
 	      $metricsql = $queryGenerator->getQuery();
 	      //echo $metricsql, "<br>";
-	      $metricsql = preg_replace('/\( *([\w_]+\.[\w_]+) +BETWEEN +\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\' +AND +\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\' *\)/', "($1 BETWEEN '{$this->startDate}' AND '{$this->endDate}')", $metricsql);
+	      $metricsql = preg_replace('/\( *([\w_]+\.[\w_]+) +BETWEEN +\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\' +AND +\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\' *\)/', "($1 BETWEEN '{$this->startDate} 00:00:00' AND '{$this->endDate} 23:59:59')", $metricsql);
 	      //echo $metricsql, "<br>";
 	      $metricsql = mkCountQuery($metricsql);
 	      $metricresult = $adb->query($metricsql);
@@ -78,7 +78,7 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	    }
 	    $data[] = $item;
 	  }
-	  
+
 	  $columns = array(
 	    array('field' => 'username', 'title' => $this->translate('Asesores')),
 	    array('field' => 'startdate', 'title' => $this->translate('Inicio')),
@@ -96,12 +96,12 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	      'aggregate' => 'sum',
 	      );
 	  }
-	  
+
 	  $usersOptions = array();
 	  foreach($subordinateUsers as $subordinateUserId) {
 	    $usersOptions[$subordinateUserId] = $adb->getOne("select user_name from vtiger_users where id={$subordinateUserId}");
 	  }
-	  
+
 	  $dateFormat = str_replace('mm', 'MM', $current_user->date_format);
 	  $startDate = DateTimeField::convertToUserFormat($this->startDate);
 	  $endDate = DateTimeField::convertToUserFormat($this->endDate);
@@ -121,17 +121,17 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 		$output = ob_get_clean();
 		return $output;
 	}
-	
+
 	function getPin() {
 	  return $this->lv_editpinned;
 	}
-	
+
 	public function changePin() {
 		$this->lv_editpinned = !$this->lv_editpinned;
 		$imgpath=$this->getPath(($this->lv_editpinned ? 'pin_disabled.gif':'pin_enabled.gif'));
 		return json_encode($imgpath);
 	}
-	
+
 	public function setFilter($startDate,$endDate,$users) {
 	  $dbStartDate = DateTimeField::convertToDBFormat($startDate);
 	  $dbEndDate = DateTimeField::convertToDBFormat($endDate);
@@ -162,7 +162,7 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 			foreach ($dataRow as $key => $value) {
 				if ($key=='id') continue;
 				if (is_numeric($value)) {
-					$aggs[$key] = $aggs[$key] + $value; 
+					$aggs[$key] = $aggs[$key] + $value;
 				}
 				$xls.=$value.';';;
 			}
