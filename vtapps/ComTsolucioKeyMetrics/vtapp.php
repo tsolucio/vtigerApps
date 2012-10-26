@@ -38,13 +38,29 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	    }
 	  }
 
-	  $subordinateUsers = array_merge(array($current_user->id), getSubordinateUsersList());
-
-	  if (empty($this->users)) {
-	    $users = $subordinateUsers;
+	  $subordinateRoleAndUsers = getSubordinateRoleAndUsers(fetchUserRole($current_user->id));
+	  $subordinateUsers = array();
+	  foreach($subordinateRoleAndUsers as $roleId=>$users) {
+	    foreach($users as $userId=>$userName) {
+	      if (!in_array($userId, $subordinateUsers)) {
+	        $subordinateUsers[] = $userId;
+	      }
+	    }
+	  }
+	  if (!in_array($current_user->id, $subordinateUsers)) {
+	    $subordinateUsers[] = $current_user->id;
+	  }
+	  
+	  if (!empty($this->users)) {
+	    foreach($this->users as $k=>$userId) {
+	      if (!in_array($userId, $subordinateUsers)) {
+	        unset($this->users[$k]);
+	      }
+	    }
+	    $users = $this->users;
 	  }
 	  else {
-	    $users = $this->users;
+	    $users = $subordinateUsers;
 	  }
 
 	  $data = array();
@@ -55,25 +71,32 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	    $item = array(
 	      'id' => $userId,
 	      'username' => $userName,
-	      'startdate' => DateTimeField::convertToUserFormat($this->startDate,$current_user),
-	      'enddate' => DateTimeField::convertToUserFormat($this->endDate,$current_user),
+	      'startdate' => DateTimeField::convertToUserFormat($this->startDate, $current_user),
+	      'enddate' => DateTimeField::convertToUserFormat($this->endDate, $current_user),
 	      );
 	    foreach ($metriclists as $key => $metriclist) {
-	      $queryGenerator = new QueryGenerator($metriclist['module'], $user);
-	      $queryGenerator->initForCustomViewById($metriclist['id']);
-	      $metricsql = $queryGenerator->getQuery();
+	      $tmpCurrentUser = $current_user;
+	      $current_user = $user;
+	      if ($metriclist['module'] == "Calendar") {
+	        $listquery = getListQuery($metriclist['module']);
+	        $oCustomView = new CustomView($metriclist['module']);
+	        $metricsql = $oCustomView->getModifiedCvListQuery($metriclist['id'],$listquery,$metriclist['module']);
+	      }
+	      else {
+	        $queryGenerator = new QueryGenerator($metriclist['module'], $user);
+	        $queryGenerator->initForCustomViewById($metriclist['id']);
+	        $metricsql = $queryGenerator->getQuery();
+	      }
+	      $current_user = $tmpCurrentUser;
 	      //echo $metricsql, "<br>";
 	      $metricsql = preg_replace('/\( *([\w_]+\.[\w_]+) +BETWEEN +\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\' +AND +\'\d\d\d\d-\d\d-\d\d \d\d:\d\d:\d\d\' *\)/', "($1 BETWEEN '{$this->startDate} 00:00:00' AND '{$this->endDate} 23:59:59')", $metricsql);
+	      $metricsql = preg_replace('/\( *([\w_]+\.[\w_]+) +BETWEEN +\'\d\d\d\d-\d\d-\d\d\' +AND +\'\d\d\d\d-\d\d-\d\d\' *\)/', "($1 BETWEEN '{$this->startDate}' AND '{$this->endDate}')", $metricsql);
 	      //echo $metricsql, "<br>";
 	      $metricsql = mkCountQuery($metricsql);
 	      $metricresult = $adb->query($metricsql);
-	      if($metricresult) {
-	        if($metriclist['module'] == "Calendar") {
-	          $item['col_'.$key] = intval($adb->num_rows($metricresult));
-	        } else {
-	          $rowcount = $adb->fetch_array($metricresult);
-	          $item['col_'.$key] = intVal($rowcount['count']);
-	        }
+	      if ($metricresult) {
+	        $rowcount = $adb->fetch_array($metricresult);
+	        $item['col_'.$key] = $rowcount['count'];
 	      }
 	    }
 	    $data[] = $item;
@@ -103,8 +126,8 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	  }
 
 	  $dateFormat = str_replace('mm', 'MM', $current_user->date_format);
-	  $startDate = DateTimeField::convertToUserFormat($this->startDate);
-	  $endDate = DateTimeField::convertToUserFormat($this->endDate);
+	  $startDate = DateTimeField::convertToUserFormat($this->startDate, $current_user);
+	  $endDate = DateTimeField::convertToUserFormat($this->endDate, $current_user);
 
 	  if ($onlydata) {
 	  	return array(

@@ -1,26 +1,22 @@
-Index: Smarty/templates/Header.tpl
-===================================================================
---- Smarty/templates/Header.tpl	(revisión: 308)
-+++ Smarty/templates/Header.tpl	(copia de trabajo)
-@@ -49,7 +49,7 @@
+--- ../../vtiger530/htdocs/Smarty/templates/Header.tpl	2011-11-11 21:32:03.000000000 +0100
++++ Smarty/templates/Header.tpl	2012-10-25 19:10:33.319162322 +0200
+@@ -45,15 +45,19 @@
  	<!-- END -->
- 	<script language="JavaScript" type="text/javascript" id="_current_language_" src="include/js/{php} echo $_SESSION['authenticated_user_language'];{/php}.lang.js?{php} echo $_SESSION['vtiger_version'];{/php}"></script>
+ 	<script language="JavaScript" type="text/javascript" src="include/js/{php} echo $_SESSION['authenticated_user_language'];{/php}.lang.js?{php} echo $_SESSION['vtiger_version'];{/php}"></script>
  	<script language="JavaScript" type="text/javascript" src="include/js/QuickCreate.js"></script>
--	<script language="javascript" type="text/javascript" src="include/scriptaculous/prototype.js"></script>
-+	{if $MODULE_NAME neq 'evvtApps'}<script language="javascript" type="text/javascript" src="include/scriptaculous/prototype.js"></script>{/if}
- 	<script language="JavaScript" type="text/javascript" src="include/js/menu.js?v={$VERSION}"></script>
++	{if $MODULE_NAME neq 'evvtApps'}
+ 	<script language="javascript" type="text/javascript" src="include/scriptaculous/prototype.js"></script>
++	{/if}
+ 	<script language="JavaScript" type="text/javascript" src="include/js/menu.js"></script>
  	<script language="JavaScript" type="text/javascript" src="include/calculator/calc.js"></script>
  	<script language="JavaScript" type="text/javascript" src="modules/Calendar/script.js"></script>
-Index: modules/ConfigEditor/ConfigurationUtils.php
-===================================================================
---- modules/ConfigEditor/ConfigurationUtils.php	(revisión: 308)
-+++ modules/ConfigEditor/ConfigurationUtils.php	(copia de trabajo)
-@@ -8,7 +8,7 @@
- 	static function getEntityModule() {
- 		global $adb;
- 		$unusedmodules = array('Events','Emails');
--		$additionalModules = array('Home');
-+		$additionalModules = array('Home','evvtApps');
- 		$query = "SELECT name FROM vtiger_tab WHERE isentitytype = 1";
- 		$res = $adb->pquery($query, array());
- 		$rows = $adb->num_rows($res);
+ 	<script language="javascript" type="text/javascript" src="include/scriptaculous/dom-drag.js"></script>
+ 	<script language="JavaScript" type="text/javascript" src="include/js/notificationPopup.js"></script>
++	{if $MODULE_NAME neq 'evvtApps'}
+ 	<script type="text/javascript" src="jscalendar/calendar.js"></script>
+ 	<script type="text/javascript" src="jscalendar/calendar-setup.js"></script>
+ 	<script type="text/javascript" src="jscalendar/lang/calendar-{$APP.LBL_JSCALENDAR_LANG}.js"></script>
++	{/if}
+         
+     <!-- asterisk Integration -->
+ {if $USE_ASTERISK eq 'true'}
