@@ -96,21 +96,22 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	      $metricresult = $adb->query($metricsql);
 	      if ($metricresult) {
 	        $rowcount = $adb->fetch_array($metricresult);
-	        $item['col_'.$key] = $rowcount['count'];
+	        $item['col_'.$key] = intval($rowcount['count']);
 	      }
 	    }
 	    $data[] = $item;
 	  }
 
 	  $columns = array(
-	    array('field' => 'username', 'title' => $this->translate('Asesores')),
-	    array('field' => 'startdate', 'title' => $this->translate('Inicio')),
-	    array('field' => 'enddate', 'title' => $this->translate('Fin')),
+	    array('field' => 'username', 'width' => 100, 'title' => $this->translate('Asesores')),
+	    array('field' => 'startdate', 'width' => 100, 'title' => $this->translate('Inicio')),
+	    array('field' => 'enddate', 'width' => 100, 'title' => $this->translate('Fin')),
 	    );
 	  $aggregate = array();
 	  foreach($metriclists as $key=>$metriclist) {
 	    $columns[] = array(
 	      'field' => 'col_'.$key,
+	      'width' => mb_strlen($metriclist['name'])*6+10,
 	      'title' => $metriclist['name'],
 	      'footerTemplate' => $this->translate('Total:').' #=sum#',
 	      );
