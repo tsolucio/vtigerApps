@@ -67,7 +67,7 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 	  foreach($users as $userId) {
 	    $user = CRMEntity::getInstance('Users');
 	    $user = $user->retrieve_entity_info($userId, 'Users');
-	    $userName = $user->column_fields['user_name'];
+	    $userName = getUserFullName($userId); // $user->column_fields['user_name'];
 	    $item = array(
 	      'id' => $userId,
 	      'username' => $userName,
@@ -123,7 +123,8 @@ class ComTsolucioKeyMetrics extends vtAppBase {
 
 	  $usersOptions = array();
 	  foreach($subordinateUsers as $subordinateUserId) {
-	    $usersOptions[$subordinateUserId] = $adb->getOne("select user_name from vtiger_users where id={$subordinateUserId}");
+	    $usersOptions[$subordinateUserId] = getUserFullName($subordinateUserId);
+	  	//$adb->getOne("select user_name from vtiger_users where id={$subordinateUserId}");
 	  }
 
 	  $dateFormat = str_replace('mm', 'MM', $current_user->date_format);
