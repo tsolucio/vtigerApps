@@ -28,9 +28,9 @@ class ComTsolucioPotentialSalesStage extends vtAppBase {
 		$rspots=$adb->query('SELECT sales_stage, count(*) as cnt FROM vtiger_potential inner join vtiger_crmentity on crmid = potentialid and deleted=0 GROUP BY sales_stage');
 		$data = array();
 		while ($pt=$adb->fetch_array($rspots)) {
-			$data[] = array($pt['sales_stage'], $pt['cnt']*100/$potstotal);
+			$data[] = '{ label: "'.$pt['sales_stage'].'", data: '.$pt['cnt']*100/$potstotal.'}';
 		}
-		$smarty->assign("PotData",json_encode($data));
+		$smarty->assign("PotData",'var chartData = ['.implode(',',$data).'];');
 		return $smarty->fetch('piechart.tpl');
 	}
 
