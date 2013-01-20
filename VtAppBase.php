@@ -85,7 +85,11 @@ class VtAppBase {
 	public function translate($str) {
 		return $this->VTAPP_launcher->translate($str);
 	}
-	
+
+	function getLanguageFilename() {
+		return $this->VTAPP_launcher->getLanguageFilename();
+	}
+
 	// Move window
 	public function moveWindow($top, $left) {
     $this->VTAPP_windowTop = $top;
