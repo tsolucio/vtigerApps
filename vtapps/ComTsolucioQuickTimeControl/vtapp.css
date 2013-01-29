@@ -1,0 +1,77 @@
+.ttime {
+	width: 60px;
+	height: 22px;
+	vertical-align: bottom;
+	padding: 0;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+.stop-button, .start-button {
+	width: 75px;
+	height: 26px;
+	vertical-align: bottom;
+	padding: 0;
+	margin: 0;
+	font-size: 14px;
+	font-weight: 700;
+	color: white;
+	cursor: pointer;
+	border-radius: 3px;
+	-moz-border-radius: 3px;
+	-webkit-border-radius: 3px;
+}
+.stop-button {
+	border: 1px solid #740F11;
+	background: url(images/fondo.png) repeat-x scroll center bottom #F68586!important;
+	background-position: 0 -56px;
+}
+.start-button {
+	border: 1px solid #2B619B;
+	background: url(images/fondo.png) repeat-x scroll #A4D0FE!important;
+	background-position: 0 0;
+	vertical-align: middle;
+}
+.watchon, .watchoff {
+	width: 98%;
+	padding: 4px;
+	margin: 0px auto;
+}
+.watchoff {
+	background-color: #b4d4ff;
+}
+.watchon {
+	background-color: #b2da8e;
+}
+.clear{clear:both;overflow:hidden;width:0;height:0}
+.left{float:left}
+.right{float:right}
+.center{text-align:center}
+.task-form-bottom-fields input[type="text"]{font-size:14px}
+.inputbox input[type=text]{box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none}
+.inputbox{background:#fff;color:#000;border:1px solid #aaa;box-shadow:0 1px 4px rgba(0,0,0,0.2) inset;-moz-box-shadow:0 1px 4px rgba(0,0,0,0.2) inset;-webkit-box-shadow:inset 0 1px 4px rgba(0,0,0,0.2);height:26px;line-height:26px}
+.inputbox>input[type=text]{border:0;padding:2px;-moz-box-sizing:border-box;-ms-box-sizing:border-box;-webkit-box-sizing:border-box;box-sizing:border-box;width:100%;line-height:18px;font-size:18px}
+.inputbox>input[type=text]{height:22px}
+.inputbox>input[type=text],.task-form .inputbox>textarea
+{border:0;padding:0 2px;line-height:18px;font-size:18px;margin-top:0;margin-left:1px;margin-right:2px;background:none;box-sizing:border-box;-moz-box-sizing:border-box;-ms-box-sizing:border-box;box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none;border-radius:0;-moz-border-radius:0;-webkit-border-radius:0}
+.date-input-container >input[type=text]{width:85px;line-height:18px;margin-right:2px;font-size:14px}
+.task-form-bottom-fields input[type=text]{vertical-align:middle}
+.task-form-bottom-fields{margin-top:10px;position:relative;width:100%}
+.task-form-bottom-fields>.inputbox.date-input-container{width:85px;font-size:14px}
+.task-form-bottom-fields>.inputbox{border:0;border-bottom:1px solid #5595c6;background:none repeat scroll 0 0 transparent;box-shadow:none;-moz-box-shadow:none;-webkit-box-shadow:none;border-radius:0;-moz-border-radius:0;-webkit-border-radius:0;height:22px;line-height:22px}
+.task-form-bottom-fields>.inputbox:hover,.task-form-bottom-fields>.inputbox.focused,.task-form-bottom-fields>.inputbox.inputbox-hover{background:none repeat scroll 0 0 #daeaff}
+.task-form .task-project-name{height:27px;width:100%}
+.task-form .task-time-start,.task-form .task-time-stop{text-align:right}
+.task-time-start, .task-time-stop{text-align:right}
+.task-form-bottom-fields>.inputbox{border-bottom:1px solid #607e53}
+.task-form-bottom-fields>.inputbox:hover,.running-task .task-form-bottom-fields>.inputbox.focused,.running-task .task-form-bottom-fields>.inputbox.inputbox-hover{background:none repeat scroll 0 0 #d9edc7}
+.time-container{width:55px;margin-right:10px!important}
+.concept-container{width:115px;margin-left:1px;margin-right:4px!important}
+.concept-container>select{width:115px;margin-right:4px!important}
+.bill-container>.bill-field {height:22px;width:110px;font-size: 9px;}
+.bill-container>.k-autocomplete>input {height:12px;font-size: 9px;}
+.task-form-bottom-fields>.work-field{width:280px;}
+.task-form-bottom-fields .input-hint,.task-form-bottom-fields .input-hint>span{font-size:9px;text-transform:uppercase;color:#4575a9}.

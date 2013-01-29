@@ -18,7 +18,11 @@
 
 global $currentModule,$current_user,$log;
 
-$searchin = array('Accounts','Contacts','Products');
+if (!empty($_REQUEST['searchinmodules'])) {
+	$searchin = explode('#', $_REQUEST['searchinmodules']);
+} else {
+	$searchin = array('Accounts','Contacts','HelpDesk','Project','ProjectMilestone','ProjectTask');
+}
 $respuesta=array();
 
 if (empty($_REQUEST['filter']['filters'][0]['value'])) {
