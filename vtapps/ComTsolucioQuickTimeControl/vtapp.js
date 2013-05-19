@@ -171,7 +171,7 @@
 				  billto: this.get('#billwithcrmid').val(),
 			    }
 		  	}).done(function( tcid ) {
-		  		tccrmid.val(tcid);
+		  		tccrmid.val(jQuery.trim(tcid));
 		  		gridobj.data("kendoGrid").dataSource.read();
 		  });
 		var currentDate = new Date()

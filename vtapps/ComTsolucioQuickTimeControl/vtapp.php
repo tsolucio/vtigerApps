@@ -164,10 +164,13 @@ class ComTsolucioQuickTimeControl extends vtAppBase {
 	public function saveMyTC() {
 		global $adb, $current_user, $log;
 		require_once("modules/Timecontrol/Timecontrol.php");
-		
+		$relto = vtlib_purify($_REQUEST['relto']);
+		$relcpt = vtlib_purify($_REQUEST['relcpt']);
+		$billto = vtlib_purify($_REQUEST['billto']);
+		$tcid = vtlib_purify($_REQUEST['tcid']);
 		$focus = new Timecontrol();
-		if (!empty($_REQUEST['tcid'])) {
-			$focus->retrieve_entity_info($_REQUEST['tcid'], 'Timecontrol');
+		if (!empty($tcid)) {
+			$focus->retrieve_entity_info($tcid, 'Timecontrol');
 			foreach($focus->column_fields as $fieldname => $val) {
 				$focus->column_fields[$fieldname] = decode_html($focus->column_fields[$fieldname]);
 			}
@@ -184,11 +187,11 @@ class ComTsolucioQuickTimeControl extends vtAppBase {
 			} else {  // close it
 				$focus->column_fields['date_end'] = $date->getDisplayDate($current_user);
 				$focus->column_fields['time_end'] = $date->getDisplayTime($current_user);
-				$focus->column_fields['relatedto'] = $_REQUEST['relto'];
-				$focus->column_fields['relconcept'] = $_REQUEST['relcpt'];
-				$focus->column_fields['product_id'] = $_REQUEST['billto'];
+				$focus->column_fields['relatedto'] = $relto;
+				$focus->column_fields['relconcept'] = $relcpt;
+				$focus->column_fields['product_id'] = $billto;
 				$focus->mode = 'edit';
-				$focus->id  = $_REQUEST['tcid'];
+				$focus->id  = $tcid;
 			}
 		}
 		else {
@@ -199,9 +202,9 @@ class ComTsolucioQuickTimeControl extends vtAppBase {
 			$focus->column_fields['time_end'] = '';
 			$focus->column_fields['tcunits'] = '1';
 			$focus->column_fields['description'] = '';
-			$focus->column_fields['relatedto'] = $_REQUEST['relto'];
-			$focus->column_fields['relconcept'] = $_REQUEST['relcpt'];
-			$focus->column_fields['product_id'] = $_REQUEST['billto'];
+			$focus->column_fields['relatedto'] = $relto;
+			$focus->column_fields['relconcept'] = $relcpt;
+			$focus->column_fields['product_id'] = $billto;
 			$_REQUEST['assigntype'] = 'U';
 			$focus->column_fields['assigned_user_id'] = $current_user->id;
 			$focus->mode = '';
