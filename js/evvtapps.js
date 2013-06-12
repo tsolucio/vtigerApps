@@ -589,10 +589,14 @@ function setCanvas2Window() {
             placeholder: "evvtappbox evvtappbox-highlight"
           });
         $("#launchers").disableSelection();
+        evvtapps_gotoappnum = -1;
         for(var launch=0; launch<vtApps.launchers.length; launch++) {
            	vtApps.launchers[launch].show();
            	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
-           		if (vtApps.launchers[launch].instances[inst].isOnScreen()) {
+           		if (vtApps.launchers[launch].key==evvtapps_gotoapp) {
+           			evvtapps_gotoappnum = launch;
+           		}
+           		if (vtApps.launchers[launch].instances[inst].isOnScreen() || vtApps.launchers[launch].key==evvtapps_gotoapp) {
            			if (vtApps.launchers[launch].instances[inst].windowId == null) {
            				vtApps.launchers[launch].instances[inst].createWindow();  // this one was created on another canvas
            			} else {
@@ -600,6 +604,9 @@ function setCanvas2Window() {
            			}
            		}
            	}
+        }
+        if (evvtapps_gotoappnum>-1) {
+        	vtApps.launchers[evvtapps_gotoappnum].instances[0].show();
         }
 	}
 	return false;
@@ -1078,13 +1085,21 @@ function move2NextApp(offset){
 
 function move2App(posicion){
 	if (evvtcanvas == 'allapps') {
+		evvtapps_gotoappnum=-1;
         numinstances=0;
         instancesid = [];
 		for(var launch=0; launch<vtApps.launchers.length; launch++) {
            	for(var inst=0; inst<vtApps.launchers[launch].instances.length; inst++) {
            		instancesid.push(vtApps.launchers[launch].instances[inst]);
+        		if (evvtapps_gotoapp!='' && evvtapps_gotoapp==instancesid[numinstances].launcher.key) {
+        			evvtapps_gotoappnum=numinstances;
+        			evvtapps_gotoapp='';
+        		}
            		numinstances++;
            	}
+        }
+		if (evvtapps_gotoappnum!=-1) {
+			posicion=evvtapps_gotoappnum;
         }
 		if (posicion < 0 || posicion > numinstances) {
 			posicion = 0;  // invalid position, we set on the first one

@@ -20,11 +20,13 @@ $skipFooters=true;
 $defaultcanvas = $adb->getone('select defaultcanvas from vtiger_evvtappscanvas where userid='.$current_user->id);
 if (empty($defaultcanvas)) $defaultcanvas='windows';
 $evvtcanvas = vtlib_purify($_REQUEST['evvtapps_canvas']);
+$evvtapps_gotoapp = vtlib_purify($_REQUEST['evvtapps_gotoapp']);
 $evvtcanvas = (empty($evvtcanvas) ? $defaultcanvas : $evvtcanvas);
 ?>
 <script type="text/javascript">
 	var evvtcanvas = '<?php echo $evvtcanvas; ?>';
 	var defaultcanvas = '<?php echo $defaultcanvas; ?>';
+	var evvtapps_gotoapp = '<?php echo $evvtapps_gotoapp; ?>';
 </script>
 <link href="<?php echo $mypath; ?>/styles/evvtapps.css" rel="stylesheet" type="text/css" />
 <link href="<?php echo $mypath; ?>/kendoui/styles/kendo.common.min.css" rel="stylesheet" type="text/css" />
