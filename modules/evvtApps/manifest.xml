@@ -1,0 +1,135 @@
+<?xml version="1.0"?>
+<module>
+<type>extension</type>
+<name>evvtApps</name>
+<label>vtApps</label>
+<parent>Analytics</parent>
+<version>2.0</version>
+<dependencies>
+	<vtiger_version>5.1.0</vtiger_version>
+</dependencies>
+<license>
+<inline><![CDATA[
+ *************************************************************************************************
+ * Copyright 2012 JPL TSolucio, S.L.  --  This file is a part of evvtApps.
+ * You can copy, adapt and distribute the work under the "Attribution-NonCommercial-ShareAlike"
+ * Vizsage Public License (the "License"). You may not use this file except in compliance with the
+ * License. Roughly speaking, non-commercial users may share and modify this code, but must give credit
+ * and share improvements. However, for proper details please read the full License, available at
+ * http://vizsage.com/license/Vizsage-License-BY-NC-SA.html and the handy reference for understanding
+ * the full license at http://vizsage.com/license/Vizsage-Deed-BY-NC-SA.html. Unless required by
+ * applicable law or agreed to in writing, any software distributed under the License is distributed
+ * on an  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and limitations under the
+ * License terms of Creative Commons Attribution-NonCommercial-ShareAlike 3.0 (the License).
+ *************************************************************************************************
+ *  Module       : evvtApps
+ *  Version      : >= 5.3.0
+ *  Author       : JPL TSolucio, S. L.
+ *************************************************************************************************
+]]></inline>
+</license>
+<tables>
+<table>
+<name>evvtapps</name>
+<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_evvtapps` (
+  `evvtappsid` int(11) NOT NULL AUTO_INCREMENT,
+  `path` varchar(255) NOT NULL,
+  `installdate` datetime NOT NULL,
+  PRIMARY KEY (`evvtappsid`)
+) ENGINE=InnoDB  DEFAULT CHARSET=utf8 AUTO_INCREMENT=13;]]></sql>
+</table>
+<table>
+<name>insertevvtapps</name>
+<sql><![CDATA[INSERT INTO `vtiger_evvtapps` (`evvtappsid`, `path`, `installdate`) VALUES
+(2, 'ComTsolucioConfiguration', '2011-12-16 00:18:00'),
+(3, 'ComTsolucioAppStore', '2011-12-16 00:23:00'),
+(4, 'ComTsolucioAboutUs', '2011-12-16 00:26:00'),
+(5, 'ComTsolucioListview', '2011-12-21 10:49:00'),
+(9, 'ComTsolucioPotentialSalesStage', '2011-12-25 23:18:43'),
+(10, 'ComTsolucioNotepad', '2012-03-23 09:23:10'),
+(11, 'ComTsolucioWebsites', '2012-08-23 09:23:10'),
+(12, 'ComTsolucioKeyMetrics', '2012-09-25 09:23:10');]]></sql>
+</table>
+<table>
+<name>evvtappsuser</name>
+<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_evvtappsuser` (
+  `evvtappsuserid` int(11) NOT NULL AUTO_INCREMENT,
+  `appid` int(11) NOT NULL,
+  `userid` int(11) NOT NULL,
+  `sortorder` int(11) NOT NULL,
+  `wvisible` tinyint(1) NOT NULL,
+  `wenabled` tinyint(1) NOT NULL,
+  `canwrite` tinyint(1) NOT NULL,
+  `canhide` tinyint(1) NOT NULL,
+  `canshow` tinyint(1) NOT NULL,
+  PRIMARY KEY (`evvtappsuserid`),
+  KEY `appid` (`appid`),
+  KEY `userid` (`userid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=10;]]></sql>
+</table>
+<table>
+<name>insertevvtappsuser</name>
+<sql><![CDATA[INSERT INTO `vtiger_evvtappsuser` (`evvtappsuserid`, `appid`, `userid`, `sortorder`, `wvisible`, `wenabled`, `canwrite`, `canhide`, `canshow`) VALUES
+(1, 4, 1, 3, 0, 1, 1, 1, 1),
+(2, 2, 1, 1, 0, 1, 0, 1, 1),
+(3, 5, 1, 4, 0, 1, 1, 1, 1),
+(4, 3, 1, 2, 0, 1, 1, 1, 1),
+(5, 1, 1, 8, 0, 1, 1, 1, 1),
+(6, 9, 1, 5, 0, 1, 1, 1, 1),
+(7, 10, 1, 7, 0, 1, 1, 1, 1),
+(8, 11, 1, 6, 0, 1, 1, 1, 1),
+(9, 12, 1, 9, 0, 1, 1, 1, 1);]]></sql>
+</table>
+<table>
+<name>vtiger_evvtappsdata</name>
+<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_evvtappsdata` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `appid` int(11) DEFAULT NULL,
+  `userid` int(11) DEFAULT NULL,
+  `top` varchar(10) NOT NULL,
+  `left` varchar(10) NOT NULL,
+  `width` varchar(10) NOT NULL,
+  `height` varchar(10) NOT NULL,
+  `onscreen` tinyint(4) NOT NULL DEFAULT '0',
+  `data` text,
+  PRIMARY KEY (`id`),
+  KEY `appid` (`appid`,`userid`)
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=14;]]></sql>
+</table>
+<table>
+<name>insertevvtappsdata</name>
+<sql><![CDATA[INSERT INTO `vtiger_evvtappsdata` (`id`, `appid`, `userid`, `top`, `left`, `width`, `height`, `onscreen`, `data`) VALUES
+(1, 1, 1, '', '', '400', '300', 0, 'a:4:{s:7:"hasedit";b:0;s:10:"hasrefresh";b:0;s:7:"hassize";b:0;s:9:"candelete";b:0;}'),
+(2, 5, 1, '', '', '850', '650', 0, 'a:6:{s:7:"hasedit";b:0;s:10:"hasrefresh";b:1;s:7:"hassize";b:1;s:9:"candelete";b:0;s:6:"wwidth";i:850;s:7:"wheight";i:850;}'),
+(3, 5, 5, '', '', '850', '650', 0, 'a:6:{s:7:"hasedit";b:0;s:10:"hasrefresh";b:1;s:7:"hassize";b:1;s:9:"candelete";b:0;s:6:"wwidth";i:850;s:7:"wheight";i:850;}'),
+(4, 3, 1, '221.133px', '276px', '888px', '282px', 0, 'a:11:{s:7:"hasedit";b:0;s:10:"hasrefresh";b:0;s:7:"hassize";b:1;s:9:"candelete";b:0;s:6:"wwidth";i:250;s:7:"wheight";i:110;s:5:"appid";N;s:7:"apppath";N;s:11:"haseditsize";b:1;s:6:"ewidth";i:0;s:7:"eheight";i:0;}'),
+(5, 2, 5, '', '', '800', '585', 0, 'a:0:{}'),
+(6, 3, 5, '', '', '400', '300', 0, 'a:6:{s:7:"hasedit";b:0;s:10:"hasrefresh";b:0;s:7:"hassize";b:1;s:9:"candelete";b:0;s:6:"wwidth";i:250;s:7:"wheight";i:110;}'),
+(7, 4, 5, '190px', '552px', '250', '110', 0, 'a:0:{}'),
+(8, 10, 1, '236px', '72.5px', '400', '300', 0, 'a:1:{s:7:"stuffid";i:58;}'),
+(9, 2, 1, '106.5px', '365px', '800px', '585px', 0, 'a:11:{s:5:"appid";N;s:7:"apppath";N;s:7:"hasedit";b:0;s:10:"hasrefresh";b:1;s:7:"hassize";b:1;s:9:"candelete";b:0;s:6:"wwidth";i:1100;s:7:"wheight";i:585;s:11:"haseditsize";b:1;s:6:"ewidth";i:0;s:7:"eheight";i:0;}'),
+(10, 9, 5, '', '', '800', '400', 0, 'a:0:{}'),
+(11, 4, 1, '184.5px', '309.5px', '709px', '369px', 0, 'a:11:{s:7:"hasedit";b:1;s:10:"hasrefresh";b:0;s:7:"hassize";b:1;s:9:"candelete";b:0;s:6:"wwidth";i:250;s:7:"wheight";i:110;s:11:"haseditsize";b:1;s:6:"ewidth";i:180;s:7:"eheight";i:120;s:5:"appid";N;s:7:"apppath";N;}'),
+(12, 11, 1, '42.5px', '459px', '848px', '560px', 0, 'a:1:{s:7:"website";s:23:"http://www.tsolucio.com";}'),
+(13, 9, 1, '198.5px', '259px', '803px', '381px', 0, 'a:0:{}');]]></sql>
+</table>
+<table>
+<name>fixisentitytype</name>
+<sql><![CDATA[upddate vtiger_tab set isentitytype=0 where name='evvtApps' and tablabel='evvtApps']]></sql>
+</table>
+<table>
+<name>vtiger_evvtappscanvas</name>
+<sql><![CDATA[CREATE TABLE IF NOT EXISTS `vtiger_evvtappscanvas` (
+  `vtappscanvasid` int(11) NOT NULL AUTO_INCREMENT,
+  `userid` int(11) NOT NULL,
+  `defaultcanvas` varchar(20) NOT NULL DEFAULT 'windows',
+  `windowsdata` text NOT NULL,
+  `dashboarddata` text NOT NULL,
+  `allappsdata` text NOT NULL,
+  PRIMARY KEY (`vtappscanvasid`),
+  UNIQUE KEY `userid` (`userid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 AUTO_INCREMENT=1;]]></sql>
+</table>
+</tables>
+</module>
