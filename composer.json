@@ -1,7 +1,4 @@
 {
   "name": "tsolucio/coreBOSApps",
-  "type": "corebos-module",
-  "require": {
-    "composer/installers": "~1.0"
-  }
+  "type": "corebos-module"
 }
